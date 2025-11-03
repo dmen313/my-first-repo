@@ -1,0 +1,16 @@
+{
+  "name": "degen-site",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/graphql/lambda.js",
+  "dependencies": {
+    "@apollo/client": "^3.13.9",
+    "apollo-server-lambda": "^3.13.0",
+    "graphql": "^15.10.1",
+    "graphql-tag": "^2.12.6",
+    "uuid": "^11.1.0",
+    "dotenv": "^17.2.1",
+    "@aws-sdk/client-dynamodb": "^3.922.0",
+    "@aws-sdk/lib-dynamodb": "^3.922.0"
+  }
+}

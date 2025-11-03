@@ -1,0 +1,279 @@
+.team-owners-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.team-owners-container h2 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.page-description {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+.error {
+  color: #e74c3c;
+  background-color: #fdf2f2;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+/* Owner Sections Grid */
+.owners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.owner-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.owner-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Owner-specific colors */
+.owner-section.owner-tg {
+  border-color: #e91e63;
+}
+
+.owner-section.owner-tg .owner-name {
+  color: #e91e63;
+}
+
+.owner-section.owner-kh {
+  border-color: #3498db;
+}
+
+.owner-section.owner-kh .owner-name {
+  color: #3498db;
+}
+
+.owner-section.owner-dm {
+  border-color: #27ae60;
+}
+
+.owner-section.owner-dm .owner-name {
+  color: #27ae60;
+}
+
+.owner-section.owner-mc {
+  border-color: #9b59b6;
+}
+
+.owner-section.owner-mc .owner-name {
+  color: #9b59b6;
+}
+
+.owner-section.owner-none {
+  border-color: #95a5a6;
+  opacity: 0.8;
+}
+
+.owner-section.owner-none .owner-name {
+  color: #95a5a6;
+}
+
+.owner-section.owner-na .owner-name {
+  color: #d97706;
+}
+
+.owner-section.owner-na {
+  border-color: #f59e0b;
+  opacity: 0.9;
+}
+
+.owner-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.team-count {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #7f8c8d;
+  background: #ecf0f1;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Teams List */
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.team-item:hover {
+  background: #e9ecef;
+  border-left-color: #6c757d;
+}
+
+.team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.team-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.team-details {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.team-record {
+  font-weight: 600;
+  color: #34495e;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+/* Summary Stats */
+.summary-stats {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.summary-stats h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.stat-label {
+  font-weight: 500;
+  color: #34495e;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .team-owners-container {
+    padding: 15px;
+  }
+  
+  .team-owners-container h2 {
+    font-size: 1.8rem;
+  }
+  
+  .owners-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .owner-section {
+    padding: 15px;
+  }
+  
+  .owner-name {
+    font-size: 1.2rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-item {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .team-owners-container {
+    padding: 10px;
+  }
+  
+  .team-owners-container h2 {
+    font-size: 1.6rem;
+  }
+  
+  .page-description {
+    font-size: 1rem;
+  }
+  
+  .team-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .team-record {
+    align-self: flex-end;
+  }
+}

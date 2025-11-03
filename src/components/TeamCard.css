@@ -1,0 +1,243 @@
+/* TeamCard.css */
+.team-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid #666666;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.team-card:hover::before {
+  opacity: 1;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.team-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.team-league {
+  background: #e9ecef;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.team-division {
+  margin-bottom: 1rem;
+}
+
+.division-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.team-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.record-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.wins {
+  color: #28a745;
+}
+
+.record-separator {
+  color: #6c757d;
+  font-weight: 400;
+}
+
+.losses {
+  color: #dc3545;
+}
+
+.win-percentage {
+  text-align: center;
+}
+
+.win-pct {
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.team-standings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.games-back,
+.standing-position {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: #e9ecef;
+  border-radius: 6px;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.team-details {
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item .label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.detail-item .value {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.league-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 3px solid #007bff;
+}
+
+.league-record .label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.league-record .value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .team-card {
+    padding: 1rem;
+  }
+  
+  .team-name {
+    font-size: 1.1rem;
+  }
+  
+  .record-main {
+    font-size: 1.3rem;
+  }
+  
+  .team-standings {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .team-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .team-league {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-card {
+    padding: 0.75rem;
+  }
+  
+  .team-record {
+    padding: 0.75rem;
+  }
+  
+  .record-main {
+    font-size: 1.2rem;
+  }
+  
+  .win-pct {
+    font-size: 1rem;
+  }
+}

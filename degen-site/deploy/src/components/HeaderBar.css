@@ -1,0 +1,174 @@
+.header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.site-title {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-link {
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #374151;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+}
+
+.settings-link:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.logout-button {
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #374151;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.logout-button:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .header-bar {
+    padding: 10px 16px;
+  }
+
+  .site-title {
+    font-size: 1.1rem;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+
+  .user-pill {
+    padding: 4px;
+    gap: 0;
+    min-width: 40px;
+    justify-content: center;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .settings-link {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+
+/* iPhone 12 specific optimizations */
+@media (max-width: 390px) {
+  .header-bar {
+    padding: 8px 12px;
+  }
+
+  .site-title {
+    font-size: 1rem;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .settings-link {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .user-pill {
+    min-width: 36px;
+  }
+}
+

@@ -1,0 +1,90 @@
+id,cfbdId,cfbdName,cfbdMascot,cfbdConference,cfbdAbbreviation,oddsApiName,oddsApiOdds,league,season,matchType,createdAt,updatedAt
+3c00b919-81ab-4a9b-abcc-2cce020db495,103,Boston College,Eagles,ACC,BC,Boston College Eagles,+100000,ncaa,2025,manual,2025-08-24T21:32:59.079Z,2025-08-24T21:32:59.079Z
+c0dc801b-ae60-4c4b-9ea4-42749794e0f9,1000,Clemson,Clemson,ACC,C,Clemson Tigers,+1200,ncaa,2025,exact,2025-08-24T22:23:55.806Z,2025-08-24T22:23:55.806Z
+a1b7b5c4-8626-4108-95ee-e87ccb773202,2008,Duke,Duke,ACC,D,Duke Blue Devils,+40000,ncaa,2025,exact,2025-08-24T22:27:55.439Z,2025-08-24T22:27:55.439Z
+735575f8-025a-4058-913b-84a764850094,52,Florida State,Seminoles,ACC,FSU,Florida State Seminoles,+25000,ncaa,2025,manual,2025-08-24T21:32:57.743Z,2025-08-24T21:32:57.743Z
+d98d61d2-0218-4406-bdbd-44921ad62bd8,2001,Louisville,Louisville,ACC,L,Louisville Cardinals,+9000,ncaa,2025,exact,2025-08-24T22:27:54.714Z,2025-08-24T22:27:54.714Z
+fc38adec-7948-497a-be4a-5b1b42fa6ff8,1006,Miami,Miami,ACC,M,Miami Hurricanes,+4000,ncaa,2025,exact,2025-08-24T22:23:55.825Z,2025-08-24T22:23:55.825Z
+8d564af2-e979-4afd-96e4-8ed56d4af2b2,152,NC State,Wolfpack,ACC,NCST,NC State Wolfpack,+40000,ncaa,2025,manual,2025-08-24T21:32:58.053Z,2025-08-24T21:32:58.053Z
+f2e85080-731f-4e79-bed8-933891294251,2010,North Carolina,Carolina,ACC,NC,North Carolina Tar Heels,+50000,ncaa,2025,exact,2025-08-24T22:27:55.646Z,2025-08-24T22:27:55.646Z
+4af3900b-f720-4851-963f-f1c8affa7659,2019,Pittsburgh,Pittsburgh,ACC,P,Pittsburgh Panthers,+95000,ncaa,2025,exact,2025-08-24T22:27:56.575Z,2025-08-24T22:27:56.575Z
+7bd44131-a491-413f-a06c-7ad45009982a,2567,SMU,Mustangs,ACC,SMU,SMU Mustangs,+11000,ncaa,2025,manual,2025-08-24T21:32:57.433Z,2025-08-24T21:32:57.433Z
+afe93f9b-d74f-4041-89fc-58348de64839,2018,Syracuse,Syracuse,ACC,S,Syracuse Orange,+90000,ncaa,2025,exact,2025-08-24T22:27:56.472Z,2025-08-24T22:27:56.472Z
+0330d7f0-437c-42de-8e85-b81cc4507cdf,2007,Virginia Tech,Tech,ACC,VT,Virginia Tech Hokies,+35000,ncaa,2025,exact,2025-08-24T22:27:55.336Z,2025-08-24T22:27:55.336Z
+482b5f66-567d-4c43-9141-6022a69e1e21,349,Army,Black Knights,American Athletic,ARMY,Army Black Knights,+200000,ncaa,2025,manual,2025-08-24T21:33:00.516Z,2025-08-24T21:33:00.516Z
+2c4feb3b-3194-45b9-a8ea-5edc5c3c3d57,2429,Charlotte,49ers,American Athletic,CHAR,Charlotte 49ers,+500000,ncaa,2025,manual,2025-08-24T21:33:01.643Z,2025-08-24T21:33:01.643Z
+e848bec2-d2d2-41dc-88b2-15106c87da97,151,East Carolina,Pirates,American Athletic,ECU,East Carolina Pirates,+200000,ncaa,2025,manual,2025-08-24T21:33:00.106Z,2025-08-24T21:33:00.106Z
+056aba91-d6c0-438a-8c2f-a9d9fa635dd2,2229,Florida Atlantic,Owls,American Athletic,FAU,Florida Atlantic Owls,+500000,ncaa,2025,manual,2025-08-24T21:33:01.439Z,2025-08-24T21:33:01.439Z
+f5cd660c-8d81-419c-a60a-8da090e76fde,235,Memphis,Tigers,American Athletic,MEM,Memphis Tigers,+80000,ncaa,2025,manual,2025-08-24T21:32:58.874Z,2025-08-24T21:32:58.874Z
+7338935c-786c-4b72-84b0-ee231436b8fd,2426,Navy,Midshipmen,American Athletic,NAVY,Navy Midshipmen,+100000,ncaa,2025,manual,2025-08-24T21:32:59.387Z,2025-08-24T21:32:59.387Z
+36bf5f85-ef20-417a-a761-f7b859805c33,249,North Texas,Mean Green,American Athletic,UNT,North Texas Mean Green,+200000,ncaa,2025,manual,2025-08-24T21:33:01.132Z,2025-08-24T21:33:01.132Z
+99cc694e-b886-44e4-b12d-d3f05912e637,242,Rice,Owls,American Athletic,RICE,Rice Owls,+500000,ncaa,2025,manual,2025-08-24T21:33:02.157Z,2025-08-24T21:33:02.157Z
+44ccc9d8-fcc8-4c9a-9ac1-686da2c61dbf,58,South Florida,Bulls,American Athletic,USF,South Florida Bulls,+100000,ncaa,2025,manual,2025-08-24T21:32:59.284Z,2025-08-24T21:32:59.284Z
+761b7fe4-f5e8-42b6-877a-297b5bc46f82,2655,Tulane,Green Wave,American Athletic,TULN,Tulane Green Wave,+50000,ncaa,2025,manual,2025-08-24T21:32:58.771Z,2025-08-24T21:32:58.771Z
+7860bd2f-aefe-42ec-897c-d06e74cc1421,5,UAB,Blazers,American Athletic,UAB,UAB Blazers,+500000,ncaa,2025,manual,2025-08-24T21:33:01.849Z,2025-08-24T21:33:01.849Z
+953d0df9-a120-4ed8-a7e8-e15f098844d1,2636,UTSA,Roadrunners,American Athletic,UTSA,UTSA Roadrunners,+100000,ncaa,2025,manual,2025-08-24T21:32:58.977Z,2025-08-24T21:32:58.977Z
+8a4f88fd-6f37-49bf-930d-fe3e643d6e48,9,Arizona State,Sun Devils,Big 12,ASU,Arizona State Sun Devils,+10000,ncaa,2025,manual,2025-08-24T21:32:57.331Z,2025-08-24T21:32:57.331Z
+2eebf52c-ed10-463e-b2e5-2e32bd55f6fe,2003,Baylor,Baylor,Big 12,B,Baylor Bears,+15000,ncaa,2025,exact,2025-08-24T22:27:54.922Z,2025-08-24T22:27:54.922Z
+11aa6bac-90a2-44ec-a570-65c7720a58c2,252,BYU,Cougars,Big 12,BYU,BYU Cougars,+30000,ncaa,2025,manual,2025-08-24T21:32:57.949Z,2025-08-24T21:32:57.949Z
+4ab82bfc-887f-434b-bbcd-c6fdbde83ba7,2132,Cincinnati,Bearcats,Big 12,CIN,Cincinnati Bearcats,+100000,ncaa,2025,manual,2025-08-24T21:32:58.565Z,2025-08-24T21:32:58.565Z
+d6dafb61-0fe4-43bb-9215-aaa0405907ba,2009,Colorado,Colorado,Big 12,C,Colorado Buffaloes,+45000,ncaa,2025,exact,2025-08-24T22:27:55.543Z,2025-08-24T22:27:55.543Z
+b1fe58f4-eb7a-46c5-8fa0-8e81410ecaed,248,Houston,Cougars,Big 12,HOU,Houston Cougars,+80000,ncaa,2025,manual,2025-08-24T21:32:58.359Z,2025-08-24T21:32:58.359Z
+1724c58b-1b89-4130-9e20-ff5f27d0d977,66,Iowa State,Cyclones,Big 12,ISU,Iowa State Cyclones,+16000,ncaa,2025,manual,2025-08-24T21:32:57.537Z,2025-08-24T21:32:57.537Z
+e5d33c0a-11c4-4751-b65d-79804ff7a57b,2006,Kansas,Kansas,Big 12,K,Kansas Jayhawks,+30000,ncaa,2025,exact,2025-08-24T22:27:55.233Z,2025-08-24T22:27:55.233Z
+2626dd31-6b2e-4965-b908-ad263aed20d0,2306,Kansas State,Wildcats,Big 12,KSU,Kansas State Wildcats,+18000,ncaa,2025,manual,2025-08-24T21:32:57.640Z,2025-08-24T21:32:57.640Z
+9c01a2ea-af88-417b-8766-736860edf91a,197,Oklahoma State,Cowboys,Big 12,OKST,Oklahoma State Cowboys,+50000,ncaa,2025,manual,2025-08-24T21:32:58.256Z,2025-08-24T21:32:58.256Z
+dcbc03d5-f59e-481b-9a85-9217139ae24f,2005,TCU,TCU,Big 12,T,TCU Horned Frogs,+25000,ncaa,2025,exact,2025-08-24T22:27:55.129Z,2025-08-24T22:27:55.129Z
+528abba0-e90b-46f2-895d-4eb880867acb,2116,UCF,Knights,Big 12,UCF,UCF Knights,+50000,ncaa,2025,manual,2025-08-24T21:32:58.668Z,2025-08-24T21:32:58.668Z
+0d77b308-187b-4c65-b022-9d836ed776ae,2000,Utah,Utah,Big 12,U,Utah Utes,+8000,ncaa,2025,exact,2025-08-24T22:27:54.607Z,2025-08-24T22:27:54.607Z
+681515ef-f0d0-4d9f-bad1-04e88fc3465e,2016,West Virginia,Virginia,Big 12,WV,West Virginia Mountaineers,+80000,ncaa,2025,exact,2025-08-24T22:27:56.266Z,2025-08-24T22:27:56.266Z
+0cc76b81-e7a1-4f32-a857-b961a2afb60c,2002,Iowa,Iowa,Big Ten,I,Iowa Hawkeyes,+12000,ncaa,2025,exact,2025-08-24T22:27:54.817Z,2025-08-24T22:27:54.817Z
+3b9a8e4c-6b87-4824-bdd2-ba5b776b7187,130,Michigan,Wolverines,Big Ten,MICH,Michigan Wolverines,+1000,ncaa,2025,default,2025-08-24T21:29:27.559Z,2025-08-24T22:19:43.851Z
+29907911-c4a1-40af-a108-976c2d349302,127,Michigan State,Spartans,Big Ten,MSU,Michigan State Spartans,+40000,ncaa,2025,manual,2025-08-24T21:32:58.154Z,2025-08-24T21:32:58.154Z
+0b4e47b8-6d0d-4bda-9a10-f4bfe667a109,2013,Minnesota,Minnesota,Big Ten,M,Minnesota Golden Gophers,+65000,ncaa,2025,exact,2025-08-24T22:27:55.956Z,2025-08-24T22:27:55.956Z
+e15c2c5a-d561-4225-9b66-5d7d1bd04ba5,194,Ohio State,Buckeyes,Big Ten,OSU,Ohio State Buckeyes,+600,ncaa,2025,manual,2025-08-24T21:32:57.121Z,2025-08-24T21:32:57.121Z
+4f4eb05c-ed89-45d4-a511-5c4de6e43f5a,1002,Oregon,Oregon,Big Ten,O,Oregon Ducks,+2000,ncaa,2025,exact,2025-08-24T22:23:55.818Z,2025-08-24T22:23:55.818Z
+a5941dcd-7785-4bb4-901e-446ca6232235,213,Penn State,Nittany Lions,Big Ten,PSU,Penn State Nittany Lions,+700,ncaa,2025,manual,2025-08-24T21:32:57.227Z,2025-08-24T21:32:57.227Z
+b3c1ae7d-72b7-4305-8259-2873906a86bb,2011,UCLA,UCLA,Big Ten,U,UCLA Bruins,+55000,ncaa,2025,exact,2025-08-24T22:27:55.750Z,2025-08-24T22:27:55.750Z
+51e7c173-7598-4f98-aa93-f7c9988055e0,2004,Washington,Washington,Big Ten,W,Washington Huskies,+20000,ncaa,2025,exact,2025-08-24T22:27:55.026Z,2025-08-24T22:27:55.026Z
+83ac6fe5-de5a-44b4-9bf2-fd237a8912a5,2015,Wisconsin,Wisconsin,Big Ten,W,Wisconsin Badgers,+75000,ncaa,2025,exact,2025-08-24T22:27:56.162Z,2025-08-24T22:27:56.162Z
+546d72da-f58c-43e8-96c9-4c1bd05523d0,55,Jacksonville State,Gamecocks,Conference USA,JSU,Jacksonville State Gamecocks,+200000,ncaa,2025,manual,2025-08-24T21:32:59.695Z,2025-08-24T21:32:59.695Z
+b24df080-72e6-402e-8a49-28aad41a91f6,2335,Liberty,Flames,Conference USA,LIB,Liberty Flames,+200000,ncaa,2025,manual,2025-08-24T21:32:59.592Z,2025-08-24T21:32:59.592Z
+adc1ad8d-aabb-4449-8cc0-cf46dc021d83,242,Sam Houston State,Bearkats,Conference USA,SHSU,Sam Houston State Bearkats,+200000,ncaa,2025,manual,2025-08-24T21:33:00.721Z,2025-08-24T21:33:00.721Z
+63a4670a-bbb1-4592-b486-ae63790ee505,98,Western Kentucky,Hilltoppers,Conference USA,WKU,Western Kentucky Hilltoppers,+200000,ncaa,2025,manual,2025-08-24T21:32:59.797Z,2025-08-24T21:32:59.797Z
+9883eabb-1fc4-4dbb-92b3-829d570cf966,41,UConn,Huskies,FBS Independents,UCONN,UConn Huskies,+200000,ncaa,2025,manual,2025-08-24T21:33:00.311Z,2025-08-24T21:33:00.311Z
+ffd3cbd4-869a-45e1-8620-64ce829d218f,1001,Notre Dame,Dame,Independent,ND,Notre Dame Fighting Irish,+1500,ncaa,2025,exact,2025-08-24T22:23:55.815Z,2025-08-24T22:23:55.815Z
+2a1451b6-27fb-4e0a-831a-ccce20c85ee5,189,Bowling Green,Falcons,Mid-American,BGSU,Bowling Green Falcons,+200000,ncaa,2025,manual,2025-08-24T21:33:00.413Z,2025-08-24T21:33:00.413Z
+060faa41-4463-44d4-bd7c-79f5fb4eb785,2084,Buffalo,Bulls,Mid-American,BUFF,Buffalo Bulls,+500000,ncaa,2025,manual,2025-08-24T21:33:01.746Z,2025-08-24T21:33:01.746Z
+fd612c3a-a3cc-404e-a711-1a2371638ba3,193,Miami (OH),RedHawks,Mid-American,M-OH,Miami (OH) RedHawks,+200000,ncaa,2025,manual,2025-08-24T21:33:01.233Z,2025-08-24T21:33:01.233Z
+6af45013-23d8-4a69-b891-3bd447238f4a,2459,Northern Illinois,Huskies,Mid-American,NIU,Northern Illinois Huskies,+200000,ncaa,2025,manual,2025-08-24T21:33:01.029Z,2025-08-24T21:33:01.029Z
+66d021a0-8f17-4c37-9afd-2590c37d0e34,195,Ohio,Bobcats,Mid-American,OHIO,Ohio Bobcats,+200000,ncaa,2025,manual,2025-08-24T21:33:00.926Z,2025-08-24T21:33:00.926Z
+c0f33d3d-3ca4-473d-a1a8-9d718af21dd7,2649,Toledo,Rockets,Mid-American,TOL,Toledo Rockets,+200000,ncaa,2025,manual,2025-08-24T21:33:00.618Z,2025-08-24T21:33:00.618Z
+942674d7-e8e0-4c88-ac2d-615e2ce405f2,68,Boise State,Broncos,Mountain West,BSU,Boise State Broncos,+25000,ncaa,2025,manual,2025-08-24T21:32:57.846Z,2025-08-24T21:32:57.846Z
+9257418b-2380-43b6-8ff0-7f7cf022f0ef,36,Colorado State,Rams,Mountain West,CSU,Colorado State Rams,+200000,ncaa,2025,manual,2025-08-24T21:33:00.208Z,2025-08-24T21:33:00.208Z
+dc743a13-5ddf-4880-b0bf-9baa54e119af,278,Fresno State,Bulldogs,Mountain West,FRES,Fresno State Bulldogs,+200000,ncaa,2025,manual,2025-08-24T21:32:59.900Z,2025-08-24T21:32:59.900Z
+e715a15f-3bf5-45ce-8711-cfa0b2468caf,21,San Diego State,Aztecs,Mountain West,SDSU,San Diego State Aztecs,+500000,ncaa,2025,manual,2025-08-24T21:33:02.054Z,2025-08-24T21:33:02.054Z
+c98afa0b-0049-4a8a-b438-e9d4f6439741,23,San José State,Spartans,Mountain West,SJSU,San Jose State Spartans,+200000,ncaa,2025,manual,2025-08-24T21:33:02.362Z,2025-08-24T21:33:02.362Z
+4a468ac0-ea82-4723-bdad-f44b2f0a0903,328,Utah State,Aggies,Mountain West,USU,Utah State Aggies,+500000,ncaa,2025,manual,2025-08-24T21:33:01.540Z,2025-08-24T21:33:01.540Z
+f5d9141a-1f44-44e3-9fca-5505814e5269,204,Oregon State,Beavers,Pac-12,ORST,Oregon State Beavers,+200000,ncaa,2025,manual,2025-08-24T21:33:00.824Z,2025-08-24T21:33:00.824Z
+4d7cf840-fbc1-45a6-a352-fb5d4ba4e912,265,Washington State,Cougars,Pac-12,WSU,Washington State Cougars,+200000,ncaa,2025,manual,2025-08-24T21:33:00.003Z,2025-08-24T21:33:00.003Z
+e1ae6bfd-234f-477c-ba72-20cce7b61f3b,333,Alabama,Crimson Tide,SEC,ALA,Alabama Crimson Tide,+600,ncaa,2025,default,2025-08-24T21:29:27.559Z,2025-08-24T22:19:43.849Z
+e04065ca-4f2c-4ff0-8e2a-67b3bc446850,2012,Arkansas,Arkansas,SEC,A,Arkansas Razorbacks,+60000,ncaa,2025,exact,2025-08-24T22:27:55.853Z,2025-08-24T22:27:55.853Z
+93376f26-29b8-4843-be08-4d0f7b116148,1009,Auburn,Auburn,SEC,A,Auburn Tigers,+5500,ncaa,2025,exact,2025-08-24T22:23:55.829Z,2025-08-24T22:23:55.829Z
+60e553ec-3941-4aec-9518-90339abdfebe,1004,Florida,Florida,SEC,F,Florida Gators,+3000,ncaa,2025,exact,2025-08-24T22:23:55.822Z,2025-08-24T22:23:55.822Z
+27992c37-c991-45c2-9a60-d7b76939be98,59,Georgia,Bulldogs,SEC,UGA,Georgia Bulldogs,+700,ncaa,2025,default,2025-08-24T21:29:27.559Z,2025-08-24T22:19:43.850Z
+1f525952-9c5d-47b8-9628-2106608fa01e,2014,Kentucky,Kentucky,SEC,K,Kentucky Wildcats,+70000,ncaa,2025,exact,2025-08-24T22:27:56.059Z,2025-08-24T22:27:56.059Z
+86a476f9-169c-4921-aed9-bfd6cb3a7315,1003,LSU,LSU,SEC,L,LSU Tigers,+2500,ncaa,2025,exact,2025-08-24T22:23:55.820Z,2025-08-24T22:23:55.820Z
+5d2ca7de-e5ea-4ef7-82c9-056d24793449,344,Mississippi State,Bulldogs,SEC,MSST,Mississippi State Bulldogs,+80000,ncaa,2025,manual,2025-08-24T21:32:58.462Z,2025-08-24T21:32:58.462Z
+6491e5c6-36ae-4b68-9a06-da0568fc8424,1008,Oklahoma,Oklahoma,SEC,O,Oklahoma Sooners,+5000,ncaa,2025,exact,2025-08-24T22:23:55.828Z,2025-08-24T22:23:55.828Z
+1469b591-cfd5-49f1-8f5c-a4066a034ae5,1007,Ole Miss,Miss,SEC,OM,Ole Miss Rebels,+4500,ncaa,2025,exact,2025-08-24T22:23:55.826Z,2025-08-24T22:23:55.826Z
+5aa5688b-3831-424e-8ab3-30d85e743a5b,1011,South Carolina,Carolina,SEC,SC,South Carolina Gamecocks,+7000,ncaa,2025,exact,2025-08-24T22:23:55.832Z,2025-08-24T22:23:55.832Z
+f073b94f-141c-49ba-9f42-7fae3b2ddce4,1010,Tennessee,Tennessee,SEC,T,Tennessee Volunteers,+6000,ncaa,2025,exact,2025-08-24T22:23:55.831Z,2025-08-24T22:23:55.831Z
+0b345a26-28f7-440f-aafb-0c1fe397649d,251,Texas,Longhorns,SEC,TEX,Texas Longhorns,+1200,ncaa,2025,default,2025-08-24T21:29:27.559Z,2025-08-24T22:19:43.852Z
+b2376aac-10c6-422d-8002-2c79d88b74c1,1005,Texas A&M,A&M,SEC,TA,Texas A&M Aggies,+3500,ncaa,2025,exact,2025-08-24T22:23:55.824Z,2025-08-24T22:23:55.824Z
+1d3fb26b-46b4-4483-993b-993d5f2dfcc3,2017,Vanderbilt,Vanderbilt,SEC,V,Vanderbilt Commodores,+85000,ncaa,2025,exact,2025-08-24T22:27:56.369Z,2025-08-24T22:27:56.369Z
+ed680575-a4c0-4fbe-9ba9-e6c8965068ef,2026,App State,Mountaineers,Sun Belt,APP,Appalachian State Mountaineers,+100000,ncaa,2025,manual,2025-08-24T21:33:02.259Z,2025-08-24T21:33:02.259Z
+65f4cf18-5adf-41d1-b734-c0fd6da2a01a,2032,Arkansas State,Red Wolves,Sun Belt,ARST,Arkansas State Red Wolves,+500000,ncaa,2025,manual,2025-08-24T21:33:01.951Z,2025-08-24T21:33:01.951Z
+ebff51f0-4898-48b1-ba6f-3b75b8af5e4e,3004,Coastal Carolina,Carolina,Sun Belt,CC,Coastal Carolina Chanticleers,+340,ncaa,2025,exact,2025-08-24T22:32:37.426Z,2025-08-24T22:32:37.426Z
+6fbb65c9-468b-4e64-9789-1520b1fa2a55,2247,Georgia State,Panthers,Sun Belt,GAST,Georgia State Panthers,+500000,ncaa,2025,manual,2025-08-24T21:33:01.336Z,2025-08-24T21:33:01.336Z
+670b7c7a-187c-4162-8dd1-d27737289c1b,309,Louisiana,Ragin' Cajuns,Sun Belt,UL,Louisiana Ragin Cajuns,+100000,ncaa,2025,manual,2025-08-24T21:32:59.489Z,2025-08-24T21:32:59.489Z
+777ed421-e539-4579-bd7c-142e2cfa1140,326,Texas State,Bobcats,Sun Belt,TXST,Texas State Bobcats,+100000,ncaa,2025,manual,2025-08-24T21:32:59.182Z,2025-08-24T21:32:59.182Z

@@ -1,0 +1,17 @@
+Backend Deployment Issue Summary
+================================
+
+Instance: i-0bbfbda3cf0b210e7
+IP: 52.91.16.1
+Status: Instance is running, but application not responding
+
+Issue: SSH access denied, can't verify application status
+
+Next Steps:
+1. Check AWS Console → EC2 → Instances → i-0bbfbda3cf0b210e7
+2. Click "Connect" → Try "EC2 Instance Connect" (browser-based SSH)
+3. Check "Get system log" to see user-data script execution
+4. Verify security group allows ports 22 and 4000
+5. Check if application directory exists: /home/ec2-user/sports-hub
+
+See DIAGNOSE_BACKEND.md for detailed troubleshooting steps.

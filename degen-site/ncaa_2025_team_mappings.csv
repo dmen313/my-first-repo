@@ -1,0 +1,90 @@
+cfbdName,cfbdConference,cfbdMascot,cfbdAbbreviation,oddsApiName,oddsApiOdds,teamOdds,record,division,wins,losses,owner,matchType,cfbdId,mappingId,teamId,league,season
+Alabama,SEC,Crimson Tide,ALA,Alabama Crimson Tide,+600,+1000,0-0,SEC,,,,default,333,e1ae6bfd-234f-477c-ba72-20cce7b61f3b,78552692-0035-4677-ae9d-c2f7f0533e8a,ncaa,2025
+App State,Sun Belt,Mountaineers,APP,Appalachian State Mountaineers,+100000,+100000,0-0,Sun Belt,,,,manual,2026,ed680575-a4c0-4fbe-9ba9-e6c8965068ef,660ab330-25b5-4392-949f-e89c7d5c0a67,ncaa,2025
+Arizona State,Big 12,Sun Devils,ASU,Arizona State Sun Devils,+10000,+10000,0-0,Big 12,,,,manual,9,8a4f88fd-6f37-49bf-930d-fe3e643d6e48,f8682ce9-b869-44ab-9133-44944b23db1e,ncaa,2025
+Arkansas,SEC,Arkansas,A,Arkansas Razorbacks,+60000,+40000,0-0,SEC,,,,exact,2012,e04065ca-4f2c-4ff0-8e2a-67b3bc446850,608610b7-eca4-42fc-aa96-c4e6c646770f,ncaa,2025
+Arkansas State,Sun Belt,Red Wolves,ARST,Arkansas State Red Wolves,+500000,+500000,0-0,Sun Belt,,,,manual,2032,65f4cf18-5adf-41d1-b734-c0fd6da2a01a,70de7943-ce00-45ef-b3c6-fc466562c078,ncaa,2025
+Army,American Athletic,Black Knights,ARMY,Army Black Knights,+200000,+200000,0-0,American Athletic,,,,manual,349,482b5f66-567d-4c43-9141-6022a69e1e21,71233368-5df6-48e0-9fdf-17671ac85435,ncaa,2025
+Auburn,SEC,Auburn,A,Auburn Tigers,+5500,+7000,0-0,SEC,,,,exact,1009,93376f26-29b8-4843-be08-4d0f7b116148,a0fc9cd0-389a-4fed-be77-0fc399bf32ab,ncaa,2025
+Baylor,Big 12,Baylor,B,Baylor Bears,+15000,+18000,0-0,Big 12,,,,exact,2003,2eebf52c-ed10-463e-b2e5-2e32bd55f6fe,6f47240f-5480-41cd-b864-c6d75779d008,ncaa,2025
+Boise State,Mountain West,Broncos,BSU,Boise State Broncos,+25000,+25000,0-0,Mountain West,,,,manual,68,942674d7-e8e0-4c88-ac2d-615e2ce405f2,d0b53b6f-69b5-4769-a8fc-66c4288b0a6b,ncaa,2025
+Boston College,ACC,Eagles,BC,Boston College Eagles,+100000,+100000,0-0,ACC,,,,manual,103,3c00b919-81ab-4a9b-abcc-2cce020db495,ba61063e-521a-4d9c-a536-e9a0777871ce,ncaa,2025
+Bowling Green,Mid-American,Falcons,BGSU,Bowling Green Falcons,+200000,+200000,0-0,Mid-American,,,,manual,189,2a1451b6-27fb-4e0a-831a-ccce20c85ee5,92491f15-3a62-4739-a7e1-2ec3ec23ffc1,ncaa,2025
+Buffalo,Mid-American,Bulls,BUFF,Buffalo Bulls,+500000,+500000,0-0,Mid-American,,,,manual,2084,060faa41-4463-44d4-bd7c-79f5fb4eb785,9225cc30-e5ad-4415-bf52-aa43b3403b11,ncaa,2025
+BYU,Big 12,Cougars,BYU,BYU Cougars,+30000,+30000,0-0,Big 12,,,,manual,252,11aa6bac-90a2-44ec-a570-65c7720a58c2,4114b4d1-d8f4-414a-a14b-b405b30c4b6a,ncaa,2025
+Charlotte,American Athletic,49ers,CHAR,Charlotte 49ers,+500000,+500000,0-0,American Athletic,,,,manual,2429,2c4feb3b-3194-45b9-a8ea-5edc5c3c3d57,d7b7d0e9-19fe-438e-8056-da5dc6a04ab6,ncaa,2025
+Cincinnati,Big 12,Bearcats,CIN,Cincinnati Bearcats,+100000,+100000,0-0,Big 12,,,,manual,2132,4ab82bfc-887f-434b-bbcd-c6fdbde83ba7,9e4cd66c-ef8a-41c8-8993-dfe75690ccc2,ncaa,2025
+Clemson,ACC,Clemson,C,Clemson Tigers,+1200,+900,0-0,ACC,,,,exact,1000,c0dc801b-ae60-4c4b-9ea4-42749794e0f9,27f819cf-c409-4d92-b786-7f2ab15a335b,ncaa,2025
+Coastal Carolina,Sun Belt,Carolina,CC,Coastal Carolina Chanticleers,+340,+500000,0-0,Sun Belt,,,,exact,3004,ebff51f0-4898-48b1-ba6f-3b75b8af5e4e,79161401-08d3-4f89-bb90-a359a5542db1,ncaa,2025
+Colorado,Big 12,Colorado,C,Colorado Buffaloes,+45000,+30000,0-0,Big 12,,,,exact,2009,d6dafb61-0fe4-43bb-9215-aaa0405907ba,2c14bfc7-9c6e-4f5a-b1bc-09889edd0993,ncaa,2025
+Colorado State,Mountain West,Rams,CSU,Colorado State Rams,+200000,+200000,0-0,Mountain West,,,,manual,36,9257418b-2380-43b6-8ff0-7f7cf022f0ef,3f9ab728-cc21-4c5a-89d4-b90f3b6f74f5,ncaa,2025
+Duke,ACC,Duke,D,Duke Blue Devils,+40000,+30000,0-0,ACC,,,,exact,2008,a1b7b5c4-8626-4108-95ee-e87ccb773202,d0154782-50cf-492f-a95b-711d369ed3d0,ncaa,2025
+East Carolina,American Athletic,Pirates,ECU,East Carolina Pirates,+200000,+200000,0-0,American Athletic,,,,manual,151,e848bec2-d2d2-41dc-88b2-15106c87da97,06efc398-ff7c-4ec0-8e83-f97cfc62a33d,ncaa,2025
+Florida,SEC,Florida,F,Florida Gators,+3000,+4000,0-0,SEC,,,,exact,1004,60e553ec-3941-4aec-9518-90339abdfebe,25fb2556-447a-4e54-abb1-6e56ceb1cb15,ncaa,2025
+Florida Atlantic,American Athletic,Owls,FAU,Florida Atlantic Owls,+500000,+500000,0-0,American Athletic,,,,manual,2229,056aba91-d6c0-438a-8c2f-a9d9fa635dd2,a8fa1f70-eb9c-44bb-aef4-03275b416ea0,ncaa,2025
+Florida State,ACC,Seminoles,FSU,Florida State Seminoles,+25000,+25000,0-0,ACC,,,,manual,52,735575f8-025a-4058-913b-84a764850094,9d3a7919-5787-4f3c-af3f-1e56216244e0,ncaa,2025
+Fresno State,Mountain West,Bulldogs,FRES,Fresno State Bulldogs,+200000,+200000,0-0,Mountain West,,,,manual,278,dc743a13-5ddf-4880-b0bf-9baa54e119af,7f349b29-f0fa-4ff8-a2f6-34a535937353,ncaa,2025
+Georgia,SEC,Bulldogs,UGA,Georgia Bulldogs,+700,+750,0-0,SEC,,,,default,59,27992c37-c991-45c2-9a60-d7b76939be98,88c45068-f84d-4dbb-a190-6a5be6a27bcb,ncaa,2025
+Georgia State,Sun Belt,Panthers,GAST,Georgia State Panthers,+500000,+500000,0-0,Sun Belt,,,,manual,2247,6fbb65c9-468b-4e64-9789-1520b1fa2a55,d8cabd59-203b-4ff4-b1a2-1697b4978df7,ncaa,2025
+Houston,Big 12,Cougars,HOU,Houston Cougars,+80000,+80000,0-0,Big 12,,,,manual,248,b1fe58f4-eb7a-46c5-8fa0-8e81410ecaed,8fd7745a-edae-434b-99fc-2bdeb59bf82e,ncaa,2025
+Iowa,Big Ten,Iowa,I,Iowa Hawkeyes,+12000,+18000,0-0,Big Ten,,,,exact,2002,0cc76b81-e7a1-4f32-a857-b961a2afb60c,a863d31c-a2e1-4d51-ba4d-2a8a22f1b250,ncaa,2025
+Iowa State,Big 12,Cyclones,ISU,Iowa State Cyclones,+16000,+16000,0-0,Big 12,,,,manual,66,1724c58b-1b89-4130-9e20-ff5f27d0d977,91dd4c16-c306-4c5d-92ba-3f68fd4a7d69,ncaa,2025
+Jacksonville State,Conference USA,Gamecocks,JSU,Jacksonville State Gamecocks,+200000,+200000,0-0,Conference USA,,,,manual,55,546d72da-f58c-43e8-96c9-4c1bd05523d0,1276edbc-0d15-4903-8f04-35f0cbe5a917,ncaa,2025
+Kansas,Big 12,Kansas,K,Kansas Jayhawks,+30000,+30000,0-0,Big 12,,,,exact,2006,e5d33c0a-11c4-4751-b65d-79804ff7a57b,75071e2b-c37e-471b-b5fd-9f6008bce37a,ncaa,2025
+Kansas State,Big 12,Wildcats,KSU,Kansas State Wildcats,+18000,+18000,0-0,Big 12,,,,manual,2306,2626dd31-6b2e-4965-b908-ad263aed20d0,5845e5c3-4218-4637-9866-a9ee7a9868dd,ncaa,2025
+Kentucky,SEC,Kentucky,K,Kentucky Wildcats,+70000,+50000,0-0,SEC,,,,exact,2014,1f525952-9c5d-47b8-9628-2106608fa01e,e79d7f5a-0d07-4da4-927c-db5b6c90aedb,ncaa,2025
+Liberty,Conference USA,Flames,LIB,Liberty Flames,+200000,+200000,0-0,Conference USA,,,,manual,2335,b24df080-72e6-402e-8a49-28aad41a91f6,678772d7-d4d4-4e62-9f8a-89b03311bd0f,ncaa,2025
+Louisiana,Sun Belt,Ragin' Cajuns,UL,Louisiana Ragin Cajuns,+100000,+100000,0-0,Sun Belt,,,,manual,309,670b7c7a-187c-4162-8dd1-d27737289c1b,b5903902-b0a2-4852-8c51-feb70045f58e,ncaa,2025
+Louisville,ACC,Louisville,L,Louisville Cardinals,+9000,+10000,0-0,ACC,,,,exact,2001,d98d61d2-0218-4406-bdbd-44921ad62bd8,815800da-18bf-4fce-9fec-680d1658ceff,ncaa,2025
+LSU,SEC,LSU,L,LSU Tigers,+2500,+1400,0-0,SEC,,,,exact,1003,86a476f9-169c-4921-aed9-bfd6cb3a7315,b72ceec3-49eb-45ab-b674-0b02419831cc,ncaa,2025
+Memphis,American Athletic,Tigers,MEM,Memphis Tigers,+80000,+80000,0-0,American Athletic,,,,manual,235,f5cd660c-8d81-419c-a60a-8da090e76fde,d0f9fce7-608b-4928-b596-25033c785efd,ncaa,2025
+Miami,ACC,Miami,M,Miami Hurricanes,+4000,+4000,0-0,ACC,,,,exact,1006,fc38adec-7948-497a-be4a-5b1b42fa6ff8,871416ef-ab48-47d6-aad9-1cd1f03f0b01,ncaa,2025
+Miami (OH),Mid-American,RedHawks,M-OH,Miami (OH) RedHawks,+200000,+200000,0-0,Mid-American,,,,manual,193,fd612c3a-a3cc-404e-a711-1a2371638ba3,041bf936-2398-4c43-9ab6-cc923c0aa564,ncaa,2025
+Michigan,Big Ten,Wolverines,MICH,Michigan Wolverines,+1000,+2800,0-0,Big Ten,,,,default,130,3b9a8e4c-6b87-4824-bdd2-ba5b776b7187,c197f3ed-ea5e-4c18-9696-0691f4c34474,ncaa,2025
+Michigan State,Big Ten,Spartans,MSU,Michigan State Spartans,+40000,+40000,0-0,Big Ten,,,,manual,127,29907911-c4a1-40af-a108-976c2d349302,4e7a3353-a56b-4986-b196-848b280d2b2b,ncaa,2025
+Minnesota,Big Ten,Minnesota,M,Minnesota Golden Gophers,+65000,+40000,0-0,Big Ten,,,,exact,2013,0b4e47b8-6d0d-4bda-9a10-f4bfe667a109,3134db80-93d6-4e98-82ea-7552b838cadd,ncaa,2025
+Mississippi State,SEC,Bulldogs,MSST,Mississippi State Bulldogs,+80000,+80000,0-0,SEC,,,,manual,344,5d2ca7de-e5ea-4ef7-82c9-056d24793449,d810cc46-3750-4679-9189-d3829b8f7292,ncaa,2025
+Navy,American Athletic,Midshipmen,NAVY,Navy Midshipmen,+100000,+100000,0-0,American Athletic,,,,manual,2426,7338935c-786c-4b72-84b0-ee231436b8fd,9be2d77d-d0a3-4a1a-9341-dfb36c1a6a8b,ncaa,2025
+NC State,ACC,Wolfpack,NCST,NC State Wolfpack,+40000,+40000,0-0,ACC,,,,manual,152,8d564af2-e979-4afd-96e4-8ed56d4af2b2,13890eb6-c0fe-4c2c-8e1f-c80b2fb6ebe3,ncaa,2025
+North Carolina,ACC,Carolina,NC,North Carolina Tar Heels,+50000,+30000,0-0,ACC,,,,exact,2010,f2e85080-731f-4e79-bed8-933891294251,c5e67e38-2954-4aee-bc71-25b679e4e4e5,ncaa,2025
+North Texas,American Athletic,Mean Green,UNT,North Texas Mean Green,+200000,+200000,0-0,American Athletic,,,,manual,249,36bf5f85-ef20-417a-a761-f7b859805c33,d3edaf67-e767-4ab7-a1d7-489bec6787ae,ncaa,2025
+Northern Illinois,Mid-American,Huskies,NIU,Northern Illinois Huskies,+200000,+200000,0-0,Mid-American,,,,manual,2459,6af45013-23d8-4a69-b891-3bd447238f4a,4e67e250-6638-4cfc-9e95-25f1d21a2c71,ncaa,2025
+Notre Dame,Independent,Dame,ND,Notre Dame Fighting Irish,+1500,+1100,0-0,Independent,,,,exact,1001,ffd3cbd4-869a-45e1-8620-64ce829d218f,d48b1859-aa5b-4bb4-9b93-f9831a1c2fc2,ncaa,2025
+Ohio,Mid-American,Bobcats,OHIO,Ohio Bobcats,+200000,+200000,0-0,Mid-American,,,,manual,195,66d021a0-8f17-4c37-9afd-2590c37d0e34,efed0b5b-246a-41a9-b851-350a59915d0e,ncaa,2025
+Ohio State,Big Ten,Buckeyes,OSU,Ohio State Buckeyes,+600,+600,0-0,Big Ten,,,,manual,194,e15c2c5a-d561-4225-9b66-5d7d1bd04ba5,12955952-c721-4811-964d-5b9423696e33,ncaa,2025
+Oklahoma,SEC,Oklahoma,O,Oklahoma Sooners,+5000,+6000,0-0,SEC,,,,exact,1008,6491e5c6-36ae-4b68-9a06-da0568fc8424,53e799d3-3104-438b-889c-a57e2e29171e,ncaa,2025
+Oklahoma State,Big 12,Cowboys,OKST,Oklahoma State Cowboys,+50000,+50000,0-0,Big 12,,,,manual,197,9c01a2ea-af88-417b-8766-736860edf91a,1ead5ae8-0836-48cc-92b8-e6e8fb7bea74,ncaa,2025
+Ole Miss,SEC,Miss,OM,Ole Miss Rebels,+4500,+5000,0-0,SEC,,,,exact,1007,1469b591-cfd5-49f1-8f5c-a4066a034ae5,50a7c6f3-0861-4eab-87a0-6e381ac1c808,ncaa,2025
+Oregon,Big Ten,Oregon,O,Oregon Ducks,+2000,+1300,0-0,Big Ten,,,,exact,1002,4f4eb05c-ed89-45d4-a511-5c4de6e43f5a,afad823f-dd49-40b3-9ba8-83c246ff78c9,ncaa,2025
+Oregon State,Pac-12,Beavers,ORST,Oregon State Beavers,+200000,+200000,0-0,Pac-12,,,,manual,204,f5d9141a-1f44-44e3-9fca-5505814e5269,4d5bb2d9-5f0a-47ff-916a-ce97c72c21f8,ncaa,2025
+Penn State,Big Ten,Nittany Lions,PSU,Penn State Nittany Lions,+700,+700,0-0,Big Ten,,,,manual,213,a5941dcd-7785-4bb4-901e-446ca6232235,e5662b70-8ccc-4261-9c00-d5ed845f98d2,ncaa,2025
+Pittsburgh,ACC,Pittsburgh,P,Pittsburgh Panthers,+95000,+50000,0-0,ACC,,,,exact,2019,4af3900b-f720-4851-963f-f1c8affa7659,89a0e0d9-7d30-48cd-a940-6d254f94dfe1,ncaa,2025
+Rice,American Athletic,Owls,RICE,Rice Owls,+500000,+500000,0-0,American Athletic,,,,manual,242,99cc694e-b886-44e4-b12d-d3f05912e637,c404a381-a104-4307-ac37-b036eaf943de,ncaa,2025
+Sam Houston State,Conference USA,Bearkats,SHSU,Sam Houston State Bearkats,+200000,+200000,0-0,Conference USA,,,,manual,242,adc1ad8d-aabb-4449-8cc0-cf46dc021d83,3430bffe-a904-4dcd-b336-353af5d9c23d,ncaa,2025
+San Diego State,Mountain West,Aztecs,SDSU,San Diego State Aztecs,+500000,+500000,0-0,Mountain West,,,,manual,21,e715a15f-3bf5-45ce-8711-cfa0b2468caf,5710b9e7-8902-45e5-b254-78eb774a1f45,ncaa,2025
+San José State,Mountain West,Spartans,SJSU,San Jose State Spartans,+200000,+200000,0-0,Mountain West,,,,manual,23,c98afa0b-0049-4a8a-b438-e9d4f6439741,489e04fc-57d2-43a0-bbcd-18142421a951,ncaa,2025
+SMU,ACC,Mustangs,SMU,SMU Mustangs,+11000,+11000,0-0,ACC,,,,manual,2567,7bd44131-a491-413f-a06c-7ad45009982a,3df7f2ad-657f-4a23-9d86-777d9e651956,ncaa,2025
+South Carolina,SEC,Carolina,SC,South Carolina Gamecocks,+7000,+7000,0-0,SEC,,,,exact,1011,5aa5688b-3831-424e-8ab3-30d85e743a5b,cf98cbaf-78b2-43ee-8918-5635c2e5bb72,ncaa,2025
+South Florida,American Athletic,Bulls,USF,South Florida Bulls,+100000,+100000,0-0,American Athletic,,,,manual,58,44ccc9d8-fcc8-4c9a-9ac1-686da2c61dbf,626b5171-d550-4f52-9fca-711d9ae463d1,ncaa,2025
+Syracuse,ACC,Syracuse,S,Syracuse Orange,+90000,+50000,0-0,ACC,,,,exact,2018,afe93f9b-d74f-4041-89fc-58348de64839,a4c7e4c8-1439-4a73-a6cc-57c321544286,ncaa,2025
+TCU,Big 12,TCU,T,TCU Horned Frogs,+25000,+25000,0-0,Big 12,,,,exact,2005,dcbc03d5-f59e-481b-9a85-9217139ae24f,f065704a-8ad3-4c0f-bbb8-af856fdfba5b,ncaa,2025
+Tennessee,SEC,Tennessee,T,Tennessee Volunteers,+6000,+7000,0-0,SEC,,,,exact,1010,f073b94f-141c-49ba-9f42-7fae3b2ddce4,84db2680-1075-4692-af23-a61360dfadd7,ncaa,2025
+Texas,SEC,Longhorns,TEX,Texas Longhorns,+1200,+550,0-0,SEC,,,,default,251,0b345a26-28f7-440f-aafb-0c1fe397649d,19757c24-c359-4b18-ad27-c6d91a4bcdf1,ncaa,2025
+Texas A&M,SEC,A&M,TA,Texas A&M Aggies,+3500,+4000,0-0,SEC,,,,exact,1005,b2376aac-10c6-422d-8002-2c79d88b74c1,73b533ce-365a-4040-9d9b-1af7aeeaea3d,ncaa,2025
+Texas State,Sun Belt,Bobcats,TXST,Texas State Bobcats,+100000,+100000,0-0,Sun Belt,,,,manual,326,777ed421-e539-4579-bd7c-142e2cfa1140,ece66d59-ad9e-4764-8feb-0ccb8c8ac202,ncaa,2025
+Toledo,Mid-American,Rockets,TOL,Toledo Rockets,+200000,+200000,0-0,Mid-American,,,,manual,2649,c0f33d3d-3ca4-473d-a1a8-9d718af21dd7,821ad05c-1bc4-48f4-80ac-89caea0aed76,ncaa,2025
+Tulane,American Athletic,Green Wave,TULN,Tulane Green Wave,+50000,+50000,0-0,American Athletic,,,,manual,2655,761b7fe4-f5e8-42b6-877a-297b5bc46f82,df4c52f6-3d83-4009-9fbb-0ef247806922,ncaa,2025
+UAB,American Athletic,Blazers,UAB,UAB Blazers,+500000,+500000,0-0,American Athletic,,,,manual,5,7860bd2f-aefe-42ec-897c-d06e74cc1421,eea77c87-c07d-4cf1-8e5d-e84f2e6172be,ncaa,2025
+UCF,Big 12,Knights,UCF,UCF Knights,+50000,+50000,0-0,Big 12,,,,manual,2116,528abba0-e90b-46f2-895d-4eb880867acb,4edec86e-b527-445e-923a-f0b5bedf02d1,ncaa,2025
+UCLA,Big Ten,UCLA,U,UCLA Bruins,+55000,+40000,0-0,Big Ten,,,,exact,2011,b3c1ae7d-72b7-4305-8259-2873906a86bb,ea39c1ad-1ee1-4746-92f2-8ad501bf6aaa,ncaa,2025
+UConn,FBS Independents,Huskies,UCONN,UConn Huskies,+200000,+200000,0-0,FBS Independents,,,,manual,41,9883eabb-1fc4-4dbb-92b3-829d570cf966,9b2b1cd0-0485-4093-8932-3f6129ec8c5c,ncaa,2025
+Utah,Big 12,Utah,U,Utah Utes,+8000,+11000,0-0,Big 12,,,,exact,2000,0d77b308-187b-4c65-b022-9d836ed776ae,77b12ef5-478a-4fff-b62b-d7043b485d67,ncaa,2025
+Utah State,Mountain West,Aggies,USU,Utah State Aggies,+500000,+500000,0-0,Mountain West,,,,manual,328,4a468ac0-ea82-4723-bdad-f44b2f0a0903,41902a21-1837-4cdb-9772-e529182faa1a,ncaa,2025
+UTSA,American Athletic,Roadrunners,UTSA,UTSA Roadrunners,+100000,+100000,0-0,American Athletic,,,,manual,2636,953d0df9-a120-4ed8-a7e8-e15f098844d1,4693ea45-ded1-4c63-8665-e08a76111b05,ncaa,2025
+Vanderbilt,SEC,Vanderbilt,V,Vanderbilt Commodores,+85000,+50000,0-0,SEC,,,,exact,2017,1d3fb26b-46b4-4483-993b-993d5f2dfcc3,7225253a-0998-400a-8295-014235ecf02c,ncaa,2025
+Virginia Tech,ACC,Tech,VT,Virginia Tech Hokies,+35000,+30000,0-0,ACC,,,,exact,2007,0330d7f0-437c-42de-8e85-b81cc4507cdf,4e7ad167-7d5f-4bf4-a729-e99298e62dba,ncaa,2025
+Washington,Big Ten,Washington,W,Washington Huskies,+20000,+25000,0-0,Big Ten,,,,exact,2004,51e7c173-7598-4f98-aa93-f7c9988055e0,ffe578b7-f771-4d23-b993-42dd7ae8b699,ncaa,2025
+Washington State,Pac-12,Cougars,WSU,Washington State Cougars,+200000,+200000,0-0,Pac-12,,,,manual,265,4d7cf840-fbc1-45a6-a352-fb5d4ba4e912,da449a4b-f27d-4b3f-828c-36765f1fe85e,ncaa,2025
+West Virginia,Big 12,Virginia,WV,West Virginia Mountaineers,+80000,+50000,0-0,Big 12,,,,exact,2016,681515ef-f0d0-4d9f-bad1-04e88fc3465e,bfc47d4b-5ce2-4c6a-943c-30dfd057283c,ncaa,2025
+Western Kentucky,Conference USA,Hilltoppers,WKU,Western Kentucky Hilltoppers,+200000,+200000,0-0,Conference USA,,,,manual,98,63a4670a-bbb1-4592-b486-ae63790ee505,4544a697-9ac3-487e-b5d7-4d83fe504cb1,ncaa,2025
+Wisconsin,Big Ten,Wisconsin,W,Wisconsin Badgers,+75000,+50000,0-0,Big Ten,,,,exact,2015,83ac6fe5-de5a-44b4-9bf2-fd237a8912a5,942b13fd-d20f-4e9b-9ee0-b4e451a2b878,ncaa,2025

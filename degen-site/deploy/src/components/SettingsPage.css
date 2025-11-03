@@ -1,0 +1,297 @@
+.settings-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.settings-title {
+  margin: 0 0 16px 0;
+  color: #1e3a8a;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.settings-section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+/* Management Links Section */
+.management-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.management-link {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.management-link:hover {
+  background: #f1f5f9;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.link-icon {
+  font-size: 1.5rem;
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #dbeafe;
+  border-radius: 8px;
+}
+
+.link-content {
+  flex: 1;
+}
+
+.link-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.link-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.link-arrow {
+  font-size: 1.2rem;
+  color: #9ca3af;
+  margin-left: 12px;
+  transition: transform 0.2s ease;
+}
+
+.management-link:hover .link-arrow {
+  transform: translateX(4px);
+  color: #3b82f6;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.back-button {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.back-button:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 12px 0 16px 0;
+}
+
+.stat-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.stat-value {
+  color: #111827;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.list-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.list-card h3 {
+  margin: 0 0 10px 0;
+  color: #1f2937;
+  font-size: 1.05rem;
+}
+
+.list-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-card li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.list-card li:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  color: #374151;
+}
+
+.item-count {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Reuse diagnostic styles from table, redefine here for isolation */
+.diag-controls {
+  display: flex;
+  justify-content: flex-start;
+  margin: 8px 0 12px 0;
+}
+
+.diag-button {
+  background: #1e3a8a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.diag-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.diag-panel {
+  border: 1px solid #e5e7eb;
+  border-left-width: 4px;
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.diag-panel.ok {
+  border-left-color: #10b981;
+  background: #ecfdf5;
+}
+
+.diag-panel.fail {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+.diag-row {
+  font-size: 14px;
+  color: #374151;
+  margin: 4px 0;
+}
+
+.results-meta {
+  margin: 10px 0 8px 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.results-table-wrapper {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.results-table thead {
+  background: #f3f4f6;
+}
+
+.results-table th {
+  text-align: left;
+  padding: 12px 10px;
+  color: #374151;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.results-table td {
+  padding: 12px 10px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.owner-col {
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.team-col {
+  font-weight: 700;
+  color: #111827;
+}
+
+.record-col {
+  color: #059669;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.league-col, .division-col {
+  color: #6b7280;
+}

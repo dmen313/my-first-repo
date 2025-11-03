@@ -1,0 +1,603 @@
+/* REBUILT TEAMS TABLE CSS */
+
+/* Main container */
+.team-table-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Card styles */
+.data-info-card,
+.payout-card,
+.teams-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.data-info-card.compact,
+.payout-card.compact,
+.teams-card.compact {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.data-info-card h3,
+.payout-card h3,
+.teams-card h3 {
+  margin: 0 0 16px 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Teams header */
+.teams-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.teams-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* Table wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  position: relative;
+  /* Custom scrollbar for better UX */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Data info styles */
+.data-info-simple {
+  font-size: 11px;
+  line-height: 1.3;
+  color: #6b7280;
+}
+
+.data-info-simple strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+/* API Error styles */
+.data-info-simple .api-error {
+  color: #dc2626;
+  font-weight: 600;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  border-left: 2px solid #dc2626;
+}
+
+.data-info-simple .api-error:hover {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+/* Error banner */
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.retry-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Loading states */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Payout styles */
+.payout-summary {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.payout-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.payout-summary-input {
+  width: 80px;
+  padding: 6px 8px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.payout-summary-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.payout-summary-input[readOnly] {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+  cursor: default;
+}
+
+.currency-symbol {
+  font-weight: 600;
+  color: #059669;
+  margin-left: -4px;
+}
+
+.payout-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.payout-table th {
+  background: #f9fafb;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.payout-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.payout-table td:first-child {
+  text-align: left;
+}
+
+.payout-table .total-row {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+/* Player column colors */
+.payout-table th:nth-child(5) { /* DM column */
+  background: rgba(34, 197, 94, 0.1);
+  color: #166534;
+  border-left: 2px solid #22c55e;
+}
+
+.payout-table th:nth-child(6) { /* TG column */
+  background: rgba(251, 191, 36, 0.1);
+  color: #92400e;
+  border-left: 2px solid #fbbf24;
+}
+
+.payout-table th:nth-child(7) { /* KH column */
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  border-left: 2px solid #3b82f6;
+}
+
+.payout-table th:nth-child(8) { /* MC column */
+  background: rgba(168, 85, 247, 0.1);
+  color: #7c3aed;
+  border-left: 2px solid #a855f7;
+}
+
+/* Main table container */
+.teams-table {
+  min-width: 1200px; /* Force horizontal scroll when needed */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0;
+  position: relative;
+}
+
+/* Table head */
+.teams-table thead {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Base header styles */
+.teams-table th {
+  padding: 16px 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: #374151;
+  background: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Sortable headers */
+.teams-table th.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.teams-table th.sortable-header:hover {
+  background: #e2e8f0;
+}
+
+/* STICKY COLUMNS */
+.teams-table .owner-header {
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: #f8fafc;
+  border-right: 2px solid #cbd5e1;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.15);
+  width: 120px;
+  min-width: 120px;
+}
+
+.teams-table .team-header {
+  position: sticky;
+  left: 120px;
+  z-index: 15;
+  background: #f8fafc;
+  border-right: 2px solid #cbd5e1;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.15);
+  width: 180px;
+  min-width: 180px;
+}
+
+/* Other headers */
+.teams-table .record-header {
+  width: 100px;
+  min-width: 100px;
+}
+
+.teams-table .division-header {
+  width: 150px;
+  min-width: 150px;
+}
+
+.teams-table .odds-header {
+  width: 120px;
+  min-width: 120px;
+}
+
+.teams-table .achievement-header {
+  width: 80px;
+  min-width: 80px;
+  font-size: 11px;
+}
+
+/* Table body */
+.teams-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.teams-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.teams-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Base cell styles */
+.teams-table td {
+  padding: 12px;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 13px;
+  border-right: 1px solid #f1f5f9;
+}
+
+.teams-table td:last-child {
+  border-right: none;
+}
+
+/* STICKY CELLS */
+.teams-table .owner-cell {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: #ffffff;
+  border-right: 2px solid #cbd5e1;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+  width: 120px;
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.teams-table .team-name-cell {
+  position: sticky;
+  left: 120px;
+  z-index: 5;
+  background: #ffffff;
+  border-right: 2px solid #cbd5e1;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+  width: 180px;
+  min-width: 180px;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 16px;
+}
+
+/* Row hover effects for sticky cells */
+.teams-table tbody tr:hover .owner-cell,
+.teams-table tbody tr:hover .team-name-cell {
+  background: #f8fafc;
+}
+
+/* Owner-specific background colors for sticky cells */
+.teams-table tbody tr.owner-dm .owner-cell,
+.teams-table tbody tr.owner-dm .team-name-cell {
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.teams-table tbody tr.owner-tg .owner-cell,
+.teams-table tbody tr.owner-tg .team-name-cell {
+  background: rgba(236, 72, 153, 0.05);
+}
+
+.teams-table tbody tr.owner-kh .owner-cell,
+.teams-table tbody tr.owner-kh .team-name-cell {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.teams-table tbody tr.owner-mc .owner-cell,
+.teams-table tbody tr.owner-mc .team-name-cell {
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.teams-table tbody tr.owner-none .owner-cell,
+.teams-table tbody tr.owner-none .team-name-cell {
+  background: rgba(156, 163, 175, 0.05);
+}
+
+.teams-table tbody tr.owner-other .owner-cell,
+.teams-table tbody tr.owner-other .team-name-cell {
+  background: rgba(107, 114, 128, 0.05);
+}
+
+/* Owner-specific hover effects for sticky cells */
+.teams-table tbody tr.owner-dm:hover .owner-cell,
+.teams-table tbody tr.owner-dm:hover .team-name-cell {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.teams-table tbody tr.owner-tg:hover .owner-cell,
+.teams-table tbody tr.owner-tg:hover .team-name-cell {
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.teams-table tbody tr.owner-kh:hover .owner-cell,
+.teams-table tbody tr.owner-kh:hover .team-name-cell {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.teams-table tbody tr.owner-mc:hover .owner-cell,
+.teams-table tbody tr.owner-mc:hover .team-name-cell {
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.teams-table tbody tr.owner-none:hover .owner-cell,
+.teams-table tbody tr.owner-none:hover .team-name-cell {
+  background: rgba(156, 163, 175, 0.1);
+}
+
+.teams-table tbody tr.owner-other:hover .owner-cell,
+.teams-table tbody tr.owner-other:hover .team-name-cell {
+  background: rgba(107, 114, 128, 0.1);
+}
+
+/* Owner select dropdown */
+.owner-select {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
+
+/* Value color classes */
+.value-pos { color: #059669; font-weight: 600; }
+.value-neg { color: #dc2626; font-weight: 600; }
+.value-even { color: #6b7280; }
+
+/* Owner row classes */
+.owner-dm { background-color: rgba(34, 197, 94, 0.05); }
+.owner-tg { background-color: rgba(236, 72, 153, 0.05); }
+.owner-kh { background-color: rgba(59, 130, 246, 0.05); }
+.owner-mc { background-color: rgba(168, 85, 247, 0.05); }
+.owner-none { background-color: rgba(156, 163, 175, 0.05); }
+
+/* Achievement cells */
+.achievement-cell {
+  padding: 8px;
+}
+
+.achievement-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .teams-table {
+    font-size: 11px;
+    min-width: 900px; /* Ensure horizontal scroll on mobile */
+  }
+  
+  .teams-table th,
+  .teams-table td {
+    padding: 8px 6px;
+  }
+  
+  .teams-table .owner-header,
+  .teams-table .owner-cell {
+    width: 80px;
+    min-width: 80px;
+  }
+  
+  .teams-table .team-header,
+  .teams-table .team-name-cell {
+    width: 120px;
+    min-width: 120px;
+    left: 80px;
+  }
+  
+  /* Maintain owner colors on mobile */
+  .teams-table tbody tr.owner-dm .owner-cell,
+  .teams-table tbody tr.owner-dm .team-name-cell {
+    background: rgba(34, 197, 94, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-tg .owner-cell,
+  .teams-table tbody tr.owner-tg .team-name-cell {
+    background: rgba(236, 72, 153, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-kh .owner-cell,
+  .teams-table tbody tr.owner-kh .team-name-cell {
+    background: rgba(59, 130, 246, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-mc .owner-cell,
+  .teams-table tbody tr.owner-mc .team-name-cell {
+    background: rgba(168, 85, 247, 0.05);
+  }
+}
+
+@media (max-width: 480px) {
+  .teams-table {
+    font-size: 10px;
+    min-width: 800px; /* Ensure horizontal scroll on small screens */
+  }
+  
+  .teams-table th,
+  .teams-table td {
+    padding: 6px 4px;
+  }
+  
+  .teams-table .owner-header,
+  .teams-table .owner-cell {
+    width: 60px;
+    min-width: 60px;
+  }
+  
+  .teams-table .team-header,
+  .teams-table .team-name-cell {
+    width: 100px;
+    min-width: 100px;
+    left: 60px;
+  }
+  
+  /* Maintain owner colors on iPhone 12 */
+  .teams-table tbody tr.owner-dm .owner-cell,
+  .teams-table tbody tr.owner-dm .team-name-cell {
+    background: rgba(34, 197, 94, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-tg .owner-cell,
+  .teams-table tbody tr.owner-tg .team-name-cell {
+    background: rgba(236, 72, 153, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-kh .owner-cell,
+  .teams-table tbody tr.owner-kh .team-name-cell {
+    background: rgba(59, 130, 246, 0.05);
+  }
+  
+  .teams-table tbody tr.owner-mc .owner-cell,
+  .teams-table tbody tr.owner-mc .team-name-cell {
+    background: rgba(168, 85, 247, 0.05);
+  }
+}

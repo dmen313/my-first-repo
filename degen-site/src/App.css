@@ -1,0 +1,49 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.league-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.coming-soon {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-top: 40px;
+}
+
+.coming-soon h2 {
+  color: #1e3a8a;
+  font-size: 2rem;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.coming-soon p {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .coming-soon {
+    padding: 40px 20px;
+    margin-top: 20px;
+  }
+  
+  .coming-soon h2 {
+    font-size: 1.5rem;
+  }
+  
+  .coming-soon p {
+    font-size: 1rem;
+  }
+}

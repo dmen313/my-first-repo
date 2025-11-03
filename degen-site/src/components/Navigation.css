@@ -1,0 +1,268 @@
+.navigation {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 0;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-home h2 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.nav-league {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-button {
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  padding: 12px;
+  font-size: 18px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+}
+
+.back-button:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.league-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-league-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.nav-league h2 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .navigation {
+    padding: 12px 0;
+    margin-bottom: 16px;
+  }
+
+  .nav-container {
+    padding: 0 16px;
+  }
+
+  .nav-league {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-left {
+    gap: 12px;
+    flex: 1;
+  }
+
+  .nav-right {
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  
+  .nav-league-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .league-title-section h2 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .user-pill {
+    padding: 4px;
+    gap: 0;
+    min-width: 40px;
+    justify-content: center;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .back-button,
+  .settings-link {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    padding: 10px;
+  }
+  
+  .nav-home h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* iPhone 12 specific optimizations */
+@media (max-width: 390px) {
+  .nav-container {
+    padding: 0 12px;
+  }
+
+  .nav-left {
+    gap: 8px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .league-title-section h2 {
+    font-size: 1rem;
+  }
+
+  .back-button,
+  .settings-link {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .user-pill {
+    min-width: 36px;
+  }
+}
+
+/* User and Settings styles */
+.settings-link {
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #374151;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+}
+
+.settings-link:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.logout-button {
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #374151;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.logout-button:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+
+

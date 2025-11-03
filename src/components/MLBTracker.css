@@ -1,0 +1,314 @@
+/* MLBTracker.css */
+.mlb-tracker {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tracker-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.tracker-header h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tracker-header p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+}
+
+.league-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.league-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.league-card.al {
+  border-left: 4px solid #dc3545;
+}
+
+.league-card.nl {
+  border-left: 4px solid #007bff;
+}
+
+.league-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.league-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.league-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stat:hover {
+  background: #e9ecef;
+  transform: scale(1.02);
+}
+
+.stat .label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.stat .value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.top-teams {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.top-teams h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.top-teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-team-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.top-team-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.top-team-item:nth-child(1) {
+  border-left-color: #ffd700;
+  background: linear-gradient(135deg, #fff8e1 0%, #f8f9fa 100%);
+}
+
+.top-team-item:nth-child(2) {
+  border-left-color: #c0c0c0;
+  background: linear-gradient(135deg, #f5f5f5 0%, #f8f9fa 100%);
+}
+
+.top-team-item:nth-child(3) {
+  border-left-color: #cd7f32;
+  background: linear-gradient(135deg, #fff3e0 0%, #f8f9fa 100%);
+}
+
+.rank {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #6c757d;
+  min-width: 40px;
+}
+
+.team-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.record {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-align: center;
+}
+
+.win-pct {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #28a745;
+  text-align: right;
+}
+
+.division-breakdown {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.division-breakdown h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.divisions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.division-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.division-card:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.division-card h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.division-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.division-stats .stat {
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.division-stats .stat .label {
+  font-size: 0.8rem;
+}
+
+.division-stats .stat .value {
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mlb-tracker {
+    padding: 1rem;
+  }
+  
+  .tracker-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .league-overview {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .league-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .top-team-item {
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem;
+  }
+  
+  .rank {
+    grid-row: 1;
+  }
+  
+  .team-name {
+    grid-row: 1;
+  }
+  
+  .record {
+    grid-row: 2;
+    grid-column: 1;
+    text-align: left;
+  }
+  
+  .win-pct {
+    grid-row: 2;
+    grid-column: 2;
+    text-align: right;
+  }
+  
+  .divisions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .mlb-tracker {
+    padding: 0.75rem;
+  }
+  
+  .league-card,
+  .top-teams,
+  .division-breakdown {
+    padding: 1rem;
+  }
+  
+  .tracker-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .top-team-item {
+    padding: 0.75rem;
+  }
+  
+  .division-stats {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,38 @@
+.team-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid #1e3a8a;
+  min-width: 250px;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.team-name {
+  margin: 0 0 15px 0;
+  color: #1e3a8a;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.team-info {
+  font-size: 0.9rem;
+}
+
+.team-info p {
+  margin: 8px 0;
+  color: #374151;
+}
+
+.team-info strong {
+  color: #1f2937;
+}
+
+
+
