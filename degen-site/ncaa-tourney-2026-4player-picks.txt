@@ -1,0 +1,64 @@
+NCAA Tournament 2026 (4-Player Draft) - From Activity Log
+=======================================================
+
+TG's Picks (5 teams):
+---------------------------------------------
+Pick # 1: Michigan Wolverines
+Pick # 8: Iowa State Cyclones
+Pick # 9: UConn Huskies
+Pick #16: Arkansas Razorbacks
+Pick #17: Virginia Cavaliers
+
+DM's Picks (6 teams):
+---------------------------------------------
+Pick # 2: Duke Blue Devils
+Pick # 7: Illinois Fighting Illini
+Pick #10: Kansas Jayhawks
+Pick #15: Texas Tech Red Raiders
+Pick #18: Wisconsin Badgers
+Pick #23: UCLA Bruins
+
+KH's Picks (6 teams):
+---------------------------------------------
+Pick # 3: Arizona Wildcats
+Pick # 6: Purdue Boilermakers
+Pick #11: Michigan St Spartans
+Pick #14: Vanderbilt Commodores
+Pick #19: Tennessee Volunteers
+Pick #22: Louisville Cardinals
+
+MC's Picks (6 teams):
+---------------------------------------------
+Pick # 4: Florida Gators
+Pick # 5: Houston Cougars
+Pick #12: Gonzaga Bulldogs
+Pick #13: St. John's Red Storm
+Pick #20: Alabama Crimson Tide
+Pick #21: Nebraska Cornhuskers
+
+
+Full Draft Order (from Activity Log):
+=======================================================
+Pick # 1 (TG): Michigan Wolverines
+Pick # 2 (DM): Duke Blue Devils
+Pick # 3 (KH): Arizona Wildcats
+Pick # 4 (MC): Florida Gators
+Pick # 5 (MC): Houston Cougars
+Pick # 6 (KH): Purdue Boilermakers
+Pick # 7 (DM): Illinois Fighting Illini
+Pick # 8 (TG): Iowa State Cyclones
+Pick # 9 (TG): UConn Huskies
+Pick #10 (DM): Kansas Jayhawks
+Pick #11 (KH): Michigan St Spartans
+Pick #12 (MC): Gonzaga Bulldogs
+Pick #13 (MC): St. John's Red Storm
+Pick #14 (KH): Vanderbilt Commodores
+Pick #15 (DM): Texas Tech Red Raiders
+Pick #16 (TG): Arkansas Razorbacks
+Pick #17 (TG): Virginia Cavaliers
+Pick #18 (DM): Wisconsin Badgers
+Pick #19 (KH): Tennessee Volunteers
+Pick #20 (MC): Alabama Crimson Tide
+Pick #21 (MC): Nebraska Cornhuskers
+Pick #22 (KH): Louisville Cardinals
+Pick #23 (DM): UCLA Bruins

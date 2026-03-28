@@ -28,12 +28,25 @@ class DataStore {
     this.draftPicks = new Map();
     this.initialized = false;
     
-    // Initialize with existing data asynchronously
-    this.initializeData();
+    // Only initialize file-based data if not using DynamoDB
+    if (!USE_DYNAMODB) {
+      // Initialize with existing data asynchronously
+      this.initializeData();
+    } else {
+      // Mark as initialized for DynamoDB mode
+      this.initialized = true;
+      console.log('✅ DataStore initialized in DynamoDB mode');
+    }
   }
 
   async initializeData() {
     if (this.initialized) return;
+    
+    // Skip file loading in Lambda/DynamoDB mode
+    if (USE_DYNAMODB) {
+      this.initialized = true;
+      return;
+    }
     
     // Load existing data from file
     await this.loadDataStore();
@@ -128,14 +141,13 @@ class DataStore {
     this.payoutRows.clear();
     console.log('💰 Initializing payout structures...');
     
-    // MLB 2024 payout structure (same as 2025)
+    // MLB 2024 payout structure
     const mlb2024Payouts = [
       { level: 'Wild Card', teams: 4, percentage: 5.00 },
       { level: 'Division', teams: 8, percentage: 20.00 },
       { level: 'League', teams: 4, percentage: 24.00 },
       { level: 'World Series', teams: 2, percentage: 24.00 },
-      { level: 'Winner', teams: 1, percentage: 22.50 },
-      { level: 'Worst Record', teams: 1, percentage: 4.50 }
+      { level: 'Winner', teams: 1, percentage: 27.00 }
     ];
 
     mlb2024Payouts.forEach(payout => {
@@ -423,19 +435,57 @@ class DataStore {
 
   // Ensure initialization before operations
   async ensureInitialized() {
+    if (USE_DYNAMODB) {
+      // DynamoDB mode doesn't need file-based initialization
+      this.initialized = true;
+      return;
+    }
+    
     if (!this.initialized) {
       await this.initializeData();
     }
   }
 
   // Standardize team data structure
+  // Helper function to determine sportsLeague from league value
+  getSportsLeagueFromLeague(league) {
+    if (!league) return null;
+    const leagueLower = league.toLowerCase();
+    
+    // NBA teams have "Eastern Conference" or "Western Conference"
+    if (leagueLower.includes('conference') && (leagueLower.includes('eastern') || leagueLower.includes('western'))) {
+      return 'NBA';
+    }
+    
+    // NFL teams have "AFC" or "NFC"
+    if (leagueLower === 'afc' || leagueLower === 'nfc') {
+      return 'NFL';
+    }
+    
+    // MLB teams have "American League" or "National League"
+    if (leagueLower.includes('league') && (leagueLower.includes('american') || leagueLower.includes('national'))) {
+      return 'MLB';
+    }
+    
+    // NCAA teams have "NCAA" (case insensitive)
+    if (leagueLower === 'ncaa') {
+      return 'NCAA';
+    }
+    
+    return null;
+  }
+
   standardizeTeam(teamData) {
+    // Automatically determine sportsLeague from league if not provided
+    const sportsLeague = teamData.sportsLeague || this.getSportsLeagueFromLeague(teamData.league);
+    
     return {
       id: teamData.id || uuidv4(),
       name: teamData.name,
       record: teamData.record || '0-0',
       league: teamData.league,
       division: teamData.division || 'Unknown',
+      sportsLeague: sportsLeague,
       wins: teamData.wins || 0,
       losses: teamData.losses || 0,
       gamesBack: teamData.gamesBack || '0',
@@ -492,6 +542,14 @@ class DataStore {
         // NCAA teams have league "NCAA"
         if (league.toLowerCase() === 'ncaa' && season === '2025') {
           return seasonMatches && team.league.toLowerCase() === 'ncaa';
+        }
+        // NHL teams have sportsLeague "NHL"
+        if (league.toLowerCase() === 'nhl' && season === '2025') {
+          return seasonMatches && team.sportsLeague === 'NHL';
+        }
+        // NFL-MVP has sportsLeague "NFL-MVP"
+        if (league.toLowerCase() === 'nfl-mvp' && season === '2025') {
+          return seasonMatches && team.sportsLeague === 'NFL-MVP';
         }
         // Fallback to original logic - check both league and season
         return seasonMatches && team.league.toLowerCase().includes(league.toLowerCase());
@@ -1067,8 +1125,53 @@ class DataStore {
     return this.owners.get(id);
   }
 
+  // Draft Status operations
+  async getDraftStatus(league, season) {
+    console.log('🔍 getDraftStatus called with:', { league, season });
+    
+    // Use DynamoDB if enabled
+    if (USE_DYNAMODB && dynamoDBAdapter) {
+      return await dynamoDBAdapter.getDraftStatus(league, season);
+    }
+    
+    // File-based fallback (not implemented for draft status)
+    console.warn('⚠️ Draft Status is only available with DynamoDB');
+    return null;
+  }
+
+  async getAllDraftStatuses() {
+    console.log('🔍 getAllDraftStatuses called');
+    
+    // Use DynamoDB if enabled
+    if (USE_DYNAMODB && dynamoDBAdapter) {
+      return await dynamoDBAdapter.getAllDraftStatuses();
+    }
+    
+    // File-based fallback (not implemented for draft status)
+    console.warn('⚠️ Draft Status is only available with DynamoDB');
+    return [];
+  }
+
+  async updateDraftStatus(league, season, status) {
+    console.log('🔄 updateDraftStatus called with:', { league, season, status });
+    
+    // Use DynamoDB if enabled
+    if (USE_DYNAMODB && dynamoDBAdapter) {
+      return await dynamoDBAdapter.updateDraftStatus(league, season, status);
+    }
+    
+    // File-based fallback (not implemented for draft status)
+    console.warn('⚠️ Draft Status is only available with DynamoDB');
+    throw new Error('Draft Status updates are only available with DynamoDB');
+  }
+
   // Persistence methods
   async saveDataStore() {
+    // Skip file operations in DynamoDB mode
+    if (USE_DYNAMODB) {
+      return;
+    }
+    
     // Only save if already initialized to prevent infinite loops
     if (!this.initialized) {
       return;
@@ -1103,6 +1206,12 @@ class DataStore {
   }
 
   async loadDataStore() {
+    // Skip file operations in DynamoDB mode
+    if (USE_DYNAMODB) {
+      console.log('⏭️ Skipping file load in DynamoDB mode');
+      return;
+    }
+    
     try {
       const data = await fs.readFile(DATASTORE_FILE, 'utf8');
       const savedData = JSON.parse(data);
@@ -1172,11 +1281,42 @@ class DataStore {
       }
     }
   }
+
+  // ==========================================
+  // Update Status Methods (for async operations)
+  // ==========================================
+
+  async createUpdateStatus(updateStatus) {
+    if (USE_DYNAMODB) {
+      return await dynamoDBAdapter.createUpdateStatus(updateStatus);
+    }
+    // In-memory mode: not implemented for async operations
+    throw new Error('Update status tracking requires DynamoDB');
+  }
+
+  async getUpdateStatus(id) {
+    if (USE_DYNAMODB) {
+      return await dynamoDBAdapter.getUpdateStatus(id);
+    }
+    throw new Error('Update status tracking requires DynamoDB');
+  }
+
+  async updateUpdateStatus(id, updates) {
+    if (USE_DYNAMODB) {
+      return await dynamoDBAdapter.updateUpdateStatus(id, updates);
+    }
+    throw new Error('Update status tracking requires DynamoDB');
+  }
+
+  async getActiveUpdates(league, season) {
+    if (USE_DYNAMODB) {
+      return await dynamoDBAdapter.getActiveUpdates(league, season);
+    }
+    return [];
+  }
 }
 
 // Singleton instance
 const dataStore = new DataStore();
-
-export { dataStore };
 
 export { dataStore };

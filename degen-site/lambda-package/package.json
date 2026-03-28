@@ -1,6 +1,6 @@
 {
   "name": "degen-site",
-  "version": "0.1.0",
+  "version": "0.4.7",
   "type": "module",
   "main": "src/graphql/lambda.js",
   "dependencies": {
@@ -11,6 +11,7 @@
     "uuid": "^11.1.0",
     "dotenv": "^17.2.1",
     "@aws-sdk/client-dynamodb": "^3.922.0",
-    "@aws-sdk/lib-dynamodb": "^3.922.0"
+    "@aws-sdk/lib-dynamodb": "^3.922.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.922.0"
   }
 }

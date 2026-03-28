@@ -6,7 +6,7 @@
 }
 
 .team-owners-container h2 {
-  color: #2c3e50;
+  color: #f3f4f6;
   text-align: center;
   margin-bottom: 10px;
   font-size: 2.2rem;
@@ -15,7 +15,7 @@
 
 .page-description {
   text-align: center;
-  color: #7f8c8d;
+  color: #9ca3af;
   font-size: 1.1rem;
   margin-bottom: 30px;
   line-height: 1.5;
@@ -25,13 +25,13 @@
   text-align: center;
   padding: 40px;
   font-size: 1.2rem;
-  color: #7f8c8d;
+  color: #9ca3af;
 }
 
 .error {
-  color: #e74c3c;
-  background-color: #fdf2f2;
-  border: 1px solid #f5c6cb;
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
 }
 
@@ -44,63 +44,63 @@
 }
 
 .owner-section {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
 
 .owner-section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* Owner-specific colors */
 .owner-section.owner-tg {
-  border-color: #e91e63;
+  border-color: #ec4899;
 }
 
 .owner-section.owner-tg .owner-name {
-  color: #e91e63;
+  color: #f472b6;
 }
 
 .owner-section.owner-kh {
-  border-color: #3498db;
+  border-color: #3b82f6;
 }
 
 .owner-section.owner-kh .owner-name {
-  color: #3498db;
+  color: #60a5fa;
 }
 
 .owner-section.owner-dm {
-  border-color: #27ae60;
+  border-color: #22c55e;
 }
 
 .owner-section.owner-dm .owner-name {
-  color: #27ae60;
+  color: #4ade80;
 }
 
 .owner-section.owner-mc {
-  border-color: #9b59b6;
+  border-color: #a855f7;
 }
 
 .owner-section.owner-mc .owner-name {
-  color: #9b59b6;
+  color: #c084fc;
 }
 
 .owner-section.owner-none {
-  border-color: #95a5a6;
+  border-color: #6b7280;
   opacity: 0.8;
 }
 
 .owner-section.owner-none .owner-name {
-  color: #95a5a6;
+  color: #9ca3af;
 }
 
 .owner-section.owner-na .owner-name {
-  color: #d97706;
+  color: #fbbf24;
 }
 
 .owner-section.owner-na {
@@ -120,8 +120,8 @@
 .team-count {
   font-size: 0.9rem;
   font-weight: 400;
-  color: #7f8c8d;
-  background: #ecf0f1;
+  color: #9ca3af;
+  background: #2a2a2a;
   padding: 4px 8px;
   border-radius: 12px;
 }
@@ -138,15 +138,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: #f8f9fa;
+  background: #111111;
   border-radius: 8px;
-  border-left: 3px solid #e9ecef;
+  border-left: 3px solid #333;
   transition: all 0.2s ease;
 }
 
 .team-item:hover {
-  background: #e9ecef;
-  border-left-color: #6c757d;
+  background: #1a1a1a;
+  border-left-color: #555;
 }
 
 .team-info {
@@ -157,37 +157,37 @@
 
 .team-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: #f3f4f6;
   font-size: 1rem;
 }
 
 .team-details {
   font-size: 0.85rem;
-  color: #7f8c8d;
+  color: #9ca3af;
   font-weight: 500;
 }
 
 .team-record {
   font-weight: 600;
-  color: #34495e;
+  color: #e5e7eb;
   font-size: 0.95rem;
   padding: 4px 8px;
-  background: white;
+  background: #2a2a2a;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #333;
 }
 
 /* Summary Stats */
 .summary-stats {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   padding: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2a2a2a;
 }
 
 .summary-stats h3 {
-  color: #2c3e50;
+  color: #f3f4f6;
   margin-bottom: 20px;
   font-size: 1.3rem;
   font-weight: 600;
@@ -205,19 +205,19 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background: #f8f9fa;
+  background: #111111;
   border-radius: 8px;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid #3b82f6;
 }
 
 .stat-label {
   font-weight: 500;
-  color: #34495e;
+  color: #e5e7eb;
 }
 
 .stat-value {
   font-weight: 600;
-  color: #2c3e50;
+  color: #f3f4f6;
   font-size: 1.1rem;
 }
 

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { ApolloProvider } from '@apollo/client';
 import './App.css';
 import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import TeamTable from './components/TeamTable';
+import NCAADraftSection from './components/NCAADraftSection';
+import NCAASurvivorSection from './components/NCAASurvivorSection';
 import HeaderBar from './components/HeaderBar';
 import SettingsPage from './components/SettingsPage';
 import TeamOwners from './components/TeamOwners';
 import AdminPage from './components/AdminPage';
 import LoginPage from './components/LoginPage';
-import { client } from './graphql/client';
+import VersionMarker from './components/VersionMarker';
 import { getCurrentUser, signOut } from './services/authService';
+import { clearDynamoDBClientCache, preInitializeDynamoDBClient, checkUserDraftAccess } from './services/dynamoDBService';
+import { ApolloProvider } from '@apollo/client';
+import { client } from './graphql/client';
 
 function App() {
   const [currentView, setCurrentView] = useState('home');
@@ -23,6 +27,7 @@ function App() {
     try {
       const currentUser = await getCurrentUser();
       if (currentUser && currentUser.session && currentUser.session.isValid()) {
+        console.log('[App] validateAuth – user:', { isSiteAdmin: currentUser?.isSiteAdmin, groups: currentUser?.groups, email: currentUser?.email });
         setUser(currentUser);
         return true;
       } else {
@@ -70,14 +75,32 @@ function App() {
     };
   }, []);
 
-  const handleLoginSuccess = (userData) => {
-    setUser(userData);
+  const handleLoginSuccess = async (userData) => {
+    // After successful login, get the full user object with session
+    // This ensures the user object is consistent with what validateAuth returns
+    try {
+      const fullUser = await getCurrentUser();
+      
+      // Clear and reinitialize DynamoDB client with new credentials
+      clearDynamoDBClientCache();
+      await preInitializeDynamoDBClient();
+      
+      const finalUser = fullUser || userData;
+      console.log('[App] handleLoginSuccess – user:', { isSiteAdmin: finalUser?.isSiteAdmin, groups: finalUser?.groups, email: finalUser?.email });
+      setUser(finalUser);
+    } catch (error) {
+      console.error('Error getting user after login:', error);
+      console.log('[App] handleLoginSuccess fallback – userData:', { isSiteAdmin: userData?.isSiteAdmin, groups: userData?.groups, email: userData?.email });
+      setUser(userData);
+    }
     setCurrentView('home');
   };
 
   const handleLogout = async () => {
     try {
       await signOut();
+      // Clear DynamoDB client cache on logout
+      clearDynamoDBClientCache();
       setUser(null);
       setCurrentView('home');
       setSelectedLeague(null);
@@ -120,6 +143,24 @@ function App() {
 
   const handleLeagueSelect = async (leagueId) => {
     console.log(`🎯 League selected: ${leagueId}`);
+    
+    // Site admins bypass draft access checks
+    if (!user?.isSiteAdmin) {
+      const userEmail = user?.email || user?.attributes?.email || '';
+      if (userEmail) {
+        const parts = leagueId.split('-');
+        const season = parts.pop();
+        const league = parts.join('-');
+        
+        const hasAccess = await checkUserDraftAccess(userEmail, league, season);
+        if (!hasAccess) {
+          console.warn(`❌ User ${userEmail} does not have access to ${leagueId}`);
+          alert('You do not have access to this draft.');
+          return;
+        }
+      }
+    }
+    
     await navigateWithAuth('league', leagueId);
   };
 
@@ -141,12 +182,15 @@ function App() {
 
   const getLeagueName = (leagueId) => {
     const leagueNames = {
-      'mlb-2024': 'Major League Baseball 2024',
-      'mlb-2025': 'Major League Baseball 2025',
-      'nba-2024': 'National Basketball Association 2024',
-      'nba-2025': 'National Basketball Association 2025',
-      'nfl-2025': 'National Football League 2025',
-      'ncaa-2025': 'NCAA Football 2025'
+      'mlb-2024': 'MLB 2024',
+      'mlb-2025': 'MLB 2025',
+      'nba-2024': 'NBA 2024',
+      'nba-2025': 'NBA 2025',
+      'nfl-2025': 'NFL 2025',
+      'ncaa-2025': 'NCAA Football 2025',
+      'ncaa-tourney-2025': 'NCAA Tournament 2025',
+      'ncaa-tourney-2026': 'NCAA Tournament 2026',
+      'ncaa-tourney-4-2026': 'NCAA Tournament 2026 (4-Player)'
     };
     return leagueNames[leagueId] || 'League';
   };
@@ -173,40 +217,46 @@ function App() {
     );
   }
 
+  // Always wrap with ApolloProvider (even with no-op client) to satisfy hook requirements
+  // The client is configured to work with direct DynamoDB when needed
   return (
     <ApolloProvider client={client}>
       <div className="App">
-        {currentView === 'home' && (
-          <HeaderBar 
-            user={user} 
-            onNavigateSettings={handleSettingsClick} 
-            onSettingsClick={handleSettingsClick}
-            onLogout={handleLogout}
-          />
-        )}
-
-        <Navigation 
-          currentView={currentView}
-          onBackToHome={handleBackToHome}
-          leagueName={selectedLeague ? getLeagueName(selectedLeague) : ''}
-          user={currentView === 'league' ? user : null}
-          onSettingsClick={currentView === 'league' ? handleSettingsClick : null}
+        <HeaderBar 
+          user={user} 
+          onNavigateSettings={handleSettingsClick} 
+          onSettingsClick={handleSettingsClick}
           onLogout={handleLogout}
+          onBackToHome={currentView === 'league' ? handleBackToHome : null}
+          onHomeClick={handleBackToHome}
         />
         
         {currentView === 'home' && (
-          <HomePage onLeagueSelect={handleLeagueSelect} />
+          <HomePage onLeagueSelect={handleLeagueSelect} user={user} />
         )}
 
         {currentView === 'league' && (
           <div className="league-view">
-            {(selectedLeague === 'mlb-2024' || selectedLeague === 'mlb-2025' || selectedLeague === 'nba-2024' || selectedLeague === 'nba-2025' || selectedLeague === 'nfl-2025' || selectedLeague === 'ncaa-2025') && (
+            {/* NCAA Survivor Pool */}
+            {selectedLeague?.startsWith('ncaa-survivor-') && (
+              <NCAASurvivorSection leagueId={selectedLeague} onBack={handleBackToHome} user={user} />
+            )}
+            {/* NCAA Tournament Bracket Draft */}
+            {selectedLeague?.startsWith('ncaa-tourney-') && (
+              <>
+                {console.log(`🏀 Rendering NCAADraftSection with leagueId: ${selectedLeague}`)}
+                <NCAADraftSection leagueId={selectedLeague} onBack={handleBackToHome} />
+              </>
+            )}
+            {/* Regular Draft Leagues */}
+            {(selectedLeague === 'mlb-2024' || selectedLeague === 'mlb-2025' || selectedLeague === 'nba-2024' || selectedLeague === 'nba-2025' || selectedLeague === 'nfl-2025' || selectedLeague === 'ncaa-2025' || selectedLeague === 'nhl-2025' || selectedLeague === 'nfl-mvp-2025') && (
               <>
                 {console.log(`🏈 Rendering TeamTable with leagueId: ${selectedLeague}`)}
                 <TeamTable leagueId={selectedLeague} />
               </>
             )}
-            {selectedLeague !== 'mlb-2024' && selectedLeague !== 'mlb-2025' && selectedLeague !== 'nba-2024' && selectedLeague !== 'nba-2025' && selectedLeague !== 'nfl-2025' && selectedLeague !== 'ncaa-2025' && (
+            {/* Coming Soon for unrecognized leagues */}
+            {selectedLeague && !selectedLeague.startsWith('ncaa-tourney-') && !selectedLeague.startsWith('ncaa-survivor-') && selectedLeague !== 'mlb-2024' && selectedLeague !== 'mlb-2025' && selectedLeague !== 'nba-2024' && selectedLeague !== 'nba-2025' && selectedLeague !== 'nfl-2025' && selectedLeague !== 'ncaa-2025' && selectedLeague !== 'nhl-2025' && selectedLeague !== 'nfl-mvp-2025' && (
               <div className="coming-soon">
                 <h2>Coming Soon!</h2>
                 <p>Team data for {getLeagueName(selectedLeague)} will be available soon.</p>
@@ -219,6 +269,7 @@ function App() {
           <SettingsPage 
             onTeamOwnersClick={handleTeamOwnersClick}
             onAdminClick={handleAdminClick}
+            isSiteAdmin={user?.isSiteAdmin}
           />
         )}
 
@@ -230,10 +281,14 @@ function App() {
         )}
 
         {currentView === 'admin' && (
-          <AdminPage onBackToHome={handleBackToHome} />
+          <AdminPage 
+            onBackToHome={handleBackToHome}
+          />
         )}
-        </div>
-      </ApolloProvider>
+
+        <VersionMarker />
+      </div>
+    </ApolloProvider>
   );
 }
 

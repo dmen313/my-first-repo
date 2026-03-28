@@ -21,3 +21,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# secrets
+.env
+.env.bak
+
+# build artifacts
+lambda-deploy.zip

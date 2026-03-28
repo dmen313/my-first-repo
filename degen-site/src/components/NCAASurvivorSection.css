@@ -1,0 +1,821 @@
+/* ============================================
+   NCAA Survivor Pool Styles
+   ============================================ */
+
+.survivor-section {
+  padding: 8px 4px;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Header */
+.survivor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
+.survivor-header .back-btn {
+  background: none;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.survivor-header .back-btn:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.survivor-header .header-info {
+  text-align: center;
+  flex: 1;
+}
+
+.survivor-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.survivor-header .header-subtitle {
+  margin: 2px 0 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.survivor-header .refresh-btn {
+  background: none;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.survivor-header .refresh-btn:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* Countdown */
+.survivor-countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 20px;
+  margin-bottom: 12px;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  text-align: center;
+}
+
+.survivor-countdown .countdown-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.survivor-countdown .countdown-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: #22c55e;
+}
+
+.survivor-countdown .countdown-day {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.survivor-countdown .countdown-lock-icon {
+  font-size: 1.25rem;
+}
+
+.survivor-countdown.warning .countdown-time {
+  color: #f59e0b;
+}
+
+.survivor-countdown.urgent .countdown-time {
+  color: #ef4444;
+  animation: pulse-text 1s ease-in-out infinite;
+}
+
+.survivor-countdown.expired {
+  background: #3b0f0f;
+  border-color: #7f1d1d;
+}
+
+.survivor-countdown.expired .countdown-label {
+  color: #fca5a5;
+}
+
+.survivor-countdown.tbd {
+  opacity: 0.7;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Day Selector Tabs */
+.day-selector {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.day-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.day-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.day-tab .day-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.day-tab .day-date {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.day-tab:hover {
+  background: #334155;
+  border-color: #475569;
+}
+
+.day-tab.active {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.day-tab.active .day-label,
+.day-tab.active .day-date {
+  color: #ffffff;
+}
+
+/* Pool Stats */
+.pool-stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pool-stats::-webkit-scrollbar {
+  display: none;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 16px;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  flex: 1;
+  min-width: 70px;
+}
+
+.stat-card .stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.stat-card .stat-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card.pool-amount .stat-value {
+  color: #22c55e;
+}
+
+/* Entries Table */
+.entries-table-container {
+  overflow-x: auto;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #1e293b;
+}
+
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.entries-table thead th {
+  padding: 10px 12px;
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #334155;
+  white-space: nowrap;
+  background: #0f172a;
+}
+
+.entries-table tbody tr {
+  border-bottom: 1px solid #1e293b;
+  transition: background 0.15s;
+}
+
+.entries-table tbody tr:hover {
+  background: #334155;
+}
+
+.entries-table tbody tr.eliminated {
+  opacity: 0.6;
+}
+
+.entries-table tbody td {
+  padding: 8px 12px;
+  color: #e2e8f0;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.entry-name .player-name {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid;
+  text-transform: capitalize;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.cost-cell {
+  font-weight: 600;
+  color: #22c55e !important;
+}
+
+/* Result column */
+.result-cell {
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.result-cell .result-icon {
+  margin-right: 4px;
+}
+
+.result-cell.passed .result-text {
+  color: #4ade80;
+}
+
+.result-cell.failed .result-text,
+.result-cell.eliminated .result-text {
+  color: #f87171;
+}
+
+.result-cell.submitted .result-text {
+  color: #cbd5e1;
+}
+
+.result-cell.pending .result-text {
+  color: #94a3b8;
+}
+
+/* Pick status display */
+.pick-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pick-status .pick-icon {
+  margin-right: 4px;
+}
+
+.pick-teams-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+  justify-content: center;
+}
+
+.team-chip-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  background: #1e3a5f;
+  border: 1px solid #2563eb40;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #f1f5f9;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.result-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  line-height: 1.3;
+}
+
+.result-badge.win {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.result-badge.loss {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.result-badge.pending {
+  background: #475569;
+  color: #e2e8f0;
+}
+
+/* Used Teams */
+.used-teams-cell {
+  max-width: 200px;
+}
+
+.used-teams-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+}
+
+.team-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: #334155;
+  border: 1px solid #47556940;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: #e2e8f0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.team-chip.team-loss {
+  background: #450a0a;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+  text-decoration: line-through;
+}
+
+/* Action Buttons */
+.actions-cell {
+  white-space: nowrap;
+}
+
+.action-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn.pick-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.action-btn.pick-btn:hover {
+  background: #2563eb;
+}
+
+.action-btn.buyback-btn {
+  background: #f59e0b;
+  color: #1a1a2e;
+}
+
+.action-btn.buyback-btn:hover {
+  background: #d97706;
+}
+
+/* Add Entry */
+.add-entry-section {
+  text-align: center;
+  padding: 12px;
+}
+
+.add-entry-btn {
+  padding: 8px 24px;
+  background: #334155;
+  border: 1px dashed #475569;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-entry-btn:hover {
+  background: #475569;
+  color: #e2e8f0;
+}
+
+/* Picker Overlay */
+.picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Day Picker */
+.survivor-day-picker {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid #334155;
+}
+
+.picker-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.picker-header h3 {
+  margin: 0 0 4px;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.picker-subtitle {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.buyback-notice {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.selection-count {
+  margin-top: 8px;
+}
+
+.selection-count .count {
+  display: inline-block;
+  padding: 4px 16px;
+  background: #334155;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.selection-count .count.complete {
+  background: #166534;
+  color: #4ade80;
+}
+
+/* Used teams warning */
+.deadline-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #3b2a0f;
+  border: 1px solid #92400e;
+  border-radius: 8px;
+  color: #fcd34d;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.used-teams-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #3b0f0f;
+  border: 1px solid #7f1d1d;
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.auto-loss-warning {
+  padding: 12px;
+  background: #3b0f0f;
+  border: 1px solid #7f1d1d;
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Games Grid */
+.games-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.game-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.game-time {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.game-matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.game-matchup .vs {
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.team-pick-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.team-pick-btn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  background: #1e3a5f;
+}
+
+.team-pick-btn.selected {
+  border-color: #22c55e;
+  background: #14532d;
+  color: #4ade80;
+}
+
+.team-pick-btn.used {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.team-pick-btn:disabled:not(.used) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.team-pick-btn .seed {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.team-pick-btn .used-marker {
+  font-size: 0.6rem;
+  color: #ef4444;
+  text-decoration: none;
+}
+
+/* Picker Actions */
+.picker-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.picker-actions .cancel-btn {
+  flex: 1;
+  padding: 10px;
+  background: #334155;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.picker-actions .cancel-btn:hover {
+  background: #475569;
+}
+
+.picker-actions .submit-btn {
+  flex: 2;
+  padding: 10px;
+  background: #22c55e;
+  border: none;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.picker-actions .submit-btn:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.picker-actions .submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Empty / Loading / Error states */
+.survivor-loading,
+.survivor-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.survivor-error button {
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.picker-empty {
+  text-align: center;
+  color: #94a3b8;
+}
+
+.no-schedule-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.no-schedule-message h3 {
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.no-schedule-message code {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #0f172a;
+  border-radius: 6px;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 0.8rem;
+  color: #38bdf8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .survivor-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .survivor-header .header-info {
+    order: -1;
+    width: 100%;
+  }
+
+  .survivor-countdown {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pool-stats {
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    min-width: 60px;
+    padding: 8px 10px;
+  }
+
+  .entries-table {
+    font-size: 0.75rem;
+  }
+
+  .entries-table thead th {
+    font-size: 0.65rem;
+    padding: 6px 8px;
+  }
+
+  .entries-table tbody td {
+    padding: 6px 8px;
+  }
+
+  .survivor-day-picker {
+    padding: 16px;
+    max-height: 90vh;
+  }
+
+  .game-matchup {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .game-matchup .vs {
+    font-size: 0.65rem;
+  }
+
+  .team-pick-btn {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+}

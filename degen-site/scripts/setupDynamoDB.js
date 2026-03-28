@@ -162,6 +162,86 @@ const TABLES = [
       }
     ],
     BillingMode: 'PAY_PER_REQUEST'
+  },
+  {
+    TableName: 'sports-hub-draft-pick-deletions',
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'id', AttributeType: 'S' },
+      { AttributeName: 'league', AttributeType: 'S' },
+      { AttributeName: 'season', AttributeType: 'S' },
+      { AttributeName: 'deletedAt', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'league-season-index',
+        KeySchema: [
+          { AttributeName: 'league', KeyType: 'HASH' },
+          { AttributeName: 'season', KeyType: 'RANGE' }
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      },
+      {
+        IndexName: 'deletedAt-index',
+        KeySchema: [
+          { AttributeName: 'deletedAt', KeyType: 'HASH' }
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  },
+  {
+    TableName: 'sports-hub-draft-statuses',
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'id', AttributeType: 'S' },
+      { AttributeName: 'league', AttributeType: 'S' },
+      { AttributeName: 'season', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'league-season-index',
+        KeySchema: [
+          { AttributeName: 'league', KeyType: 'HASH' },
+          { AttributeName: 'season', KeyType: 'RANGE' }
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  },
+  {
+    TableName: 'sports-hub-activity-logs',
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'id', AttributeType: 'S' },
+      { AttributeName: 'timestampNumber', AttributeType: 'N' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'timestamp-index',
+        KeySchema: [
+          { AttributeName: 'timestampNumber', KeyType: 'HASH' }
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
   }
 ];
 

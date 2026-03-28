@@ -1,33 +1,67 @@
 import { ApolloClient, InMemoryCache, createHttpLink, gql } from '@apollo/client';
+import { USE_DIRECT_DYNAMODB } from '../config/dataSource';
 
-// Create HTTP link to GraphQL server
-const httpLink = createHttpLink({
-  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql',
-});
+// Create Apollo Client - always created, but configured differently based on data source
+let client = null;
 
-// Create Apollo Client
-export const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache({
-    typePolicies: {
-      Query: {
-        fields: {
-          getPayoutRows: {
-            merge: false, // Don't merge, always replace
+if (!USE_DIRECT_DYNAMODB) {
+  // Create HTTP link to GraphQL server
+  const httpLink = createHttpLink({
+    uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql',
+  });
+
+  // Create Apollo Client
+  client = new ApolloClient({
+    link: httpLink,
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            getPayoutRows: {
+              merge: false, // Don't merge, always replace
+            },
           },
         },
       },
+    }),
+    defaultOptions: {
+      watchQuery: {
+        errorPolicy: 'all',
+      },
+      query: {
+        errorPolicy: 'all',
+      },
     },
-  }),
-  defaultOptions: {
-    watchQuery: {
-      errorPolicy: 'all',
+  });
+} else {
+  // Create a minimal Apollo Client that works but doesn't make network requests
+  // This is needed because hooks still need an Apollo Client instance in context
+  // The hooks will be skipped via the skip option, but the client must exist
+  const noOpLink = createHttpLink({
+    uri: 'data:,', // Data URI to prevent actual network requests
+    fetch: () => Promise.resolve(new Response(JSON.stringify({ data: {} }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    }))
+  });
+
+  client = new ApolloClient({
+    link: noOpLink,
+    cache: new InMemoryCache(),
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'ignore',
+      },
+      query: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'ignore',
+      },
     },
-    query: {
-      errorPolicy: 'all',
-    },
-  },
-});
+  });
+}
+
+export { client };
 
 // GraphQL Queries
 export const GET_TEAMS = gql`
@@ -38,12 +72,14 @@ export const GET_TEAMS = gql`
       record
       league
       division
+      sportsLeague
       wins
       losses
       gamesBack
       wildCardGamesBack
       owner
       odds
+      season
       createdAt
       updatedAt
     }
@@ -551,6 +587,20 @@ export const INITIALIZE_DRAFT = gql`
   }
 `;
 
+export const UPDATE_NBA_TEAMS_FROM_API = gql`
+  mutation UpdateNbaTeamsFromApi($league: String!, $season: String!) {
+    updateNbaTeamsFromApi(league: $league, season: $season) {
+      success
+      teamsUpdated
+      oddsUpdated
+      recordsUpdated
+      totalTeams
+      error
+      message
+    }
+  }
+`;
+
 export const REORDER_DRAFT_PICKS = gql`
   mutation ReorderDraftPicks($league: String!, $season: String!, $owners: [String!]!) {
     reorderDraftPicks(league: $league, season: $season, owners: $owners) {
@@ -867,11 +917,21 @@ export const initializeDraft = async (league, season, owners) => {
 
 export const updateTeamApiData = async (teamId, apiData) => {
   try {
-    const { data } = await client.mutate({
-      mutation: UPDATE_TEAM_API_DATA,
-      variables: { id: teamId, input: apiData },
-    });
-    return data.updateTeamApiData;
+    // Check if using direct DynamoDB
+    const { USE_DIRECT_DYNAMODB } = await import('../config/dataSource.js');
+    
+    if (USE_DIRECT_DYNAMODB) {
+      // Use DynamoDB service directly
+      const { updateTeam } = await import('../services/dynamoDBService.js');
+      return await updateTeam(teamId, apiData);
+    } else {
+      // Use GraphQL mutation
+      const { data } = await client.mutate({
+        mutation: UPDATE_TEAM_API_DATA,
+        variables: { id: teamId, input: apiData },
+      });
+      return data.updateTeamApiData;
+    }
   } catch (error) {
     console.error('Error updating team API data:', error);
     throw error;

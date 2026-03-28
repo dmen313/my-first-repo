@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { USE_DIRECT_DYNAMODB } from '../config/dataSource';
 import { useMutation } from '@apollo/client';
 import { REORDER_DRAFT_PICKS } from '../graphql/client';
 import './DraftOrderEditor.css';
@@ -6,8 +7,12 @@ import './DraftOrderEditor.css';
 const DraftOrderEditor = ({ league, season, owners, onClose, onSave }) => {
   const [currentOrder, setCurrentOrder] = useState([...owners]);
   const [isReordering, setIsReordering] = useState(false);
+  const [isRandomizing, setIsRandomizing] = useState(false);
+  const [randomRounds, setRandomRounds] = useState('1');
+  const [randomHistory, setRandomHistory] = useState([]);
   
-  const [reorderDraftPicksMutation] = useMutation(REORDER_DRAFT_PICKS);
+  // Conditionally use mutation only if not using direct DynamoDB
+  const [reorderDraftPicksMutation] = useMutation(REORDER_DRAFT_PICKS, { skip: USE_DIRECT_DYNAMODB });
 
   // Move owner up in the order
   const moveOwnerUp = useCallback((index) => {
@@ -27,6 +32,50 @@ const DraftOrderEditor = ({ league, season, owners, onClose, onSave }) => {
     }
   }, [currentOrder]);
 
+  const handleRandomize = useCallback(() => {
+    if (currentOrder.length < 2) {
+      alert('At least two owners are required to randomize the draft order.');
+      return;
+    }
+
+    if (isRandomizing || isReordering) {
+      return;
+    }
+
+    const parsedRounds = parseInt(randomRounds, 10);
+    const rounds = Number.isNaN(parsedRounds) ? 1 : Math.min(Math.max(parsedRounds, 1), 100);
+
+    setIsRandomizing(true);
+
+    try {
+      const shuffle = (order) => {
+        const arr = [...order];
+        for (let i = arr.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      };
+
+      let nextOrder = [...currentOrder];
+      const results = [];
+
+      for (let round = 1; round <= rounds; round += 1) {
+        nextOrder = shuffle(nextOrder);
+        results.push(
+          `Round ${round}: ${nextOrder
+            .map((owner, index) => `${index + 1}) ${owner}`)
+            .join(' → ')}`
+        );
+      }
+
+      setCurrentOrder(nextOrder);
+      setRandomHistory((prev) => [...results, ...prev]);
+    } finally {
+      setIsRandomizing(false);
+    }
+  }, [currentOrder, isRandomizing, isReordering, randomRounds]);
+
   // Save the new draft order
   const handleSave = useCallback(async () => {
     try {
@@ -34,16 +83,27 @@ const DraftOrderEditor = ({ league, season, owners, onClose, onSave }) => {
       
       console.log('🔄 Reordering draft with new owner order:', currentOrder);
       
-      const { data } = await reorderDraftPicksMutation({
-        variables: {
-          league,
-          season,
-          owners: currentOrder
-        }
-      });
+      let reorderedPicks;
       
-      console.log('✅ Draft reordered successfully');
-      onSave(data.reorderDraftPicks);
+      if (USE_DIRECT_DYNAMODB) {
+        // Use DynamoDB service directly
+        const { reorderDraftPicks } = await import('../services/dynamoDBService');
+        reorderedPicks = await reorderDraftPicks(league, season, currentOrder);
+        console.log('✅ Draft reordered successfully via DynamoDB');
+      } else {
+        // Use GraphQL mutation
+        const { data } = await reorderDraftPicksMutation({
+          variables: {
+            league,
+            season,
+            owners: currentOrder
+          }
+        });
+        reorderedPicks = data.reorderDraftPicks;
+        console.log('✅ Draft reordered successfully via GraphQL');
+      }
+      
+      onSave(reorderedPicks);
       onClose();
       
     } catch (error) {
@@ -80,6 +140,46 @@ const DraftOrderEditor = ({ league, season, owners, onClose, onSave }) => {
             Reorder the owners to change the draft order. The first owner will get picks 1, 5, 9, etc. 
             The second owner will get picks 2, 6, 10, etc. (snake draft format).
           </p>
+
+          <div className="randomizer-section">
+            <div className="randomizer-header">
+              <strong>Randomize draft order</strong>
+              <span className="randomizer-hint">Enter how many rounds of shuffling you want to apply.</span>
+            </div>
+            <div className="randomizer-controls">
+              <label htmlFor="randomRounds">
+                Rounds
+                <input
+                  id="randomRounds"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={randomRounds}
+                  onChange={(e) => setRandomRounds(e.target.value)}
+                  disabled={isRandomizing || isReordering}
+                />
+              </label>
+              <button
+                className="randomize-button"
+                onClick={handleRandomize}
+                disabled={isRandomizing || isReordering}
+              >
+                {isRandomizing ? 'Randomizing...' : 'Randomize Order'}
+              </button>
+            </div>
+            {randomHistory.length > 0 && (
+              <div className="randomizer-history">
+                <span className="randomizer-history-title">Randomized orders:</span>
+                <div className="randomizer-history-list">
+                  {randomHistory.map((entry, index) => (
+                    <div key={`${entry}-${index}`} className="randomizer-history-item">
+                      {entry}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           
           <div className="owner-list">
             {currentOrder.map((owner, index) => (
@@ -122,14 +222,14 @@ const DraftOrderEditor = ({ league, season, owners, onClose, onSave }) => {
           <button
             className="reset-button"
             onClick={handleReset}
-            disabled={!hasChanges || isReordering}
+            disabled={!hasChanges || isReordering || isRandomizing}
           >
             Reset
           </button>
           <button
             className="cancel-button"
             onClick={onClose}
-            disabled={isReordering}
+            disabled={isReordering || isRandomizing}
           >
             Cancel
           </button>

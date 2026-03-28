@@ -77,6 +77,105 @@
   line-height: 1.5;
 }
 
+.randomizer-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f3f4f6;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.randomizer-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.randomizer-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.randomizer-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.randomizer-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.randomizer-controls input {
+  width: 80px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: white;
+}
+
+.randomize-button {
+  background: #10b981;
+  border: 1px solid #10b981;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.randomize-button:hover:not(:disabled) {
+  background: #0ea371;
+  border-color: #0ea371;
+}
+
+.randomize-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.randomizer-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.randomizer-history-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.randomizer-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.randomizer-history-item {
+  font-size: 12px;
+  color: #111827;
+  background: #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
 .owner-list {
   display: flex;
   flex-direction: column;

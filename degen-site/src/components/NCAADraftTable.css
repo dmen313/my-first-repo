@@ -1,0 +1,582 @@
+/* NCAA Draft Table Container */
+.ncaa-draft-table-container {
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.ncaa-draft-table-empty {
+  padding: 40px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.ncaa-draft-table {
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Row */
+.draft-header {
+  display: grid;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.round-header {
+  padding: 12px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  background: #1a1a1a;
+}
+
+.owner-header {
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 3px solid;
+  position: relative;
+  min-width: 90px;
+}
+
+/* Owner Initials - on its own line */
+.owner-initials {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* Points - on its own line */
+.owner-points {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+/* Teams status - simple text like points */
+.owner-teams-status {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Details Button */
+.details-button {
+  margin-top: 4px;
+  padding: 4px 12px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  background: #1a1a1a;
+  color: #9ca3af;
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.details-button:hover {
+  background: #2a2a2a;
+  color: #f3f4f6;
+  border-color: #444;
+}
+
+/* Info Button (for team cells) */
+.info-button {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  line-height: 1;
+}
+
+.info-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Team info row */
+.team-info-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+
+/* Tooltip Close Button */
+.tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #333;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.tooltip-close:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Points Tooltip */
+.points-tooltip {
+  position: fixed;
+  background-color: #000000;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  padding: 12px;
+  padding-top: 12px;
+  min-width: 320px;
+  max-width: 420px;
+  max-height: 450px;
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 1), 0 0 0 4px rgba(0, 0, 0, 0.8);
+  opacity: 1;
+  backdrop-filter: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tooltip-header {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+  padding-right: 30px;
+}
+
+.tooltip-scroll-content {
+  overflow-y: auto;
+  max-height: 380px;
+  padding-right: 4px;
+}
+
+/* Custom scrollbar for tooltip */
+.tooltip-scroll-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tooltip-scroll-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+.tooltip-scroll-content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.tooltip-scroll-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Breakdown Table */
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.breakdown-table th {
+  text-align: left;
+  padding: 6px 8px;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #333;
+  white-space: nowrap;
+}
+
+.breakdown-table th:nth-child(3),
+.breakdown-table th:nth-child(4),
+.breakdown-table th:nth-child(5) {
+  text-align: center;
+}
+
+.breakdown-table td {
+  padding: 6px 8px;
+  color: #e5e7eb;
+  border-bottom: 1px solid #222;
+}
+
+.breakdown-table td:nth-child(3),
+.breakdown-table td:nth-child(4),
+.breakdown-table td:nth-child(5) {
+  text-align: center;
+}
+
+.breakdown-table .team-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.breakdown-table .team-seed {
+  color: #6b7280;
+  font-size: 0.6875rem;
+}
+
+.breakdown-table .total-cell {
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.breakdown-table tbody tr td {
+  color: #22c55e;
+}
+
+.breakdown-table .eliminated-row td {
+  color: #ef4444;
+}
+
+.breakdown-table .eliminated-row .total-cell {
+  color: #ef4444;
+}
+
+.breakdown-table tfoot td {
+  padding: 10px 8px;
+  border-top: 2px solid #333;
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.breakdown-table .total-label {
+  text-align: right;
+  color: #9ca3af;
+}
+
+.breakdown-table .grand-total {
+  text-align: center;
+  color: #22c55e;
+  font-size: 0.875rem;
+}
+
+.points-tooltip pre {
+  margin: 0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #ffffff;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  background: transparent;
+}
+
+/* Team Points Tooltip */
+.team-points-tooltip {
+  position: fixed;
+  background-color: #000000;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 16px;
+  padding-top: 36px;
+  min-width: 280px;
+  max-width: 340px;
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 1), 0 0 0 4px rgba(0, 0, 0, 0.8);
+  opacity: 1;
+  backdrop-filter: none;
+}
+
+.team-points-tooltip pre {
+  margin: 0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #ffffff;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  background: transparent;
+}
+
+/* Draft Rows */
+.draft-row {
+  display: grid;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.draft-row:last-child {
+  border-bottom: none;
+}
+
+.draft-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.round-number {
+  padding: 12px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pick Cell */
+.pick-cell {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-left: 1px solid #2a2a2a;
+  min-height: 60px;
+  position: relative;
+  overflow: visible;
+}
+
+.pick-cell:first-of-type {
+  border-left: none;
+}
+
+.pick-cell.disabled {
+  opacity: 0.5;
+}
+
+.pick-cell.empty {
+  background: #0a0a0a;
+}
+
+.pick-number {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Picked Team Display */
+.picked-team {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+
+.picked-team.has-points {
+  cursor: default;
+}
+
+.picked-team .team-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #f3f4f6;
+  line-height: 1.3;
+}
+
+.picked-team .team-name.eliminated {
+  text-decoration: line-through;
+  text-decoration-color: #ef4444;
+  color: #ef4444;
+  opacity: 0.8;
+}
+
+.picked-team .team-points {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #22c55e;
+  cursor: help;
+}
+
+/* Team Select Dropdown */
+.team-select {
+  width: 100%;
+  padding: 8px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #f3f4f6;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+
+.team-select:hover:not(:disabled) {
+  border-color: #3b82f6;
+}
+
+.team-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.team-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Totals Row */
+.totals-row {
+  background: #0a0a0a;
+}
+
+.totals-row .round-number {
+  font-weight: 700;
+  color: #f3f4f6;
+}
+
+.total-cell {
+  border-top: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.total-points {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .owner-header {
+    padding: 8px 6px;
+    gap: 3px;
+    min-width: 80px;
+  }
+  
+  .owner-initials {
+    font-size: 0.9375rem;
+  }
+  
+  .owner-points {
+    font-size: 0.75rem;
+  }
+  
+  .owner-teams-status {
+    font-size: 0.625rem;
+  }
+  
+  .details-button {
+    padding: 3px 8px;
+    font-size: 0.5625rem;
+  }
+  
+  .pick-cell {
+    padding: 6px 8px;
+    min-height: 50px;
+  }
+  
+  .pick-number {
+    font-size: 0.625rem;
+  }
+  
+  .picked-team .team-name {
+    font-size: 0.75rem;
+  }
+  
+  .picked-team .team-points {
+    font-size: 0.6875rem;
+  }
+  
+  .team-select {
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+  
+  .total-points {
+    font-size: 1rem;
+  }
+  
+  .points-tooltip {
+    min-width: 150px;
+    max-width: 250px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 430px) {
+  .ncaa-draft-table-container {
+    border-radius: 8px;
+  }
+  
+  .round-header {
+    padding: 8px 4px;
+    font-size: 0.625rem;
+  }
+  
+  .owner-header {
+    padding: 6px 4px;
+    gap: 2px;
+    min-width: 70px;
+  }
+  
+  .owner-initials {
+    font-size: 0.75rem;
+  }
+  
+  .owner-points {
+    font-size: 0.625rem;
+  }
+  
+  .owner-teams-status {
+    font-size: 0.5rem;
+  }
+  
+  .details-button {
+    padding: 2px 6px;
+    font-size: 0.5rem;
+    margin-top: 2px;
+  }
+  
+  .round-number {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+  
+  .pick-cell {
+    padding: 4px 6px;
+    min-height: 44px;
+  }
+  
+  .pick-number {
+    font-size: 0.5625rem;
+  }
+  
+  .picked-team .team-name {
+    font-size: 0.6875rem;
+  }
+  
+  .picked-team .team-points {
+    font-size: 0.625rem;
+  }
+  
+  .team-select {
+    padding: 4px;
+    font-size: 0.6875rem;
+    padding-right: 20px;
+    background-position: right 4px center;
+  }
+  
+  .total-points {
+    font-size: 0.875rem;
+  }
+}

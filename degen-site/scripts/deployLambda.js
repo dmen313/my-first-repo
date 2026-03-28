@@ -67,6 +67,7 @@ async function main() {
       'dotenv': packageJson.dependencies['dotenv'],
       '@aws-sdk/client-dynamodb': packageJson.dependencies['@aws-sdk/client-dynamodb'],
       '@aws-sdk/lib-dynamodb': packageJson.dependencies['@aws-sdk/lib-dynamodb'],
+      '@aws-sdk/client-cognito-identity-provider': packageJson.dependencies['@aws-sdk/client-cognito-identity-provider'] || '^3.922.0',
     };
     
     const minimalPackageJson = {
@@ -156,6 +157,7 @@ async function main() {
       execSync(`aws iam create-role --role-name ${roleName} --assume-role-policy-document file:///tmp/lambda-trust-policy.json`, { stdio: 'ignore' });
       execSync(`aws iam attach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`, { stdio: 'ignore' });
       execSync(`aws iam attach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess`, { stdio: 'ignore' });
+      execSync(`aws iam attach-role-policy --role-name ${roleName} --policy-arn arn:aws:iam::aws:policy/AmazonCognitoReadOnly`, { stdio: 'ignore' });
       
       roleArn = execSync(`aws iam get-role --role-name ${roleName} --query "Role.Arn" --output text`, { encoding: 'utf-8' }).trim();
       console.log(`✅ Created IAM role: ${roleArn}`);
@@ -195,6 +197,7 @@ async function main() {
         USE_DYNAMODB: 'true',
         REACT_APP_ODDS_API_KEY: process.env.REACT_APP_ODDS_API_KEY || '',
         REACT_APP_NFL_API_KEY: process.env.REACT_APP_NFL_API_KEY || '',
+        COGNITO_USER_POOL_ID: process.env.REACT_APP_COGNITO_USER_POOL_ID || '',
       };
       
       // Write env vars to temp file for proper JSON handling
@@ -214,16 +217,52 @@ async function main() {
         USE_DYNAMODB: 'true',
         REACT_APP_ODDS_API_KEY: process.env.REACT_APP_ODDS_API_KEY || '',
         REACT_APP_NFL_API_KEY: process.env.REACT_APP_NFL_API_KEY || '',
+        COGNITO_USER_POOL_ID: process.env.REACT_APP_COGNITO_USER_POOL_ID || '',
       };
       const envFile = '/tmp/lambda-env.json';
       fs.writeFileSync(envFile, JSON.stringify({ Variables: envVars }));
+      
+      // Wait for function to be ready before updating configuration
+      console.log('⏳ Waiting for function update to complete...');
+      await new Promise(r => setTimeout(r, 5000));
+      
       try {
-        execSync(`aws lambda update-function-configuration --function-name ${FUNCTION_NAME} --environment file://${envFile} --region ${REGION}`, { stdio: 'ignore' });
+        execSync(`aws lambda update-function-configuration --function-name ${FUNCTION_NAME} --environment file://${envFile} --region ${REGION}`, { stdio: 'inherit' });
+        console.log('✅ Environment variables updated');
       } catch (e) {
         // Environment variables may already be set, continue
         console.log('⚠️  Could not update environment variables (may already be set correctly)');
       }
       if (fs.existsSync(envFile)) fs.unlinkSync(envFile);
+    }
+
+    // Create CloudWatch log group if it doesn't exist
+    const logGroupName = `/aws/lambda/${FUNCTION_NAME}`;
+    console.log(`📝 Checking CloudWatch log group: ${logGroupName}...`);
+    try {
+      execSync(`aws logs describe-log-groups --log-group-name-prefix "${logGroupName}" --region ${REGION} --query "logGroups[?logGroupName=='${logGroupName}'].logGroupName" --output text`, { stdio: 'ignore' });
+      const existingLogGroup = execSync(`aws logs describe-log-groups --log-group-name-prefix "${logGroupName}" --region ${REGION} --query "logGroups[?logGroupName=='${logGroupName}'].logGroupName" --output text`, { encoding: 'utf-8' }).trim();
+      if (existingLogGroup === logGroupName) {
+        console.log('✅ Log group already exists');
+      } else {
+        throw new Error('Log group not found');
+      }
+    } catch (e) {
+      // Log group doesn't exist, try to create it
+      console.log(`📝 Creating CloudWatch log group: ${logGroupName}...`);
+      try {
+        execSync(`aws logs create-log-group --log-group-name "${logGroupName}" --region ${REGION}`, { stdio: 'inherit' });
+        // Set retention policy (optional - 7 days)
+        try {
+          execSync(`aws logs put-retention-policy --log-group-name "${logGroupName}" --retention-in-days 7 --region ${REGION}`, { stdio: 'ignore' });
+        } catch (retentionError) {
+          // Ignore retention policy errors
+        }
+        console.log('✅ Log group created');
+      } catch (createError) {
+        console.warn('⚠️  Could not create log group (may need admin permissions):', createError.message);
+        console.warn('   Log group will be created automatically on first Lambda invocation');
+      }
     }
 
     // Step 4: Create or update API Gateway
@@ -264,7 +303,7 @@ async function main() {
       graphqlResourceId = resource.id;
     }
 
-    // Create ANY method (proxy)
+    // Create ANY method (proxy) - handles all HTTP methods including OPTIONS
     try {
       execSync(`aws apigateway put-method --rest-api-id ${apiId} --resource-id ${graphqlResourceId} --http-method ANY --authorization-type NONE --region ${REGION}`, { stdio: 'ignore' });
     } catch (e) {
@@ -275,6 +314,15 @@ async function main() {
     const integrationUri = `arn:aws:apigateway:${REGION}:lambda:path/2015-03-31/functions/arn:aws:lambda:${REGION}:${execSync('aws sts get-caller-identity --query Account --output text', { encoding: 'utf-8' }).trim()}:function:${FUNCTION_NAME}/invocations`;
     
     execSync(`aws apigateway put-integration --rest-api-id ${apiId} --resource-id ${graphqlResourceId} --http-method ANY --type AWS_PROXY --integration-http-method POST --uri "${integrationUri}" --region ${REGION}`, { stdio: 'ignore' });
+    
+    // Also explicitly create OPTIONS method for CORS preflight
+    try {
+      execSync(`aws apigateway put-method --rest-api-id ${apiId} --resource-id ${graphqlResourceId} --http-method OPTIONS --authorization-type NONE --region ${REGION}`, { stdio: 'ignore' });
+      execSync(`aws apigateway put-integration --rest-api-id ${apiId} --resource-id ${graphqlResourceId} --http-method OPTIONS --type AWS_PROXY --integration-http-method POST --uri "${integrationUri}" --region ${REGION}`, { stdio: 'ignore' });
+      console.log('✅ OPTIONS method configured for CORS');
+    } catch (e) {
+      // Method already exists or failed
+    }
 
     // Grant API Gateway permission to invoke Lambda
     try {

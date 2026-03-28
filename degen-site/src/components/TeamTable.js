@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { fetchAndSaveApiData, getLeagueConfig, getCurrentStandings } from '../services/sportsApi';
-import { useLeagueData, useTeamManagement, useTeams, usePayoutStructure } from '../hooks/useGraphQL';
+import { getLeagueConfig } from '../services/sportsApi';
+import { useLeagueData } from '../hooks/useGraphQL';
 import { useLeagueSettings } from '../hooks/useLeagueSettings';
 import DraftSection from './DraftSection';
 import './TeamTableNew.css';
 
 const TeamTable = ({ leagueId = 'mlb-2025' }) => {
-  const [teams, setTeams] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [asOf, setAsOf] = useState(null);
-  const [metadata, setMetadata] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [apiDataFetched, setApiDataFetched] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Payout plan state
   const [payoutRows, setPayoutRows] = useState([]);
@@ -21,7 +15,6 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
   // League settings hook
   const { 
     settings: leagueSettings, 
-    loading: settingsLoading, 
     updateBuyInPerTeam, 
     updateNumTeams 
   } = useLeagueSettings(leagueId);
@@ -29,33 +22,31 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
   // Get league configuration
   const leagueConfig = getLeagueConfig(leagueId);
 
-  // GraphQL hooks
+  // GraphQL hooks - get all data from useLeagueData to avoid duplicate fetches
   const {
     teams: gqlTeams,
     payoutRows: gqlPayoutRows,
-    achievements,
     loading: gqlLoading,
     updateTeamAchievement,
     getTeamAchievement,
     updatePayoutRowData,
-    refetchData
+    teamsLoading
   } = useLeagueData(leagueId);
 
-  // Get individual hook errors for better error reporting
-  const { error: teamsError } = useTeams(leagueId.split('-')[0], leagueId.split('-')[1]);
-  const { error: payoutError } = usePayoutStructure(leagueId.split('-')[0], leagueId.split('-')[1]);
+  // Note: Error handling is done within useLeagueData
 
   // Team management hook
-  const { updateTeam } = useTeamManagement();
+  // const { updateTeam } = useTeamManagement(); // This line is removed
 
   // Available players for owner selection
-  const availablePlayers = ['DM', 'MC', 'KH', 'TG'];
+  const availablePlayers = useMemo(() => ['DM', 'MC', 'KH', 'TG'], []);
 
   // Use GraphQL data directly instead of copying to local state
   // Use GraphQL data directly
   const currentTeams = gqlTeams;
   const currentPayoutRows = gqlPayoutRows;
-  const currentLoading = gqlLoading;
+  const currentLoading = gqlLoading || teamsLoading;
+  console.log(`📊 TeamTable rendering ${currentTeams.length} teams for ${leagueId}`);
   
   // For backward compatibility, also update the local state
   useEffect(() => {
@@ -63,6 +54,7 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
       setPayoutRows(gqlPayoutRows);
     }
   }, [gqlPayoutRows]);
+  
 
   // Separate useEffect for API data fetching (only once per league change)
   // TEMPORARILY DISABLED to prevent infinite loops
@@ -100,59 +92,6 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
   //   }
   // }, [gqlTeams.length, apiDataFetched, leagueId, isRefreshing]); // Include isRefreshing to prevent loops
 
-  // Reset API fetched flag when league changes
-  useEffect(() => {
-    setApiDataFetched(false);
-  }, [leagueId]);
-
-  // Manual refresh function that updates team data from APIs - league-aware
-  const handleManualRefresh = useCallback(async () => {
-    console.log('🔄 Manual refresh triggered for league:', leagueId);
-    if (!isRefreshing) {
-      try {
-        setIsRefreshing(true);
-        setError(null);
-        
-        // Use the existing sportsApi function which is already league-aware
-        console.log('🔄 Using fetchAndSaveApiData for comprehensive update...');
-        const result = await fetchAndSaveApiData(leagueId, gqlTeams);
-        
-        if (result.success) {
-          console.log(`✅ Updated ${result.successCount}/${result.totalCount} teams with fresh API data`);
-          setAsOf(new Date().toISOString());
-          setMetadata(result.metadata);
-          
-          // Refresh GraphQL data after a short delay to let updates propagate
-          setTimeout(() => {
-            refetchData();
-          }, 2000);
-        } else {
-          throw new Error(result.error || 'Failed to update team data');
-        }
-        
-      } catch (err) {
-        console.error('❌ Error during team data update:', err);
-        setError(`Failed to update team data: ${err.message}`);
-      } finally {
-        setIsRefreshing(false);
-      }
-    }
-  }, [isRefreshing, leagueId, gqlTeams, refetchData]);
-
-  // Handle owner update
-  const handleOwnerUpdate = async (teamId, newOwner) => {
-    try {
-      console.log(`🔄 Updating team ${teamId} owner to ${newOwner}`);
-      await updateTeam({ id: teamId, owner: newOwner });
-      console.log(`✅ Team owner updated successfully`);
-      // Clear any previous errors
-      setError(null);
-    } catch (error) {
-      console.error('❌ Error updating team owner:', error);
-      const errorMessage = error.message || 'Failed to update team owner';
-      setError(`Failed to update team owner: ${errorMessage}`);
-    }
-  };
 
   const updatePayoutField = async (index, field, value) => {
     console.log('💰 Payout field update:', { index, field, value, currentRow: payoutRows[index] });
@@ -196,16 +135,21 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
   };
 
   const updatePlayoffAchievement = async (teamId, achievement, value) => {
-    console.log('🏆 Achievement checkbox clicked:', { teamId, achievement, value });
+    console.log('🏆 Achievement checkbox clicked in TeamTable:', { teamId, achievement, value });
+    console.log('🏆 updateTeamAchievement function exists?', typeof updateTeamAchievement);
     
-    // Always use GraphQL to update achievements
+    if (!updateTeamAchievement) {
+      console.error('❌ updateTeamAchievement is not defined!');
+      setError(`updateTeamAchievement function is not available`);
+      return;
+    }
+    
     try {
-      console.log('📡 Calling GraphQL updateTeamAchievement...');
+      console.log('📡 Calling updateTeamAchievement with:', { teamId, achievement, value });
       await updateTeamAchievement(teamId, achievement, value);
-      console.log('✅ GraphQL achievement update successful');
+      console.log('✅ Achievement update successful from TeamTable');
     } catch (error) {
-      console.error('❌ Failed to update achievement via GraphQL:', error);
-      // In GraphQL-only mode, show user-friendly error
+      console.error('❌ Failed to update achievement:', error);
       setError(`Failed to update ${achievement} for team. Please try again.`);
     }
   };
@@ -227,9 +171,8 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
       const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
       counts[achievementKey] = currentTeams.filter(team => getTeamAchievement(team.id, achievementKey)).length;
     });
-    console.log('🔢 Recalculated achievement counts:', counts, 'triggered by achievements change:', Object.keys(achievements).length);
     return counts;
-  }, [currentTeams, currentPayoutRows, achievements, getTeamAchievement]);
+  }, [currentTeams, payoutRows, getTeamAchievement]);
 
   const getAchievementCount = (achievement) => {
     return achievementCounts[achievement] || 0;
@@ -273,18 +216,29 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
 
     // console.log('📊 Final player achievements:', playerAchievements);
     return playerAchievements;
-  }, [currentTeams, currentPayoutRows, achievements, getTeamAchievement]);
+  }, [currentTeams, currentPayoutRows, getTeamAchievement]);
 
   const totalPool = leagueSettings.totalPool;
 
   // Helper function to calculate player winnings
-  const calculatePlayerWinnings = (playerName) => {
+  const calculatePlayerWinnings = useCallback((playerName) => {
     return currentPayoutRows.reduce((total, row) => {
       const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
       const payoutPerTeam = row.teams > 0 ? (totalPool * getRowPercentage(row) / 100) / row.teams : 0;
       return total + (achievementKey ? playerAchievements[playerName][achievementKey] * payoutPerTeam : 0);
     }, 0);
-  };
+  }, [currentPayoutRows, playerAchievements, totalPool]);
+
+  // Calculate net total for each player and sort them by payout column (Total row)
+  const sortedPlayers = useMemo(() => {
+    const playersWithPayoutTotals = availablePlayers.map(player => ({
+      name: player,
+      payoutTotal: calculatePlayerWinnings(player) // Sort by payout column (Total row value)
+    }));
+    
+    // Sort by payout total from the "Total" row (lowest to highest)
+    return playersWithPayoutTotals.sort((a, b) => a.payoutTotal - b.payoutTotal).map(p => p.name);
+  }, [availablePlayers, calculatePlayerWinnings]);
 
   const sortData = (data, config) => {
     if (!config.key) return data;
@@ -379,6 +333,8 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
   };
 
   const getOwnerRowClass = (owner) => {
+    if (!owner || owner === '') return 'owner-other';
+    
     switch (owner) {
       case 'KH': return 'owner-kh';
       case 'DM': return 'owner-dm';
@@ -405,64 +361,16 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
       {error && (
         <div className="error-banner">
           <span>{error}</span>
-          <button onClick={handleManualRefresh} className="retry-button">
-            Retry
-          </button>
         </div>
       )}
       
-      <div className="data-info-card compact">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3>Hybrid Data (GraphQL + Live APIs)</h3>
-          <button 
-            onClick={handleManualRefresh}
-            disabled={isRefreshing}
-            style={{
-              padding: '5px 10px',
-              backgroundColor: isRefreshing ? '#ccc' : '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: isRefreshing ? 'not-allowed' : 'pointer',
-              fontSize: '12px'
-            }}
-          >
-            {isRefreshing ? 'Updating from APIs...' : 'Update Team Data'}
-          </button>
-        </div>
-        
-        <div className="data-info-simple">
-          <strong>Teams:</strong> {currentTeams.length} | 
-          <strong> Payout Levels:</strong> {currentPayoutRows.length} | 
-          <strong> Last Updated:</strong> {asOf ? new Date(asOf).toLocaleString() : 'On page load'}
-          {metadata?.standings && (
-            <span> • Standings: {metadata.standings.totalTeams} teams from {metadata.standings.source}</span>
-          )}
-          {metadata?.odds && (
-            <span> • Odds: {metadata.odds.teamsWithOdds || 0} teams from {metadata.odds.source || 'API'}</span>
-          )}
-          {/* Display API errors */}
-          {metadata?.standings?.error && (
-            <span className="api-error">⚠️ {metadata.standings.error}</span>
-          )}
-          {metadata?.odds?.error && (
-            <span className="api-error">⚠️ {metadata.odds.error}</span>
-          )}
-          {/* Display GraphQL errors */}
-          {teamsError && (
-            <span className="api-error">⚠️ Teams: {teamsError.message}</span>
-          )}
-          {payoutError && (
-            <span className="api-error">⚠️ Payout: {payoutError.message}</span>
-          )}
-          <span style={{ fontSize: '10px', marginLeft: '10px', color: '#666' }}>
-            💡 Data persists in GraphQL, click "Update Team Data" to refresh from CFBD & Odds APIs
-          </span>
-        </div>
-      </div>
-
       {/* Draft Section */}
-      <DraftSection league={leagueId.split('-')[0]} season={leagueId.split('-')[1]} />
+      {(() => {
+        const draftLeague = leagueId.split('-')[0];
+        const draftSeason = leagueId.split('-')[1];
+        console.log('🎯 TeamTable rendering DraftSection with:', { draftLeague, draftSeason, leagueId });
+        return <DraftSection league={draftLeague} season={draftSeason} />;
+      })()}
 
       {/* Payout Plan */}
       <div className="payout-card compact">
@@ -503,29 +411,33 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
       {/* Payout Table */}
       <div className="payout-card compact">
         <h3>Payout Table</h3>
-        <div className="table-wrapper">
+        <div className="payout-table-wrapper">
           <table className="payout-table">
             <thead>
               <tr>
                 <th>Level</th>
                 <th>Teams</th>
                 <th>%</th>
-                <th>Payout</th>
-                <th className="owner-col">DM</th>
-                <th className="owner-col">TG</th>
-                <th className="owner-col">KH</th>
-                <th className="owner-col">MC</th>
+                <th>Payout per Team</th>
+                <th>Total Payout</th>
+                {sortedPlayers.map(player => (
+                  <th key={player} className="owner-col" data-player={player}>{player}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {payoutRows.map((row, index) => {
-                const payout = (totalPool * getRowPercentage(row)) / 100;
-                const payoutPerTeam = row.teams > 0 ? payout / row.teams : 0;
-                
-                const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
-                
-                return (
-                  <tr key={index}>
+              {payoutRows
+                .map((row, originalIndex) => {
+                  const payout = (totalPool * getRowPercentage(row)) / 100;
+                  const payoutPerTeam = row.teams > 0 ? payout / row.teams : 0;
+                  return { row, originalIndex, payoutPerTeam };
+                })
+                .sort((a, b) => a.payoutPerTeam - b.payoutPerTeam) // Sort by Payout column (lowest to highest)
+                .map(({ row, originalIndex, payoutPerTeam }, displayIndex) => {
+                  const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
+                  
+                  return (
+                  <tr key={row.id || originalIndex}>
                     <td>{row.level}</td>
                     <td>
                       <input
@@ -534,7 +446,7 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
                         onChange={(e) => {
                           // Update local state immediately for responsive UI
                           const newRows = payoutRows.map((r, i) => {
-                            if (i === index) {
+                            if (i === originalIndex) {
                               const updatedRow = { ...r };
                               const numValue = parseInt(e.target.value);
                               updatedRow.teams = isNaN(numValue) ? 0 : numValue;
@@ -546,10 +458,11 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
                         }}
                         onBlur={(e) => {
                           // Send to GraphQL when user finishes editing
-                          updatePayoutField(index, 'teams', e.target.value);
+                          updatePayoutField(originalIndex, 'teams', e.target.value);
                         }}
-                        className="payout-input"
+                        className="payout-input payout-input-teams"
                         min="0"
+                        max="99"
                       />
                     </td>
                     <td>
@@ -559,7 +472,7 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
                         onChange={(e) => {
                           // Update local state immediately for responsive UI
                           const newRows = payoutRows.map((r, i) => {
-                            if (i === index) {
+                            if (i === originalIndex) {
                               const updatedRow = { ...r };
                               const numValue = parseFloat(e.target.value);
                               updatedRow.pct = isNaN(numValue) ? 0 : numValue;
@@ -572,143 +485,74 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
                         }}
                         onBlur={(e) => {
                           // Send to GraphQL when user finishes editing
-                          updatePayoutField(index, 'pct', e.target.value);
+                          updatePayoutField(originalIndex, 'pct', e.target.value);
                         }}
-                        className="payout-input"
+                        className="payout-input payout-input-pct"
                         min="0"
                         max="100"
                         step="0.1"
-                      /> %
+                      /><span className="pct-symbol">%</span>
                     </td>
                     <td>${payoutPerTeam.toFixed(0)}</td>
-                    <td className="owner-col">
-                      {achievementKey && playerAchievements['DM'][achievementKey] > 0 ? (
-                        <span className="achievement-earned">
-                          {playerAchievements['DM'][achievementKey]} × ${payoutPerTeam.toFixed(0)} = ${(playerAchievements['DM'][achievementKey] * payoutPerTeam).toFixed(0)}
-                        </span>
-                      ) : (
-                        <span className="achievement-none">-</span>
-                      )}
-                    </td>
-                    <td className="owner-col">
-                      {achievementKey && playerAchievements['TG'][achievementKey] > 0 ? (
-                        <span className="achievement-earned">
-                          {playerAchievements['TG'][achievementKey]} × ${payoutPerTeam.toFixed(0)} = ${(playerAchievements['TG'][achievementKey] * payoutPerTeam).toFixed(0)}
-                        </span>
-                      ) : (
-                        <span className="achievement-none">-</span>
-                      )}
-                    </td>
-                    <td className="owner-col">
-                      {achievementKey && playerAchievements['KH'][achievementKey] > 0 ? (
-                        <span className="achievement-earned">
-                          {playerAchievements['KH'][achievementKey]} × ${payoutPerTeam.toFixed(0)} = ${(playerAchievements['KH'][achievementKey] * payoutPerTeam).toFixed(0)}
-                        </span>
-                      ) : (
-                        <span className="achievement-none">-</span>
-                      )}
-                    </td>
-                    <td className="owner-col">
-                      {achievementKey && playerAchievements['MC'][achievementKey] > 0 ? (
-                        <span className="achievement-earned">
-                          {playerAchievements['MC'][achievementKey]} × ${payoutPerTeam.toFixed(0)} = ${(playerAchievements['MC'][achievementKey] * payoutPerTeam).toFixed(0)}
-                        </span>
-                      ) : (
-                        <span className="achievement-none">-</span>
-                      )}
-                    </td>
+                    <td><strong>${(row.teams * payoutPerTeam).toFixed(0)}</strong></td>
+                    {sortedPlayers.map(player => (
+                      <td key={player} className="owner-col">
+                        {achievementKey && playerAchievements[player][achievementKey] > 0 ? (
+                          <span className="achievement-earned">
+                            {playerAchievements[player][achievementKey]} × ${payoutPerTeam.toFixed(0)} = ${(playerAchievements[player][achievementKey] * payoutPerTeam).toFixed(0)}
+                          </span>
+                        ) : (
+                          <span className="achievement-none">-</span>
+                        )}
+                      </td>
+                    ))}
                   </tr>
-                );
-              })}
+                  );
+                })}
               <tr className="total-row">
                 <td><strong>Total</strong></td>
                 <td></td>
                 <td><strong>{payoutRows.reduce((sum, row) => sum + getRowPercentage(row), 0).toFixed(1)} %</strong></td>
+                <td></td>
                 <td><strong>${totalPool.toFixed(0)}</strong></td>
-                <td className="owner-col">
-                  <strong>
-                    ${calculatePlayerWinnings('DM').toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    ${calculatePlayerWinnings('TG').toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    ${calculatePlayerWinnings('KH').toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    ${calculatePlayerWinnings('MC').toFixed(0)}
-                  </strong>
-                </td>
+                {sortedPlayers.map(player => (
+                  <td key={player} className="owner-col">
+                    <strong>
+                      ${calculatePlayerWinnings(player).toFixed(0)}
+                    </strong>
+                  </td>
+                ))}
               </tr>
               <tr className="buyin-row">
                 <td><strong>Buy-in Cost</strong></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td className="owner-col">
-                  <strong>
-                    -${leagueSettings.buyInPerTeam.toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    -${leagueSettings.buyInPerTeam.toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    -${leagueSettings.buyInPerTeam.toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong>
-                    -${leagueSettings.buyInPerTeam.toFixed(0)}
-                  </strong>
-                </td>
+                <td></td>
+                {sortedPlayers.map(player => (
+                  <td key={player} className="owner-col">
+                    <strong>
+                      -${leagueSettings.buyInPerTeam.toFixed(0)}
+                    </strong>
+                  </td>
+                ))}
               </tr>
               <tr className="net-total-row">
                 <td><strong>Net Total</strong></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td className="owner-col">
-                  <strong className={(() => {
-                      const netTotal = calculatePlayerWinnings('DM') - leagueSettings.buyInPerTeam;
-                      return netTotal < 0 ? 'net-negative' : '';
-                    })()}>
-                    ${(calculatePlayerWinnings('DM') - leagueSettings.buyInPerTeam).toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong className={(() => {
-                      const netTotal = calculatePlayerWinnings('TG') - leagueSettings.buyInPerTeam;
-                      return netTotal < 0 ? 'net-negative' : '';
-                    })()}>
-                    ${(calculatePlayerWinnings('TG') - leagueSettings.buyInPerTeam).toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong className={(() => {
-                      const netTotal = calculatePlayerWinnings('KH') - leagueSettings.buyInPerTeam;
-                      return netTotal < 0 ? 'net-negative' : '';
-                    })()}>
-                    ${(calculatePlayerWinnings('KH') - leagueSettings.buyInPerTeam).toFixed(0)}
-                  </strong>
-                </td>
-                <td className="owner-col">
-                  <strong className={(() => {
-                      const netTotal = calculatePlayerWinnings('MC') - leagueSettings.buyInPerTeam;
-                      return netTotal < 0 ? 'net-negative' : '';
-                    })()}>
-                    ${(calculatePlayerWinnings('MC') - leagueSettings.buyInPerTeam).toFixed(0)}
-                  </strong>
-                </td>
+                <td></td>
+                {sortedPlayers.map(player => {
+                  const netTotal = calculatePlayerWinnings(player) - leagueSettings.buyInPerTeam;
+                  return (
+                    <td key={player} className="owner-col">
+                      <strong className={netTotal < 0 ? 'net-negative' : ''}>
+                        ${netTotal.toFixed(0)}
+                      </strong>
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>
@@ -751,78 +595,69 @@ const TeamTable = ({ leagueId = 'mlb-2025' }) => {
                   {leagueId === 'mlb-2025' ? 'WS Odds' : 'Championship Odds'}{getSortIndicator('odds')}
                 </th>
               )}
-              {payoutRows.map((row, index) => {
-                const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
-                return (
-                  <th key={index} className="achievement-header">
-                    {row.level}
-                    <span className={`achievement-count ${getAchievementCount(achievementKey) >= getAchievementTarget(row.level) ? 'target-met' : ''}`}>
-                      ({getAchievementCount(achievementKey)}/{getAchievementTarget(row.level)})
-                    </span>
-                  </th>
-                );
-              })}
+              {payoutRows
+                .map((row, originalIndex) => {
+                  const payout = (totalPool * getRowPercentage(row)) / 100;
+                  const payoutPerTeam = row.teams > 0 ? payout / row.teams : 0;
+                  return { row, originalIndex, payoutPerTeam };
+                })
+                .sort((a, b) => a.payoutPerTeam - b.payoutPerTeam)
+                .map(({ row, originalIndex }, displayIndex) => {
+                  const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
+                  return (
+                    <th key={displayIndex} className="achievement-header">
+                      <div className="achievement-header-title">{row.level}</div>
+                      <div className={`achievement-count ${getAchievementCount(achievementKey) >= getAchievementTarget(row.level) ? 'target-met' : ''}`}>
+                        {getAchievementCount(achievementKey)} / {getAchievementTarget(row.level)}
+                      </div>
+                    </th>
+                  );
+                })
+              }
             </tr>
           </thead>
           <tbody>
-            {sortedTeams.map((team) => (
+            {sortedTeams.map(team => (
               <tr key={team.id} className={getOwnerRowClass(team.owner)}>
-                <td className="owner-cell">
-                  <select
-                    value={team.owner || 'NA'}
-                    onChange={(e) => handleOwnerUpdate(team.id, e.target.value)}
-                    className="owner-select"
-                  >
-                    <option value="NA">NA</option>
-                    {availablePlayers.map(player => (
-                      <option key={player} value={player}>{player}</option>
-                    ))}
-                  </select>
-                </td>
+                <td className="owner-cell">{team.owner || ''}</td>
                 <td className="team-name-cell">{team.name}</td>
-                <td className={`record-cell ${getRecordColor(team.record)}`}>
-                  {team.record}
-                </td>
-                <td className="division-cell">{team.division}</td>
+                <td className={getRecordColor(team.record)}>{team.record}</td>
+                <td>{team.division}</td>
                 {leagueConfig?.showColumns?.gamesBack && (
-                  <td className={`gb-cell ${getGamesBackColor(team.gamesBack)}`}>
-                    {team.gamesBack}
-                  </td>
+                  <td className={getGamesBackColor(team.gamesBack)}>{team.gamesBack}</td>
                 )}
                 {leagueConfig?.showColumns?.wildCardGamesBack && (
-                  <td className={`wcgb-cell ${getGamesBackColor(team.wildCardGamesBack)}`}>
-                    {team.wildCardGamesBack}
-                  </td>
+                  <td className={getGamesBackColor(team.wildCardGamesBack)}>{team.wildCardGamesBack}</td>
                 )}
                 {leagueConfig?.showColumns?.odds && (
-                  <td className="odds-cell">
-                    {team.odds}
-                  </td>
+                  <td>{team.odds}</td>
                 )}
-                {payoutRows.map((row, index) => {
-                  const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
-                  return (
-                    <td key={index} className="achievement-cell">
-                      <input
-                        type="checkbox"
-                        className="achievement-checkbox"
-                        checked={getPlayoffAchievement(team.id, achievementKey)}
-                        onChange={(e) => updatePlayoffAchievement(team.id, achievementKey, e.target.checked)}
-                      />
-                    </td>
-                  );
-                })}
+                {payoutRows
+                  .map((row, originalIndex) => {
+                    const payout = (totalPool * getRowPercentage(row)) / 100;
+                    const payoutPerTeam = row.teams > 0 ? payout / row.teams : 0;
+                    return { row, originalIndex, payoutPerTeam };
+                  })
+                  .sort((a, b) => a.payoutPerTeam - b.payoutPerTeam)
+                  .map(({ row, originalIndex }, displayIndex) => {
+                    const achievementKey = row.level.toLowerCase().replace(/\s+/g, '');
+                    return (
+                      <td key={`${team.id}-${displayIndex}`} className="achievement-cell">
+                        <input
+                          type="checkbox"
+                          checked={getPlayoffAchievement(team.id, achievementKey) || false}
+                          onChange={(e) => updatePlayoffAchievement(team.id, achievementKey, e.target.checked)}
+                          className="achievement-checkbox"
+                        />
+                      </td>
+                    );
+                  })
+                }
               </tr>
             ))}
           </tbody>
         </table>
         </div>
-
-        {sortedTeams.length === 0 && !currentLoading && (
-          <div className="no-results">
-            <p>No teams found.</p>
-          </div>
-        )}
       </div>
     </div>
   );

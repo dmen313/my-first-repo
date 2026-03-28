@@ -1,0 +1,445 @@
+.draft-access-settings {
+  padding: 0;
+}
+
+/* Password Gate Styles */
+.draft-access-settings .password-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.draft-access-settings .password-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+}
+
+.draft-access-settings .lock-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.draft-access-settings .password-card h3 {
+  color: #f3f4f6;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.draft-access-settings .password-card p {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin: 0 0 24px 0;
+}
+
+.draft-access-settings .password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.draft-access-settings .password-form input {
+  padding: 12px 16px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #f3f4f6;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.draft-access-settings .password-form input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.draft-access-settings .password-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+}
+
+.draft-access-settings .unlock-btn {
+  padding: 12px 24px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.draft-access-settings .unlock-btn:hover {
+  background: #2563eb;
+}
+
+.draft-access-settings .section-header {
+  margin-bottom: 24px;
+}
+
+.draft-access-settings .section-header h2 {
+  color: #f3f4f6;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.draft-access-settings .section-description {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.draft-access-settings .loading-state {
+  color: #9ca3af;
+  text-align: center;
+  padding: 40px;
+}
+
+.draft-access-settings .access-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+
+.draft-access-settings .access-success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+
+.draft-access-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.draft-access-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.draft-access-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.draft-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.draft-access-header h3 {
+  color: #f3f4f6;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.draft-access-header .user-count {
+  color: #6b7280;
+  font-size: 0.75rem;
+  background: #252525;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  min-height: 32px;
+}
+
+.no-users {
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 6px 8px 6px 12px;
+}
+
+.user-email {
+  color: #d1d5db;
+  font-size: 0.8125rem;
+}
+
+.remove-user-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(239, 68, 68, 0.15);
+  border: none;
+  border-radius: 50%;
+  color: #f87171;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-user-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.remove-user-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-user-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: #111;
+  padding: 4px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.mode-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover:not(:disabled) {
+  color: #d1d5db;
+}
+
+.mode-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-user-form {
+  display: flex;
+  gap: 8px;
+}
+
+.add-user-form input,
+.add-user-form select {
+  flex: 1;
+  padding: 10px 14px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.add-user-form input::placeholder {
+  color: #6b7280;
+}
+
+.add-user-form input:focus,
+.add-user-form select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.add-user-form input:disabled,
+.add-user-form select:disabled {
+  background: #0a0a0a;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.user-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.user-select option {
+  background: #1a1a1a;
+  color: #f3f4f6;
+  padding: 8px;
+}
+
+.no-available-users {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.add-user-btn {
+  padding: 10px 16px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-user-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.add-user-btn:disabled {
+  background: #374151;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Admin Access Section */
+.admin-access-section {
+  border-bottom: 1px solid #2a2a2a;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-section-header,
+.user-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-section-header h4,
+.user-section-header h4 {
+  color: #d1d5db;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-icon,
+.user-icon {
+  font-size: 0.875rem;
+}
+
+.admin-count {
+  color: #6b7280;
+  font-size: 0.6875rem;
+  background: #252525;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+.admin-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.admin-chip {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+.admin-badge-icon {
+  font-size: 0.6875rem;
+}
+
+.admin-add-btn {
+  background: #d97706 !important;
+}
+
+.admin-add-btn:hover:not(:disabled) {
+  background: #b45309 !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .draft-access-card {
+    padding: 16px;
+  }
+
+  .draft-access-header {
+    flex-wrap: wrap;
+  }
+
+  .draft-access-header .user-count {
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .input-mode-toggle {
+    width: 100%;
+  }
+
+  .mode-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .add-user-form {
+    flex-direction: column;
+  }
+
+  .add-user-btn {
+    width: 100%;
+  }
+
+  .user-select {
+    width: 100%;
+  }
+}

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './AdminPage.css';
+import NbaOddsTestPage from './NbaOddsTestPage';
 
 const AdminPage = ({ onBackToHome }) => {
+  const [showNbaOddsTest, setShowNbaOddsTest] = useState(false);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterLeague, setFilterLeague] = useState('');
   const [filterSeason, setFilterSeason] = useState('');
   const [selectedLeague, setSelectedLeague] = useState('all');
+  const [selectedSportsLeague, setSelectedSportsLeague] = useState('all');
   const [selectedSeason, setSelectedSeason] = useState('all');
 
   useEffect(() => {
@@ -28,6 +31,7 @@ const AdminPage = ({ onBackToHome }) => {
                 record
                 league
                 division
+                sportsLeague
                 wins
                 losses
                 gamesBack
@@ -65,13 +69,15 @@ const AdminPage = ({ onBackToHome }) => {
     }
   };
 
-  // Get unique leagues and seasons for filters
+  // Get unique leagues, sports leagues, and seasons for filters
   const leagues = [...new Set(teams.map(t => t.league).filter(Boolean))].sort();
+  const sportsLeagues = [...new Set(teams.map(t => t.sportsLeague).filter(Boolean))].sort();
   const seasons = [...new Set(teams.map(t => t.season).filter(Boolean))].sort();
 
   // Filter teams
   const filteredTeams = teams.filter(team => {
     if (selectedLeague !== 'all' && team.league !== selectedLeague) return false;
+    if (selectedSportsLeague !== 'all' && team.sportsLeague !== selectedSportsLeague) return false;
     if (selectedSeason !== 'all' && team.season !== selectedSeason) return false;
     if (filterLeague && !team.league?.toLowerCase().includes(filterLeague.toLowerCase())) return false;
     if (filterSeason && !team.season?.includes(filterSeason)) return false;
@@ -94,6 +100,8 @@ const AdminPage = ({ onBackToHome }) => {
   // Get stats
   const stats = {
     total: teams.length,
+    withSportsLeague: teams.filter(t => t.sportsLeague && t.sportsLeague !== 'null').length,
+    withoutSportsLeague: teams.filter(t => !t.sportsLeague || t.sportsLeague === 'null').length,
     withSeason: teams.filter(t => t.season && t.season !== 'null').length,
     withoutSeason: teams.filter(t => !t.season || t.season === 'null').length,
     withOwner: teams.filter(t => t.owner && t.owner !== 'NA').length,
@@ -110,6 +118,11 @@ const AdminPage = ({ onBackToHome }) => {
     );
   }
 
+  // If showing NBA Odds Test page
+  if (showNbaOddsTest) {
+    return <NbaOddsTestPage onBackToHome={() => setShowNbaOddsTest(false)} />;
+  }
+
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -117,15 +130,32 @@ const AdminPage = ({ onBackToHome }) => {
           ← Back to Home
         </button>
         <h1>Admin: All Teams</h1>
-        <button className="refresh-button" onClick={fetchAllTeams}>
-          🔄 Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="refresh-button" onClick={fetchAllTeams}>
+            🔄 Refresh
+          </button>
+          <button 
+            className="refresh-button" 
+            onClick={() => setShowNbaOddsTest(true)}
+            style={{ backgroundColor: '#2196F3', color: 'white' }}
+          >
+            🏀 Test NBA Odds API
+          </button>
+        </div>
       </div>
 
       <div className="admin-stats">
         <div className="stat-card">
           <div className="stat-label">Total Teams</div>
           <div className="stat-value">{stats.total}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">With Sports League</div>
+          <div className="stat-value">{stats.withSportsLeague}</div>
+        </div>
+        <div className="stat-card warning">
+          <div className="stat-label">Missing Sports League</div>
+          <div className="stat-value">{stats.withoutSportsLeague}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">With Season</div>
@@ -154,6 +184,19 @@ const AdminPage = ({ onBackToHome }) => {
       </div>
 
       <div className="admin-filters">
+        <div className="filter-group">
+          <label>Filter by Sports League:</label>
+          <select 
+            value={selectedSportsLeague} 
+            onChange={(e) => setSelectedSportsLeague(e.target.value)}
+          >
+            <option value="all">All Sports Leagues</option>
+            {sportsLeagues.map(sportsLeague => (
+              <option key={sportsLeague} value={sportsLeague}>{sportsLeague}</option>
+            ))}
+          </select>
+        </div>
+        
         <div className="filter-group">
           <label>Filter by League:</label>
           <select 
@@ -211,6 +254,7 @@ const AdminPage = ({ onBackToHome }) => {
             <tr>
               <th>ID</th>
               <th>Name</th>
+              <th>Sports League</th>
               <th>League</th>
               <th>Division</th>
               <th>Season</th>
@@ -237,6 +281,7 @@ const AdminPage = ({ onBackToHome }) => {
               >
                 <td className="col-id">{team.id.substring(0, 8)}...</td>
                 <td className="col-name">{formatValue(team.name)}</td>
+                <td className={isMissing(team.sportsLeague) ? 'missing' : ''}>{formatValue(team.sportsLeague)}</td>
                 <td className={isMissing(team.league) ? 'missing' : ''}>{formatValue(team.league)}</td>
                 <td className={isMissing(team.division) ? 'missing' : ''}>{formatValue(team.division)}</td>
                 <td className={isMissing(team.season) ? 'missing' : ''}>{formatValue(team.season)}</td>

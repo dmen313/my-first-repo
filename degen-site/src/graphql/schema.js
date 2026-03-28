@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import { gql } from 'graphql-tag';
 
 const typeDefs = gql`
   type Team {
@@ -7,6 +7,7 @@ const typeDefs = gql`
     record: String!
     league: String!
     division: String!
+    sportsLeague: String
     wins: Int!
     losses: Int!
     gamesBack: String
@@ -91,11 +92,46 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  type DraftStatus {
+    id: ID!
+    league: String!
+    season: String!
+    status: String!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type UpdateStatus {
+    id: ID!
+    league: String!
+    season: String!
+    updateType: String!
+    status: String!
+    progress: Int
+    total: Int
+    message: String
+    teamsUpdated: Int
+    error: String
+    startedAt: String!
+    completedAt: String
+  }
+
+  type CognitoUser {
+    username: String!
+    email: String
+    name: String
+    status: String
+    enabled: Boolean
+    createdAt: String
+    lastModified: String
+  }
+
   input TeamInput {
     name: String!
     record: String!
     league: String!
     division: String!
+    sportsLeague: String
     wins: Int!
     losses: Int!
     gamesBack: String
@@ -111,6 +147,7 @@ const typeDefs = gql`
     record: String
     league: String
     division: String
+    sportsLeague: String
     wins: Int
     losses: Int
     gamesBack: String
@@ -243,8 +280,19 @@ const typeDefs = gql`
     getDraftPicks(league: String!, season: String!): [DraftPick!]!
     getDraftPick(id: ID!): DraftPick
     
+    # Draft Status
+    getDraftStatus(league: String!, season: String!): DraftStatus
+    getAllDraftStatuses: [DraftStatus!]!
+    
+    # Update Status (for async operations)
+    getUpdateStatus(id: ID!): UpdateStatus
+    getActiveUpdates(league: String, season: String): [UpdateStatus!]!
+    
     # External APIs
     getCfbdRecords(year: Int!): [CfbdRecord!]!
+    
+    # Cognito Users
+    listCognitoUsers: [CognitoUser!]!
   }
 
   type Mutation {
@@ -261,6 +309,18 @@ const typeDefs = gql`
     
     # Bulk update achievements for a team
     updateTeamAchievements(teamId: ID!, achievements: [AchievementInput!]!): [Achievement!]!
+    
+    # Update NBA teams from API (server-side, bypasses CORS)
+    updateNbaTeamsFromApi(league: String!, season: String!): UpdateNbaTeamsResult!
+    
+    # Update odds only for teams (faster than full update)
+    updateTeamOdds(league: String!, season: String!): UpdateNbaTeamsResult!
+    
+    # Update standings for specific teams (batch update to avoid timeout)
+    updateTeamStandingsBatch(league: String!, season: String!, teamIds: [String!]!): UpdateNbaTeamsResult!
+    
+    # Async update (returns immediately, runs in background)
+    startNbaStandingsUpdate(league: String!, season: String!): UpdateStatus!
     
     # Payout Structure
     createPayoutRow(input: PayoutRowInput!): PayoutRow!
@@ -284,9 +344,22 @@ const typeDefs = gql`
     initializeDraft(league: String!, season: String!, owners: [String!]!): [DraftPick!]!
     reorderDraftPicks(league: String!, season: String!, owners: [String!]!): [DraftPick!]!
     
+    # Draft Status
+    updateDraftStatus(league: String!, season: String!, status: String!): DraftStatus!
+    
     # Bulk operations
     initializeLeagueData(league: String!, season: String!): Boolean!
     exportMappings: String!
+  }
+
+  type UpdateNbaTeamsResult {
+    success: Boolean!
+    teamsUpdated: Int!
+    oddsUpdated: Int!
+    recordsUpdated: Int!
+    totalTeams: Int!
+    error: String
+    message: String
   }
 
   type Subscription {

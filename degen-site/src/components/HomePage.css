@@ -1,35 +1,46 @@
 .home-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   padding-left: max(20px, env(safe-area-inset-left));
   padding-right: max(20px, env(safe-area-inset-right));
 }
-
-
 
 .leagues-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
   margin-bottom: 40px;
-  margin-top: 20px;
+  margin-top: 0;
+  padding-top: 20px;
 }
 
-.league-card {
-  background: white;
+.home-page .league-card {
+  background: #1a1a1a;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   border-left: 6px solid;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   padding: 16px 18px 18px 18px;
 }
 
-.league-card:hover {
+.home-page .league-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  background: #222222;
+}
+
+/* Grayed out style for completed drafts */
+.home-page .league-card-completed {
+  opacity: 0.55;
+  filter: grayscale(50%);
+}
+
+.home-page .league-card-completed:hover {
+  transform: translateY(-2px);
+  opacity: 0.65;
 }
 
 /* New inline header row */
@@ -62,7 +73,7 @@
 
 .league-name-inline {
   margin: 0;
-  color: #111827;
+  color: #f3f4f6;
   font-size: 1.05rem;
   font-weight: 700;
   white-space: nowrap;
@@ -83,22 +94,22 @@
 
 /* Past year styling - muted gray */
 .league-year-inline.year-past {
-  background: #e5e7eb;
+  background: #374151;
   color: #9ca3af;
 }
 
 /* Current year styling - sharp blue contrast */
 .league-year-inline.year-current {
-  background: #1e40af;
+  background: #2563eb;
   color: white;
-  box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
 /* Future year styling - sharp green contrast */
 .league-year-inline.year-future {
   background: #059669;
   color: white;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
 }
 
 .league-chip {
@@ -107,16 +118,109 @@
   font-size: 0.85rem;
   padding: 6px 10px;
   border-radius: 999px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   min-width: 45px;
   text-align: center;
 }
 
 .league-description {
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0 0 14px 0;
+}
+
+.draft-info-section {
+  margin: 12px 0 14px 0;
+  padding: 12px;
+  background: #111111;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+}
+
+.draft-status-badge-container {
+  margin-bottom: 8px;
+}
+
+.draft-status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.draft-status-badge.status-draft-in-progress {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+}
+
+.draft-status-badge.status-draft-completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.draft-status-badge.status-payout-pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.draft-status-badge.status-payout-completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.draft-status-badge.status-loading {
+  background: #2a2a2a;
+  color: #6b7280;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.league-card-loading {
+  pointer-events: none;
+}
+
+.next-pick-info {
+  background: rgba(37, 99, 235, 0.15);
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  border-left: 4px solid #3b82f6;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+/* Owner-specific Next Pick colors */
+.next-pick-info.next-pick-dm {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border-left: 4px solid #22c55e;
+}
+
+.next-pick-info.next-pick-tg {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border-left: 4px solid #ec4899;
+}
+
+.next-pick-info.next-pick-kh {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-left: 4px solid #3b82f6;
+}
+
+.next-pick-info.next-pick-mc {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-left: 4px solid #a855f7;
 }
 
 .league-action {
@@ -125,7 +229,7 @@
 }
 
 .view-button {
-  color: #1e3a8a;
+  color: #60a5fa;
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -133,14 +237,14 @@
 .footer-info {
   text-align: center;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: #1a1a1a;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .footer-info p {
   margin: 0;
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 1rem;
 }
 
@@ -163,17 +267,15 @@
     padding-right: max(12px, env(safe-area-inset-right));
   }
 
-
-
   .leagues-grid {
     gap: 12px;
     grid-template-columns: 1fr;
   }
 
-  .league-card {
+  .home-page .league-card {
     border-left-width: 4px;
     border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
     padding: 14px;
   }
 

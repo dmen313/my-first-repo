@@ -2,7 +2,7 @@
 
 /* Main container */
 .team-table-container {
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -11,10 +11,10 @@
 .data-info-card,
 .payout-card,
 .teams-card {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   padding: 24px;
   margin-bottom: 20px;
 }
@@ -30,7 +30,7 @@
 .payout-card h3,
 .teams-card h3 {
   margin: 0 0 16px 0;
-  color: #111827;
+  color: #f3f4f6;
   font-size: 18px;
   font-weight: 600;
 }
@@ -45,7 +45,7 @@
 
 .teams-header h3 {
   margin: 0;
-  color: #333;
+  color: #f3f4f6;
   font-size: 1.4rem;
   font-weight: 600;
 }
@@ -53,13 +53,16 @@
 /* Table wrapper */
 .table-wrapper {
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: auto;
+  max-height: 80vh; /* Allow vertical scrolling with max height */
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #333;
   position: relative;
   /* Custom scrollbar for better UX */
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: #444 #1a1a1a;
+  /* Ensure proper stacking context for sticky elements */
+  isolation: isolate;
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -67,51 +70,51 @@
 }
 
 .table-wrapper::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #1a1a1a;
   border-radius: 4px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #444;
   border-radius: 4px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #555;
 }
 
 /* Data info styles */
 .data-info-simple {
   font-size: 11px;
   line-height: 1.3;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .data-info-simple strong {
-  color: #374151;
+  color: #f3f4f6;
   font-weight: 600;
 }
 
 /* API Error styles */
 .data-info-simple .api-error {
-  color: #dc2626;
+  color: #f87171;
   font-weight: 600;
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(239, 68, 68, 0.15);
   padding: 2px 6px;
   border-radius: 4px;
   margin-left: 4px;
-  border-left: 2px solid #dc2626;
+  border-left: 2px solid #ef4444;
 }
 
 .data-info-simple .api-error:hover {
-  background: rgba(220, 38, 38, 0.15);
+  background: rgba(239, 68, 68, 0.25);
 }
 
 /* Error banner */
 .error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
@@ -121,7 +124,7 @@
 }
 
 .retry-button {
-  background: #dc2626;
+  background: #ef4444;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -137,13 +140,13 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .loading-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e5e7eb;
+  border: 3px solid #333;
   border-top: 3px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -157,12 +160,13 @@
 
 /* Payout styles */
 .payout-summary {
-  background: #f8fafc;
+  background: #252525;
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 16px;
   font-weight: 500;
-  color: #374151;
+  color: #d1d5db;
+  border: 1px solid #333;
 }
 
 .payout-summary-row {
@@ -176,111 +180,200 @@
 .payout-summary-input {
   width: 80px;
   padding: 6px 8px;
-  border: 2px solid #d1d5db;
+  border: 2px solid #444;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-  background: white;
+  background: #2a2a2a;
+  color: #f3f4f6;
   transition: border-color 0.2s ease;
 }
 
 .payout-summary-input:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .payout-summary-input[readOnly] {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+  background: #222;
+  border-color: #444;
+  color: #9ca3af;
   cursor: default;
 }
 
 .currency-symbol {
   font-weight: 600;
-  color: #059669;
+  color: #4ade80;
   margin-left: -4px;
+}
+
+/* Payout table wrapper for horizontal scrolling */
+.payout-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -8px;
+  padding: 0 8px;
 }
 
 .payout-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 13px;
+  table-layout: fixed;
+}
+
+/* Column widths */
+.payout-table th:nth-child(1),
+.payout-table td:nth-child(1) { /* Level */
+  width: 140px;
+  min-width: 140px;
+}
+
+.payout-table th:nth-child(2),
+.payout-table td:nth-child(2) { /* Teams */
+  width: 70px;
+  min-width: 70px;
+}
+
+.payout-table th:nth-child(3),
+.payout-table td:nth-child(3) { /* % */
+  width: 50px;
+  min-width: 50px;
+}
+
+.payout-table th:nth-child(4),
+.payout-table td:nth-child(4) { /* Payout per Team */
+  width: 70px;
+  min-width: 70px;
+}
+
+.payout-table th:nth-child(5),
+.payout-table td:nth-child(5) { /* Total Payout */
+  width: 70px;
+  min-width: 70px;
+}
+
+/* Owner columns - flexible but min-width */
+.payout-table th.owner-col,
+.payout-table td.owner-col {
+  width: 80px;
+  min-width: 80px;
 }
 
 .payout-table th {
-  background: #f9fafb;
-  padding: 12px 8px;
+  background: #252525;
+  padding: 10px 6px;
   text-align: center;
   font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-  font-size: 12px;
+  color: #d1d5db;
+  border-bottom: 2px solid #444;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .payout-table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 8px 6px;
+  border-bottom: 1px solid #333;
   vertical-align: middle;
   text-align: center;
+  font-size: 12px;
+  color: #d1d5db;
 }
 
 .payout-table td:first-child {
   text-align: left;
+  font-size: 12px;
 }
 
 .payout-table .total-row {
-  background: #f9fafb;
+  background: #252525;
   font-weight: 600;
 }
 
-/* Player column colors */
-.payout-table th:nth-child(5) { /* DM column */
-  background: rgba(34, 197, 94, 0.1);
-  color: #166534;
+/* Compact achievement display */
+.payout-table .achievement-earned {
+  display: block;
+  font-size: 10px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Player column colors - dynamic based on player name */
+.payout-table th.owner-col:contains("DM") {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
   border-left: 2px solid #22c55e;
 }
 
-.payout-table th:nth-child(6) { /* TG column */
-  background: rgba(251, 191, 36, 0.1);
-  color: #92400e;
+.payout-table th.owner-col:contains("TG") {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
   border-left: 2px solid #fbbf24;
 }
 
-.payout-table th:nth-child(7) { /* KH column */
-  background: rgba(59, 130, 246, 0.1);
-  color: #1e40af;
+.payout-table th.owner-col:contains("KH") {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
   border-left: 2px solid #3b82f6;
 }
 
-.payout-table th:nth-child(8) { /* MC column */
-  background: rgba(168, 85, 247, 0.1);
-  color: #7c3aed;
+.payout-table th.owner-col:contains("MC") {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-left: 2px solid #a855f7;
+}
+
+/* Alternative approach: Use data attributes for player colors */
+.payout-table th.owner-col[data-player="DM"] {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border-left: 2px solid #22c55e;
+}
+
+.payout-table th.owner-col[data-player="TG"] {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-left: 2px solid #fbbf24;
+}
+
+.payout-table th.owner-col[data-player="KH"] {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-left: 2px solid #3b82f6;
+}
+
+.payout-table th.owner-col[data-player="MC"] {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
   border-left: 2px solid #a855f7;
 }
 
 /* Main table container */
 .teams-table {
   min-width: 1200px; /* Force horizontal scroll when needed */
-  border-collapse: separate;
+  border-collapse: separate; /* Must be separate for sticky to work */
   border-spacing: 0;
   font-size: 13px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible for sticky positioning */
   margin: 0;
   position: relative;
+  width: 100%;
 }
 
 /* Table head */
 .teams-table thead {
-  background: #f8fafc;
+  background: #252525;
   position: sticky;
   top: 0;
   z-index: 100;
+  /* Ensure thead stays on top */
+  display: table-header-group;
 }
 
 /* Base header styles */
@@ -289,9 +382,9 @@
   text-align: center;
   font-weight: 600;
   font-size: 13px;
-  color: #374151;
-  background: #f8fafc;
-  border-bottom: 2px solid #e5e7eb;
+  color: #d1d5db;
+  background: #252525;
+  border-bottom: 2px solid #444;
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -306,17 +399,18 @@
 }
 
 .teams-table th.sortable-header:hover {
-  background: #e2e8f0;
+  background: #333;
 }
 
-/* STICKY COLUMNS */
+/* STICKY COLUMNS - Headers (need higher z-index for sticky header + sticky column intersection) */
 .teams-table .owner-header {
   position: sticky;
   left: 0;
-  z-index: 15;
-  background: #f8fafc;
-  border-right: 2px solid #cbd5e1;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.15);
+  top: 0;
+  z-index: 200;
+  background: #252525;
+  border-right: 2px solid #444;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.3);
   width: 120px;
   min-width: 120px;
 }
@@ -324,10 +418,11 @@
 .teams-table .team-header {
   position: sticky;
   left: 120px;
-  z-index: 15;
-  background: #f8fafc;
-  border-right: 2px solid #cbd5e1;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.15);
+  top: 0;
+  z-index: 200;
+  background: #252525;
+  border-right: 2px solid #444;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.3);
   width: 180px;
   min-width: 180px;
 }
@@ -352,16 +447,40 @@
   width: 80px;
   min-width: 80px;
   font-size: 11px;
+  padding: 8px 4px !important;
+}
+
+.teams-table .achievement-header-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.teams-table .achievement-count {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #333;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.teams-table .achievement-count.target-met {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  font-weight: 600;
 }
 
 /* Table body */
 .teams-table tbody tr {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #333;
   transition: background-color 0.2s ease;
 }
 
 .teams-table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: #252525;
 }
 
 .teams-table tbody tr:last-child {
@@ -374,128 +493,138 @@
   vertical-align: middle;
   text-align: center;
   font-size: 13px;
-  border-right: 1px solid #f1f5f9;
+  color: #d1d5db;
+  border-right: 1px solid #333;
 }
 
 .teams-table td:last-child {
   border-right: none;
 }
 
-/* STICKY CELLS */
+/* STICKY CELLS - Body cells (lower z-index than headers) */
 .teams-table .owner-cell {
   position: sticky;
   left: 0;
   z-index: 5;
-  background: #ffffff;
-  border-right: 2px solid #cbd5e1;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+  background: #1a1a1a;
+  border-right: 2px solid #444;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.3);
   width: 120px;
   min-width: 120px;
   font-weight: 600;
+  /* Ensure proper background */
+  background-color: #1a1a1a;
 }
 
 .teams-table .team-name-cell {
   position: sticky;
   left: 120px;
   z-index: 5;
-  background: #ffffff;
-  border-right: 2px solid #cbd5e1;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+  background: #1a1a1a;
+  border-right: 2px solid #444;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.3);
   width: 180px;
   min-width: 180px;
   font-weight: 600;
   text-align: left;
   padding-left: 16px;
+  color: #f3f4f6;
+  /* Ensure proper background */
+  background-color: #1a1a1a;
 }
 
-/* Row hover effects for sticky cells */
-.teams-table tbody tr:hover .owner-cell,
+/* Ensure sticky cells maintain background when row is hovered */
+.teams-table tbody tr:hover .owner-cell {
+  background: #252525 !important;
+}
+
 .teams-table tbody tr:hover .team-name-cell {
-  background: #f8fafc;
+  background: #252525 !important;
 }
 
-/* Owner-specific background colors for sticky cells */
+/* Owner-specific background colors for sticky cells - OPAQUE colors for scroll visibility */
 .teams-table tbody tr.owner-dm .owner-cell,
 .teams-table tbody tr.owner-dm .team-name-cell {
-  background: rgba(34, 197, 94, 0.05);
+  background: #1a2e1a; /* Dark green */
 }
 
 .teams-table tbody tr.owner-tg .owner-cell,
 .teams-table tbody tr.owner-tg .team-name-cell {
-  background: rgba(236, 72, 153, 0.05);
+  background: #2e1a26; /* Dark pink */
 }
 
 .teams-table tbody tr.owner-kh .owner-cell,
 .teams-table tbody tr.owner-kh .team-name-cell {
-  background: rgba(59, 130, 246, 0.05);
+  background: #1a2233; /* Dark blue */
 }
 
 .teams-table tbody tr.owner-mc .owner-cell,
 .teams-table tbody tr.owner-mc .team-name-cell {
-  background: rgba(168, 85, 247, 0.05);
+  background: #261a33; /* Dark purple */
 }
 
 .teams-table tbody tr.owner-none .owner-cell,
 .teams-table tbody tr.owner-none .team-name-cell {
-  background: rgba(156, 163, 175, 0.05);
+  background: #1f1f1f; /* Dark gray */
 }
 
 .teams-table tbody tr.owner-other .owner-cell,
 .teams-table tbody tr.owner-other .team-name-cell {
-  background: rgba(107, 114, 128, 0.05);
+  background: #222222; /* Darker gray */
 }
 
-/* Owner-specific hover effects for sticky cells */
+/* Owner-specific hover effects for sticky cells - OPAQUE colors */
 .teams-table tbody tr.owner-dm:hover .owner-cell,
 .teams-table tbody tr.owner-dm:hover .team-name-cell {
-  background: rgba(34, 197, 94, 0.1);
+  background: #234023; /* Brighter dark green */
 }
 
 .teams-table tbody tr.owner-tg:hover .owner-cell,
 .teams-table tbody tr.owner-tg:hover .team-name-cell {
-  background: rgba(236, 72, 153, 0.1);
+  background: #402333; /* Brighter dark pink */
 }
 
 .teams-table tbody tr.owner-kh:hover .owner-cell,
 .teams-table tbody tr.owner-kh:hover .team-name-cell {
-  background: rgba(59, 130, 246, 0.1);
+  background: #233344; /* Brighter dark blue */
 }
 
 .teams-table tbody tr.owner-mc:hover .owner-cell,
 .teams-table tbody tr.owner-mc:hover .team-name-cell {
-  background: rgba(168, 85, 247, 0.1);
+  background: #332344; /* Brighter dark purple */
 }
 
 .teams-table tbody tr.owner-none:hover .owner-cell,
 .teams-table tbody tr.owner-none:hover .team-name-cell {
-  background: rgba(156, 163, 175, 0.1);
+  background: #2a2a2a; /* Brighter dark gray */
 }
 
 .teams-table tbody tr.owner-other:hover .owner-cell,
 .teams-table tbody tr.owner-other:hover .team-name-cell {
-  background: rgba(107, 114, 128, 0.1);
+  background: #2d2d2d; /* Brighter darker gray */
 }
 
 /* Owner select dropdown */
 .owner-select {
   width: 100%;
   padding: 4px 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #444;
   border-radius: 4px;
   font-size: 12px;
-  background: white;
+  background: #2a2a2a;
+  color: #f3f4f6;
 }
 
 /* Value color classes */
-.value-pos { color: #059669; font-weight: 600; }
-.value-neg { color: #dc2626; font-weight: 600; }
-.value-even { color: #6b7280; }
+.value-pos { color: #4ade80; font-weight: 600; }
+.value-neg { color: #f87171; font-weight: 600; }
+.value-even { color: #9ca3af; }
 
 /* Owner row classes */
-.owner-dm { background-color: rgba(34, 197, 94, 0.05); }
-.owner-tg { background-color: rgba(236, 72, 153, 0.05); }
-.owner-kh { background-color: rgba(59, 130, 246, 0.05); }
-.owner-mc { background-color: rgba(168, 85, 247, 0.05); }
+.owner-dm { background-color: rgba(34, 197, 94, 0.1); }
+.owner-tg { background-color: rgba(236, 72, 153, 0.1); }
+.owner-kh { background-color: rgba(59, 130, 246, 0.1); }
+.owner-mc { background-color: rgba(168, 85, 247, 0.1); }
 .owner-none { background-color: rgba(156, 163, 175, 0.05); }
 
 /* Achievement cells */
@@ -509,8 +638,26 @@
   cursor: pointer;
 }
 
-/* Mobile responsiveness */
+/* Mobile responsiveness - Tablet */
 @media (max-width: 768px) {
+  .team-table-container {
+    padding: 12px;
+  }
+  
+  .data-info-card,
+  .payout-card,
+  .teams-card {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .data-info-card.compact,
+  .payout-card.compact,
+  .teams-card.compact {
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  
   .teams-table {
     font-size: 11px;
     min-width: 900px; /* Ensure horizontal scroll on mobile */
@@ -534,29 +681,81 @@
     left: 80px;
   }
   
-  /* Maintain owner colors on mobile */
+  /* Maintain owner colors on mobile - OPAQUE dark theme */
   .teams-table tbody tr.owner-dm .owner-cell,
   .teams-table tbody tr.owner-dm .team-name-cell {
-    background: rgba(34, 197, 94, 0.05);
+    background: #1a2e1a;
   }
   
   .teams-table tbody tr.owner-tg .owner-cell,
   .teams-table tbody tr.owner-tg .team-name-cell {
-    background: rgba(236, 72, 153, 0.05);
+    background: #2e1a26;
   }
   
   .teams-table tbody tr.owner-kh .owner-cell,
   .teams-table tbody tr.owner-kh .team-name-cell {
-    background: rgba(59, 130, 246, 0.05);
+    background: #1a2233;
   }
   
   .teams-table tbody tr.owner-mc .owner-cell,
   .teams-table tbody tr.owner-mc .team-name-cell {
-    background: rgba(168, 85, 247, 0.05);
+    background: #261a33;
+  }
+  
+  /* Payout table tablet styles */
+  .payout-table {
+    font-size: 11px;
+  }
+  
+  .payout-table th {
+    padding: 8px 4px;
+    font-size: 10px;
+  }
+  
+  .payout-table td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+  
+  .payout-table th:nth-child(1),
+  .payout-table td:nth-child(1) { /* Level */
+    width: 120px;
+    min-width: 120px;
+  }
+  
+  .payout-table th:nth-child(2),
+  .payout-table td:nth-child(2) { /* Teams */
+    width: 55px;
+    min-width: 55px;
+  }
+  
+  .payout-table th.owner-col,
+  .payout-table td.owner-col {
+    width: 70px;
+    min-width: 70px;
   }
 }
 
 @media (max-width: 480px) {
+  .team-table-container {
+    padding: 8px;
+  }
+  
+  .data-info-card,
+  .payout-card,
+  .teams-card {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+  
+  .data-info-card.compact,
+  .payout-card.compact,
+  .teams-card.compact {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+  
   .teams-table {
     font-size: 10px;
     min-width: 800px; /* Ensure horizontal scroll on small screens */
@@ -580,24 +779,227 @@
     left: 60px;
   }
   
-  /* Maintain owner colors on iPhone 12 */
+  /* Maintain owner colors on iPhone - OPAQUE dark theme */
   .teams-table tbody tr.owner-dm .owner-cell,
   .teams-table tbody tr.owner-dm .team-name-cell {
-    background: rgba(34, 197, 94, 0.05);
+    background: #1a2e1a;
   }
   
   .teams-table tbody tr.owner-tg .owner-cell,
   .teams-table tbody tr.owner-tg .team-name-cell {
-    background: rgba(236, 72, 153, 0.05);
+    background: #2e1a26;
   }
   
   .teams-table tbody tr.owner-kh .owner-cell,
   .teams-table tbody tr.owner-kh .team-name-cell {
-    background: rgba(59, 130, 246, 0.05);
+    background: #1a2233;
   }
   
   .teams-table tbody tr.owner-mc .owner-cell,
   .teams-table tbody tr.owner-mc .team-name-cell {
-    background: rgba(168, 85, 247, 0.05);
+    background: #261a33;
+  }
+  
+  /* Payout table iPhone styles */
+  .payout-table-wrapper {
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+  
+  .payout-table {
+    font-size: 10px;
+    min-width: 600px; /* Force horizontal scroll */
+  }
+  
+  .payout-table th {
+    padding: 6px 3px;
+    font-size: 9px;
+  }
+  
+  .payout-table td {
+    padding: 5px 3px;
+    font-size: 10px;
+  }
+  
+  .payout-table td:first-child {
+    font-size: 9px;
+  }
+  
+  .payout-table th:nth-child(1),
+  .payout-table td:nth-child(1) { /* Level */
+    width: 100px;
+    min-width: 100px;
+  }
+  
+  .payout-table th:nth-child(2),
+  .payout-table td:nth-child(2) { /* Teams */
+    width: 45px;
+    min-width: 45px;
+  }
+  
+  .payout-table th:nth-child(3),
+  .payout-table td:nth-child(3) { /* % */
+    width: 40px;
+    min-width: 40px;
+  }
+  
+  .payout-table th:nth-child(4),
+  .payout-table td:nth-child(4) { /* Payout per Team */
+    width: 55px;
+    min-width: 55px;
+  }
+  
+  .payout-table th:nth-child(5),
+  .payout-table td:nth-child(5) { /* Total Payout */
+    width: 55px;
+    min-width: 55px;
+  }
+  
+  .payout-table th.owner-col,
+  .payout-table td.owner-col {
+    width: 65px;
+    min-width: 65px;
+  }
+  
+  .payout-table .achievement-earned {
+    font-size: 8px;
+    line-height: 1.2;
+  }
+  
+  .payout-input {
+    padding: 3px;
+    font-size: 10px;
+  }
+  
+  .payout-input-teams {
+    width: 32px;
+  }
+  
+  .payout-input-pct {
+    width: 40px;
+  }
+  
+  .pct-symbol {
+    font-size: 9px;
+  }
+}
+
+/* iPhone 16 Pro Max and similar (414-430px) */
+@media (max-width: 430px) {
+  .team-table-container {
+    padding: 4px;
+  }
+  
+  .data-info-card,
+  .payout-card,
+  .teams-card {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+  }
+  
+  .data-info-card.compact,
+  .payout-card.compact,
+  .teams-card.compact {
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+  
+  .data-info-card h3,
+  .payout-card h3,
+  .teams-card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .teams-header h3 {
+    font-size: 1.15rem;
+  }
+  
+  .table-wrapper {
+    border-radius: 8px;
+  }
+  
+  /* Payout table iPhone 16 specific styles */
+  .payout-table-wrapper {
+    margin: 0 -2px;
+    padding: 0 2px;
+  }
+  
+  .payout-table {
+    font-size: 9px;
+    min-width: 550px;
+  }
+  
+  .payout-table th {
+    padding: 5px 2px;
+    font-size: 8px;
+  }
+  
+  .payout-table td {
+    padding: 4px 2px;
+    font-size: 9px;
+  }
+  
+  .payout-table td:first-child {
+    font-size: 8px;
+  }
+  
+  .payout-table th:nth-child(1),
+  .payout-table td:nth-child(1) { /* Level */
+    width: 90px;
+    min-width: 90px;
+  }
+  
+  .payout-table th:nth-child(2),
+  .payout-table td:nth-child(2) { /* Teams */
+    width: 40px;
+    min-width: 40px;
+  }
+  
+  .payout-table th:nth-child(3),
+  .payout-table td:nth-child(3) { /* % */
+    width: 35px;
+    min-width: 35px;
+  }
+  
+  .payout-table th:nth-child(4),
+  .payout-table td:nth-child(4) { /* Payout per Team */
+    width: 50px;
+    min-width: 50px;
+  }
+  
+  .payout-table th:nth-child(5),
+  .payout-table td:nth-child(5) { /* Total Payout */
+    width: 50px;
+    min-width: 50px;
+  }
+  
+  .payout-table th.owner-col,
+  .payout-table td.owner-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  
+  .payout-table .achievement-earned {
+    font-size: 7px;
+    line-height: 1.15;
+  }
+  
+  .payout-input {
+    padding: 2px;
+    font-size: 9px;
+  }
+  
+  .payout-input-teams {
+    width: 28px;
+  }
+  
+  .payout-input-pct {
+    width: 36px;
+  }
+  
+  .pct-symbol {
+    font-size: 8px;
   }
 }
