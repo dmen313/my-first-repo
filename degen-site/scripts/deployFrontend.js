@@ -9,6 +9,14 @@ const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'sports-hub-frontend-dev';
 const REGION = process.env.AWS_REGION || 'us-east-1';
 const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
 
+function shouldSkipVersionBump() {
+  const v = process.env.DEPLOY_SKIP_VERSION_BUMP;
+  if (v === '1' || v === 'true') return true;
+  // GitHub Actions: bumping package.json here would not be committed; use tags/releases or bump locally instead.
+  if (process.env.GITHUB_ACTIONS === 'true') return true;
+  return false;
+}
+
 /**
  * Increment the version in package.json.
  * Patch rolls over at 99: 0.3.99 → 0.4.0, 0.4.99 → 0.5.0, etc.
@@ -42,9 +50,15 @@ console.log('🚀 Deploying frontend to S3...\n');
 console.log('═══════════════════════════════════════════════════════');
 
 try {
-  // Increment version before building
-  const newVersion = incrementVersion();
-  
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  let newVersion;
+  if (shouldSkipVersionBump()) {
+    newVersion = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version;
+    console.log(`📦 Skipping package.json version bump (${process.env.GITHUB_ACTIONS === 'true' ? 'GitHub Actions' : 'DEPLOY_SKIP_VERSION_BUMP'})\n`);
+  } else {
+    newVersion = incrementVersion();
+  }
+
   console.log('📦 DEPLOYMENT TARGET:');
   console.log(`   Version: ${newVersion}`);
   console.log(`   Bucket: ${BUCKET_NAME}`);

@@ -190,18 +190,21 @@ async function updateNba2025Data() {
     console.log('📋 Step 3: Fetching NBA 2025 teams from DynamoDB...');
     const dbTeams = [];
     
-    // Query Eastern Conference teams
+    // Query Eastern Conference teams (must filter sportsLeague — NHL also uses East/West + season 2025)
     const easternQuery = new QueryCommand({
       TableName: TEAMS_TABLE,
       IndexName: 'league-season-index',
       KeyConditionExpression: '#league = :league AND #season = :season',
+      FilterExpression: '#sportsLeague = :sportsLeague',
       ExpressionAttributeNames: {
         '#league': 'league',
-        '#season': 'season'
+        '#season': 'season',
+        '#sportsLeague': 'sportsLeague'
       },
       ExpressionAttributeValues: {
         ':league': 'Eastern Conference',
-        ':season': '2025'
+        ':season': '2025',
+        ':sportsLeague': 'NBA'
       }
     });
     
@@ -214,13 +217,16 @@ async function updateNba2025Data() {
       TableName: TEAMS_TABLE,
       IndexName: 'league-season-index',
       KeyConditionExpression: '#league = :league AND #season = :season',
+      FilterExpression: '#sportsLeague = :sportsLeague',
       ExpressionAttributeNames: {
         '#league': 'league',
-        '#season': 'season'
+        '#season': 'season',
+        '#sportsLeague': 'sportsLeague'
       },
       ExpressionAttributeValues: {
         ':league': 'Western Conference',
-        ':season': '2025'
+        ':season': '2025',
+        ':sportsLeague': 'NBA'
       }
     });
     

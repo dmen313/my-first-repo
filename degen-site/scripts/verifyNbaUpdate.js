@@ -4,7 +4,7 @@
 
 require('dotenv').config();
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 
 const REGION = process.env.REACT_APP_AWS_REGION || 'us-east-1';
 const TABLE_NAME = 'sports-hub-teams';
@@ -16,23 +16,26 @@ async function verifyNbaUpdate() {
   console.log('🔍 Verifying NBA 2025 team data in DynamoDB...\n');
   
   try {
-    // Query for NBA 2025 teams
-    const command = new QueryCommand({
+    // NBA rows use league = Eastern/Western Conference + sportsLeague = NBA (not league = "nba")
+    const scanParams = {
       TableName: TABLE_NAME,
-      IndexName: 'league-season-index',
-      KeyConditionExpression: '#league = :league AND #season = :season',
+      FilterExpression: '#season = :season AND #sportsLeague = :sportsLeague',
       ExpressionAttributeNames: {
-        '#league': 'league',
-        '#season': 'season'
+        '#season': 'season',
+        '#sportsLeague': 'sportsLeague'
       },
       ExpressionAttributeValues: {
-        ':league': 'nba',
-        ':season': '2025'
+        ':season': '2025',
+        ':sportsLeague': 'NBA'
       }
-    });
-    
-    const result = await docClient.send(command);
-    const teams = result.Items || [];
+    };
+    const teams = [];
+    let lastKey;
+    do {
+      const result = await docClient.send(new ScanCommand({ ...scanParams, ExclusiveStartKey: lastKey }));
+      teams.push(...(result.Items || []));
+      lastKey = result.LastEvaluatedKey;
+    } while (lastKey);
     
     console.log(`✅ Found ${teams.length} NBA 2025 teams in DynamoDB\n`);
     

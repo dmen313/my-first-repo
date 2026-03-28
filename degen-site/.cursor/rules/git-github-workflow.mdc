@@ -1,0 +1,16 @@
+---
+description: Git and GitHub workflow for this repo (commits, branches, CI)
+alwaysApply: true
+---
+
+# Git and GitHub
+
+- **Repo root**: This app lives under `degen-site/` in the parent git repository (`cursor`). Git operations (commit, push, branch) run from the **repository root**, not only inside `degen-site/`.
+- **Branches**: Prefer feature branches off `main` (or `master`) instead of committing directly to the default branch when the change is non-trivial.
+- **Pull requests**: Open a PR for review when multiple people use the repo or when the change affects production behavior. Keep the PR description factual: what changed and why.
+- **CI**: Pushes and PRs that touch `degen-site/` run **degen-site CI** on GitHub Actions (tests + production build). Before pushing, run locally from `degen-site/`: `npm run ci` (or `npm test -- --watchAll=false` and `npm run build`).
+- **Deploy**: Production deploy from GitHub uses workflow **degen-site deploy** (Actions → Run workflow). It runs tests, then `scripts/deployFrontend.js` with `DEPLOY_SKIP_VERSION_BUMP` so `package.json` is not rewritten on the runner. Configure **repository Actions secrets** for AWS (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`), `S3_BUCKET_NAME`, optional `CLOUDFRONT_DISTRIBUTION_ID`, and the same `REACT_APP_*` values as production `.env`. Local deploy without a version bump: `npm run deploy-frontend:no-bump`.
+- **Scheduled NCAA / sports updates**: Workflow **NCAA 2026 data update (scheduled)** runs `scripts/updateNcaa2026.sh` every **30 minutes** from **8:00 AM–11:30 PM Pacific** daily (`cron` with `timezone: America/Los_Angeles`). Requires the same AWS secrets as other jobs; optional `ODDS_API_KEY` for NBA/NHL odds. If AWS resources are not in `us-east-1`, edit the workflow’s `AWS_REGION` / `aws-region` to match.
+- **Ignore rules**: The repo root `.gitignore` uses `/public` (root only) so `degen-site/public/` assets like `index.html` can be committed. `degen-site/public/version.json` is generated at build and is gitignored.
+- **Secrets**: Never commit `.env` or API keys. They are listed in `.gitignore`.
+- **Scripts**: Node scripts under `scripts/` share the same repo rules; verify with `npm run ci` when changes could affect the app build or tests.

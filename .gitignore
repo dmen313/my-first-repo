@@ -74,7 +74,8 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Only ignore `public` at repo root — do not ignore degen-site/public (CRA needs index.html, etc.)
+/public
 
 # Storybook build outputs
 .out

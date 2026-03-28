@@ -35,6 +35,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "node scripts/generateVersion.js && react-scripts build && node scripts/generateVersion.js",
+    "ci": "npm test -- --watchAll=false && npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "graphql:start": "node scripts/startGraphQLServer.js",
@@ -92,6 +93,7 @@
     "migrate-to-dynamodb": "node scripts/migrateToDynamoDB.js",
     "setup-frontend-s3": "node scripts/setupFrontendS3.js",
     "deploy-frontend": "node scripts/deployFrontend.js",
+    "deploy-frontend:no-bump": "DEPLOY_SKIP_VERSION_BUMP=1 node scripts/deployFrontend.js",
     "setup-cognito-identity-pool": "node scripts/setupCognitoIdentityPool.js",
     "setup-backend-ec2": "node scripts/setupBackendEC2.js",
     "prepare-backend": "node scripts/prepareBackendDeployment.js",
