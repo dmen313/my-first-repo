@@ -1,0 +1,45 @@
+# Validates degen-site (React app + scripts) on push and pull requests.
+name: degen-site CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "degen-site/**"
+      - ".github/workflows/degen-site-ci.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "degen-site/**"
+      - ".github/workflows/degen-site-ci.yml"
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: degen-site
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: degen-site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (CI)
+        run: npm test -- --watchAll=false
+        env:
+          CI: true
+
+      - name: Production build
+        run: npm run build
+        env:
+          CI: true

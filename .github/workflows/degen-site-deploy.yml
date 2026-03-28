@@ -1,0 +1,72 @@
+# Manual production deploy: S3 sync + optional CloudFront invalidation (same as scripts/deployFrontend.js).
+# Configure repository Secrets (Settings → Secrets and variables → Actions).
+#
+# Required:
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME
+#   REACT_APP_* — match your production .env (at minimum GraphQL + Cognito for the app to work)
+# Optional:
+#   CLOUDFRONT_DISTRIBUTION_ID, REACT_APP_ODDS_API_KEY, REACT_APP_NFL_API_KEY, REACT_APP_NBA_PROXY_ENDPOINT
+#
+name: degen-site deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: AWS region (S3, CloudFront, CLI)
+        required: false
+        default: us-east-1
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: degen-site
+
+    env:
+      DEPLOY_SKIP_VERSION_BUMP: "1"
+      AWS_REGION: ${{ inputs.aws_region }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+      REACT_APP_GRAPHQL_ENDPOINT: ${{ secrets.REACT_APP_GRAPHQL_ENDPOINT }}
+      REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.REACT_APP_COGNITO_CLIENT_ID }}
+      REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.REACT_APP_COGNITO_USER_POOL_ID }}
+      REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.REACT_APP_COGNITO_IDENTITY_POOL_ID }}
+      REACT_APP_AWS_REGION: ${{ secrets.REACT_APP_AWS_REGION }}
+      REACT_APP_ODDS_API_KEY: ${{ secrets.REACT_APP_ODDS_API_KEY }}
+      REACT_APP_NFL_API_KEY: ${{ secrets.REACT_APP_NFL_API_KEY }}
+      REACT_APP_NBA_PROXY_ENDPOINT: ${{ secrets.REACT_APP_NBA_PROXY_ENDPOINT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: degen-site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+        env:
+          CI: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Deploy frontend (build + S3 + optional CloudFront)
+        run: node scripts/deployFrontend.js
