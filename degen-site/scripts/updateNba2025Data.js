@@ -2,7 +2,12 @@
 
 /**
  * Local script to update NBA 2025 team records and championship odds
- * Fetches data from NBA.com Stats API and The Odds API, then updates DynamoDB
+ * Fetches data from ESPN NBA API and The Odds API, then updates DynamoDB
+ *
+ * Note: stats.nba.com blocks GitHub Actions / cloud IP ranges (silent TCP read
+ * timeout from the runner), so we use ESPN's public standings endpoint, the same
+ * source used by updateNfl2025Data.js. ESPN uses end-year for season — the
+ * 2025-26 NBA season is `season=2026`.
  */
 
 require('dotenv').config();
@@ -32,66 +37,102 @@ async function updateNba2025Data() {
   console.log('🏀 Updating NBA 2025 team records and championship odds...\n');
 
   try {
-    // Step 1: Fetch NBA standings from NBA.com Stats API
-    console.log('📊 Step 1: Fetching NBA standings...');
+    // Step 1: Fetch NBA standings from ESPN API
+    console.log('📊 Step 1: Fetching NBA standings from ESPN API...');
+
+    // ESPN uses end-year for season: 2025-26 NBA season = season=2026
     const seasonYear = 2025;
     const seasonEnd = 2026;
-    const nbaSeason = `${seasonYear}-${String(seasonEnd).slice(-2)}`; // "2025-26"
-    
-    const NBA_API_BASE = 'https://stats.nba.com/stats';
-    const standingsUrl = `${NBA_API_BASE}/leaguestandingsv3?LeagueID=00&Season=${nbaSeason}&SeasonType=Regular%20Season`;
-    
+    const espnSeason = seasonEnd;
+    const nbaSeasonLabel = `${seasonYear}-${String(seasonEnd).slice(-2)}`; // "2025-26"
+
+    const ESPN_API_BASE = 'https://site.api.espn.com/apis/v2/sports/basketball/nba';
+    const standingsUrl = `${ESPN_API_BASE}/standings?season=${espnSeason}&level=3`;
+
     const standingsResponse = await fetch(standingsUrl, {
       method: 'GET',
       headers: {
-        'Referer': 'https://www.nba.com/',
-        'Origin': 'https://www.nba.com',
         'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
       }
     });
 
     if (!standingsResponse.ok) {
-      throw new Error(`NBA API error: ${standingsResponse.status} ${standingsResponse.statusText}`);
+      throw new Error(`ESPN API error: ${standingsResponse.status} ${standingsResponse.statusText}`);
     }
 
     const standingsData = await standingsResponse.json();
-    
-    if (!standingsData || !standingsData.resultSets || standingsData.resultSets.length === 0) {
-      throw new Error('Invalid NBA API response: missing resultSets');
+
+    // Parse ESPN standings data. ESPN groups standings by conference (children)
+    // and may either put entries directly on conference.standings.entries OR
+    // nest them under conference.children[].standings.entries (division-level).
+    // Handle both shapes (mirrors updateNfl2025Data.js).
+    const apiTeams = [];
+
+    const extractEntries = (node, conferenceName) => {
+      const entries = (node && node.standings && node.standings.entries) || [];
+      for (const entry of entries) {
+        const team = entry.team || {};
+        const stats = entry.stats || [];
+
+        let wins = 0;
+        let losses = 0;
+        let gamesBack = '—';
+
+        for (const stat of stats) {
+          const statName = (stat.name || '').toLowerCase();
+          const statType = (stat.type || '').toLowerCase();
+          if (statName === 'wins' || statType === 'wins') {
+            wins = parseInt(stat.value) || 0;
+          } else if (statName === 'losses' || statType === 'losses') {
+            losses = parseInt(stat.value) || 0;
+          } else if (statName === 'gamesbehind' || statType === 'gamesbehind' || statName === 'gb') {
+            // ESPN returns 0 for the leader; surface that as "—" to match prior behavior.
+            const v = stat.value;
+            if (v === undefined || v === null) {
+              gamesBack = '—';
+            } else if (typeof v === 'number') {
+              gamesBack = v === 0 ? '—' : v;
+            } else {
+              gamesBack = v;
+            }
+          }
+        }
+
+        apiTeams.push({
+          name: team.displayName || team.name || '',
+          shortName: team.shortDisplayName || team.abbreviation || '',
+          record: `${wins}-${losses}`,
+          wins,
+          losses,
+          gamesBack,
+          conference: conferenceName
+        });
+      }
+    };
+
+    if (standingsData && Array.isArray(standingsData.children)) {
+      for (const conference of standingsData.children) {
+        const conferenceName = conference.name || conference.abbreviation || 'Unknown';
+
+        // Flat case: entries directly on the conference
+        extractEntries(conference, conferenceName);
+
+        // Nested case: entries under divisions inside the conference
+        if (Array.isArray(conference.children)) {
+          for (const division of conference.children) {
+            extractEntries(division, conferenceName);
+          }
+        }
+      }
     }
 
-    const standingsResult = standingsData.resultSets[0];
-    const headers = standingsResult.headers || [];
-    const rowSet = standingsResult.rowSet || [];
-
-    const teamNameIndex = headers.indexOf('TeamName');
-    const teamCityIndex = headers.indexOf('TeamCity');
-    const winsIndex = headers.indexOf('WINS');
-    const lossesIndex = headers.indexOf('LOSSES');
-    const gamesBackIndex = headers.indexOf('GB');
-
-    const apiTeams = [];
-    rowSet.forEach((row) => {
-      const teamCity = teamCityIndex >= 0 ? (row[teamCityIndex] || '') : '';
-      const teamName = teamNameIndex >= 0 ? (row[teamNameIndex] || '') : '';
-      const fullTeamName = teamCity && teamName ? `${teamCity} ${teamName}` : teamName;
-      const wins = winsIndex >= 0 ? (row[winsIndex] || 0) : 0;
-      const losses = lossesIndex >= 0 ? (row[lossesIndex] || 0) : 0;
-      const gamesBack = gamesBackIndex >= 0 && row[gamesBackIndex] !== undefined && row[gamesBackIndex] !== null ? row[gamesBackIndex] : '—';
-      
-      apiTeams.push({
-        name: fullTeamName,
-        record: `${wins}-${losses}`,
-        wins,
-        losses,
-        gamesBack
-      });
-    });
-
-    console.log(`✅ Fetched ${apiTeams.length} teams from NBA API for ${nbaSeason} season`);
-    console.log(`   Sample teams: ${apiTeams.slice(0, 5).map(t => `${t.name} (${t.record})`).join(', ')}...\n`);
+    console.log(`✅ Fetched ${apiTeams.length} teams from ESPN API for ${nbaSeasonLabel} season`);
+    if (apiTeams.length > 0) {
+      console.log(`   Sample teams: ${apiTeams.slice(0, 5).map(t => `${t.name} (${t.record})`).join(', ')}...\n`);
+    } else {
+      console.log('   ⚠️  No standings entries returned (NBA season may not have started)\n');
+    }
 
     // Step 2: Fetch odds from The Odds API
     console.log('🎲 Step 2: Fetching championship odds from The Odds API...');
@@ -105,8 +146,7 @@ async function updateNba2025Data() {
       const possibleEndpoints = [
         'basketball_nba_championship_winner',
         'basketball_nba_championship',
-        'basketball_nba_futures',
-        'basketball_nba'
+        'basketball_nba_futures'
       ];
 
       for (const endpoint of possibleEndpoints) {
@@ -134,25 +174,27 @@ async function updateNba2025Data() {
                       m.key === 'outrights' || 
                       m.key === 'futures' ||
                       m.key === 'winner'
-                    ) || bookmaker.markets[0];
+                    );
                     
-                    if (championshipMarket.outcomes) {
-                      championshipMarket.outcomes.forEach(outcome => {
-                        const teamName = outcome.name.toLowerCase().replace(/[^a-z\s]/g, '').trim();
-                        const odds = outcome.price > 0 ? `+${outcome.price}` : `${outcome.price}`;
-                        
-                        oddsMap[teamName] = odds;
-                        
-                        // Store multiple variations for better matching
-                        const nameParts = teamName.split(/\s+/);
-                        if (nameParts.length > 1) {
-                          oddsMap[nameParts[nameParts.length - 1]] = odds;
-                          if (nameParts.length >= 2) {
-                            oddsMap[nameParts.slice(-2).join(' ')] = odds;
-                          }
+                    if (!championshipMarket) return;
+
+                    // Futures markets list all teams (10+); game lines only have 2
+                    if (!championshipMarket.outcomes || championshipMarket.outcomes.length < 5) return;
+
+                    championshipMarket.outcomes.forEach(outcome => {
+                      const teamName = outcome.name.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+                      const odds = outcome.price > 0 ? `+${outcome.price}` : `${outcome.price}`;
+                      
+                      oddsMap[teamName] = odds;
+                      
+                      const nameParts = teamName.split(/\s+/);
+                      if (nameParts.length > 1) {
+                        oddsMap[nameParts[nameParts.length - 1]] = odds;
+                        if (nameParts.length >= 2) {
+                          oddsMap[nameParts.slice(-2).join(' ')] = odds;
                         }
-                      });
-                    }
+                      }
+                    });
                   }
                 }
               });
@@ -320,12 +362,11 @@ async function updateNba2025Data() {
             expressionAttributeValues[':gamesBack'] = apiTeam.gamesBack;
           }
           
-          if (odds) {
-            updateExpressions.push('#odds = :odds');
-            expressionAttributeNames['#odds'] = 'odds';
-            expressionAttributeValues[':odds'] = odds;
-            oddsUpdated++;
-          }
+          if (!odds) odds = '+999999';
+          updateExpressions.push('#odds = :odds');
+          expressionAttributeNames['#odds'] = 'odds';
+          expressionAttributeValues[':odds'] = odds;
+          oddsUpdated++;
           
           updateExpressions.push('#updatedAt = :updatedAt');
           expressionAttributeNames['#updatedAt'] = 'updatedAt';
