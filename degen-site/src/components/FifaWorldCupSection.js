@@ -273,18 +273,6 @@ function analyzeMarketSide(prob, marketLine) {
   return { price: marketLine.price, ev, tier: shadowTierUnits(ev) };
 }
 
-function pickBestPlay(overAnalysis, underAnalysis) {
-  const candidates = [];
-  if (overAnalysis && overAnalysis.ev >= MIN_PLAY_EV) {
-    candidates.push({ side: 'Over', ...overAnalysis });
-  }
-  if (underAnalysis && underAnalysis.ev >= MIN_PLAY_EV) {
-    candidates.push({ side: 'Under', ...underAnalysis });
-  }
-  if (!candidates.length) return null;
-  return candidates.sort((a, b) => b.ev - a.ev)[0];
-}
-
 function pivotOverUnderLines(lines) {
   const byKey = {};
   (lines || []).forEach((line) => {
@@ -297,8 +285,112 @@ function pivotOverUnderLines(lines) {
     if (side === 'over') byKey[key].over = line;
     else byKey[key].under = line;
   });
-  return Object.values(byKey).sort(
-    (a, b) => a.bookmaker.localeCompare(b.bookmaker) || a.point - b.point
+  return Object.values(byKey);
+}
+
+function buildOverUnderLineRows(lines, modelLines) {
+  const byPoint = {};
+
+  pivotOverUnderLines(lines).forEach((pair) => {
+    const { point, bookmaker, over, under } = pair;
+    if (!byPoint[point]) {
+      byPoint[point] = {
+        point,
+        model: modelRowForPoint(modelLines, point),
+        overs: [],
+        unders: [],
+      };
+    }
+
+    if (over) {
+      const analysis = analyzeMarketSide(byPoint[point].model?.pOver, over);
+      byPoint[point].overs.push({
+        bookmaker,
+        price: over.price,
+        analysis,
+        ev: analysis?.ev ?? null,
+        tier: analysis?.tier ?? 0,
+      });
+    }
+    if (under) {
+      const analysis = analyzeMarketSide(byPoint[point].model?.pUnder, under);
+      byPoint[point].unders.push({
+        bookmaker,
+        price: under.price,
+        analysis,
+        ev: analysis?.ev ?? null,
+        tier: analysis?.tier ?? 0,
+      });
+    }
+  });
+
+  return Object.values(byPoint)
+    .map((row) => {
+      const sortByEv = (a, b) => (b.ev ?? -Infinity) - (a.ev ?? -Infinity);
+      row.overs.sort(sortByEv);
+      row.unders.sort(sortByEv);
+
+      const perBookBest = [];
+      const bookSet = new Set([
+        ...row.overs.map((q) => q.bookmaker),
+        ...row.unders.map((q) => q.bookmaker),
+      ]);
+      bookSet.forEach((book) => {
+        const overQ = row.overs.find((q) => q.bookmaker === book);
+        const underQ = row.unders.find((q) => q.bookmaker === book);
+        const candidates = [];
+        if (overQ?.analysis && overQ.ev >= MIN_PLAY_EV) {
+          candidates.push({ side: 'Over', bookmaker: book, ...overQ.analysis });
+        }
+        if (underQ?.analysis && underQ.ev >= MIN_PLAY_EV) {
+          candidates.push({ side: 'Under', bookmaker: book, ...underQ.analysis });
+        }
+        if (candidates.length) {
+          perBookBest.push(candidates.sort((a, b) => b.ev - a.ev)[0]);
+        }
+      });
+
+      const play = perBookBest.length
+        ? perBookBest.sort((a, b) => b.ev - a.ev)[0]
+        : null;
+
+      return { ...row, play, _key: String(row.point) };
+    })
+    .sort((a, b) => a.point - b.point);
+}
+
+function MarketOddsStack({ quotes, side, bestPlay }) {
+  if (!quotes?.length) return '—';
+
+  return (
+    <div className="wc-market-odds-stack">
+      {quotes.map((q) => {
+        const isBestPlay = bestPlay
+          && bestPlay.side === side
+          && bestPlay.bookmaker === q.bookmaker;
+        const evClass = q.ev != null && q.ev >= MIN_PLAY_EV
+          ? 'wc-positive'
+          : q.ev != null && q.ev < 0
+            ? 'wc-negative'
+            : '';
+        const tip = q.ev != null
+          ? `${q.bookmaker} · EV ${fmtPct(q.ev)}`
+          : q.bookmaker;
+
+        return (
+          <span
+            key={`${q.bookmaker}-${q.price}`}
+            className={`wc-market-quote${isBestPlay ? ' wc-market-quote-best' : ''}`}
+            title={tip}
+          >
+            <span className="wc-pill">{fmtOdds(q.price)}</span>
+            {q.ev != null && (
+              <span className={`wc-market-ev ${evClass}`}>{fmtPct(q.ev)}</span>
+            )}
+          </span>
+        );
+      })}
+    </div>
   );
 }
 
@@ -335,33 +427,27 @@ function MarketOddsCell({ analysis }) {
   );
 }
 
-function MarketPlayCell({ play }) {
+function MarketPlayCell({ play, showBook = false }) {
   if (!play) {
     return <span className="wc-market-pass">Pass</span>;
   }
   return (
-    <span className="wc-pill wc-pill-positive">
-      {play.side} · {fmtPct(play.ev)} · {play.tier}u
+    <span className="wc-pill wc-pill-positive" title={showBook ? play.bookmaker : undefined}>
+      {play.side}
+      {showBook ? ` @ ${play.bookmaker}` : ''}
+      {' · '}
+      {fmtPct(play.ev)}
+      {' · '}
+      {play.tier}u
     </span>
   );
 }
 
 function OverUnderMarketTable({ title, lines, modelLines }) {
-  const rows = useMemo(() => {
-    return pivotOverUnderLines(lines).map((row) => {
-      const model = modelRowForPoint(modelLines, row.point);
-      const overAnalysis = analyzeMarketSide(model?.pOver, row.over);
-      const underAnalysis = analyzeMarketSide(model?.pUnder, row.under);
-      return {
-        ...row,
-        model,
-        overAnalysis,
-        underAnalysis,
-        play: pickBestPlay(overAnalysis, underAnalysis),
-        _key: `${row.bookmaker}-${row.point}`,
-      };
-    });
-  }, [lines, modelLines]);
+  const rows = useMemo(
+    () => buildOverUnderLineRows(lines, modelLines),
+    [lines, modelLines]
+  );
 
   if (!lines?.length) {
     return (
@@ -378,10 +464,10 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
       {!modelLines?.length && (
         <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
       )}
+      <p className="wc-readme wc-market-hint">Hover a price for the book and EV. Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
       <SpreadsheetTable
         columns={[
-          { key: 'bookmaker', label: 'Book', sticky: true, align: 'left', width: '96px' },
-          { key: 'point', label: 'Line', align: 'center', width: '52px', render: (r) => r.point },
+          { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },
           {
             key: 'modelOver',
             label: 'Model O',
@@ -402,22 +488,26 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
             key: 'over',
             label: 'Over',
             align: 'left',
-            width: '72px',
-            render: (r) => <MarketOddsCell analysis={r.overAnalysis} />,
+            width: '140px',
+            render: (r) => (
+              <MarketOddsStack quotes={r.overs} side="Over" bestPlay={r.play} />
+            ),
           },
           {
             key: 'under',
             label: 'Under',
             align: 'left',
-            width: '72px',
-            render: (r) => <MarketOddsCell analysis={r.underAnalysis} />,
+            width: '140px',
+            render: (r) => (
+              <MarketOddsStack quotes={r.unders} side="Under" bestPlay={r.play} />
+            ),
           },
           {
             key: 'play',
             label: 'Play',
             align: 'left',
-            width: '120px',
-            render: (r) => <MarketPlayCell play={r.play} />,
+            width: '160px',
+            render: (r) => <MarketPlayCell play={r.play} showBook />,
           },
         ]}
         rows={rows}
