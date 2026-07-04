@@ -317,6 +317,7 @@ function buildOverUnderLineRows(lines, modelLines) {
         bookmaker,
         kalshiThreshold,
         price: over.price,
+        impliedProb: over.impliedProb,
         analysis,
         ev: analysis?.ev ?? null,
         tier: analysis?.tier ?? 0,
@@ -328,6 +329,7 @@ function buildOverUnderLineRows(lines, modelLines) {
         bookmaker,
         kalshiThreshold,
         price: under.price,
+        impliedProb: under.impliedProb,
         analysis,
         ev: analysis?.ev ?? null,
         tier: analysis?.tier ?? 0,
@@ -394,8 +396,15 @@ function MarketOddsStack({ quotes, side, bestPlay }) {
               {q.kalshiThreshold != null ? `Kalshi ${q.kalshiThreshold}+` : q.bookmaker}
             </span>
             <span className="wc-pill">{fmtOdds(q.price)}</span>
+            {q.impliedProb != null && (
+              <span className="wc-market-impl" title="Market implied probability">
+                {fmtPct(q.impliedProb)}
+              </span>
+            )}
             {q.ev != null && (
-              <span className={`wc-market-ev ${evClass}`}>{fmtPct(q.ev)}</span>
+              <span className={`wc-market-ev ${evClass}`} title="Model EV vs this price">
+                EV {fmtPct(q.ev)}
+              </span>
             )}
           </span>
         );
@@ -474,7 +483,7 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
       {!modelLines?.length && (
         <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
       )}
-      <p className="wc-readme wc-market-hint">Each price shows the book, odds, and model EV. Kalshi contracts are labeled with their native threshold (e.g. 8+); that maps to the sportsbook half-point line one step below (8+ → line 7.5). Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
+      <p className="wc-readme wc-market-hint">Each quote shows odds, market implied %, and model EV (labeled “EV”). Kalshi contracts are labeled with their native threshold (e.g. 8+ → line 7.5). Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
       <SpreadsheetTable
         columns={[
           { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },

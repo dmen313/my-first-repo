@@ -47,9 +47,9 @@ describe('wcKalshiOddsApi', () => {
       no_ask_dollars: '0.3000',
     };
     expect(kalshiDisplayedYesProb(market)).toBe(0.7);
-    expect(kalshiDisplayedNoProb(market)).toBe(0.3);
+    expect(kalshiDisplayedNoProb(market)).toBe(0.28);
     expect(kalshiThresholdToPoint(8)).toBe(7.5);
     expect(fairAmerican(0.7)).toBe(-233);
-    expect(fairAmerican(0.3)).toBe(233);
+    expect(fairAmerican(0.28)).toBe(257);
   });
 });

@@ -430,6 +430,11 @@
   background: rgba(52, 211, 153, 0.08);
 }
 
+.wc-market-impl {
+  font-size: 0.65rem;
+  color: #a1a1aa;
+}
+
 .wc-market-ev {
   font-size: 0.65rem;
   color: #71717a;

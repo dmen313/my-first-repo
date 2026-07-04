@@ -36,13 +36,13 @@ export function kalshiDisplayedYesProb(market) {
   return ask ?? bid ?? null;
 }
 
-/** Kalshi NO buy price — matches the NO % shown on kalshi.com (no_ask). */
+/** Kalshi NO price — matches kalshi.com/app (no_bid on the NO side). */
 export function kalshiDisplayedNoProb(market) {
-  const noAsk = parseKalshiProb(market.no_ask_dollars);
-  if (noAsk !== null) return noAsk;
-
   const noBid = parseKalshiProb(market.no_bid_dollars);
   if (noBid !== null) return noBid;
+
+  const noAsk = parseKalshiProb(market.no_ask_dollars);
+  if (noAsk !== null) return noAsk;
 
   const yes = kalshiDisplayedYesProb(market);
   return yes !== null ? 1 - yes : null;
