@@ -1,6 +1,6 @@
 {
   "name": "degen-site",
-  "version": "0.4.14",
+  "version": "0.4.17",
   "description": "Degen4 - Internal tool to support sports league tracking",
   "private": true,
   "dependencies": {
@@ -97,7 +97,14 @@
     "setup-cognito-identity-pool": "node scripts/setupCognitoIdentityPool.js",
     "setup-backend-ec2": "node scripts/setupBackendEC2.js",
     "prepare-backend": "node scripts/prepareBackendDeployment.js",
-    "deploy-lambda": "node scripts/deployLambda.js"
+    "deploy-lambda": "node scripts/deployLambda.js",
+    "setup-wc-corners": "node scripts/setupWcCornersTable.js",
+    "migrate-wc-corners": "node scripts/migrateWc2026ToDynamoDB.js",
+    "update-wc-corners-odds": "node scripts/updateWc2026Odds.js",
+    "update-wc-corners-elo": "node scripts/updateWc2026Elo.js",
+    "update-wc-corners-stats": "node scripts/updateWc2026CornerStats.js",
+    "recalc-wc-corners": "node scripts/recalcWc2026Model.js",
+    "update-wc-corners-cron": "bash scripts/updateWc2026.sh"
   },
   "eslintConfig": {
     "extends": [

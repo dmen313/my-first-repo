@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- NHL Shield Background -->
+  <path d="M50 5 L85 20 L85 55 Q85 75 50 95 Q15 75 15 55 L15 20 Z" fill="#000000" stroke="#C4CED4" stroke-width="3"/>
+  
+  <!-- Inner Shield -->
+  <path d="M50 12 L78 24 L78 52 Q78 68 50 85 Q22 68 22 52 L22 24 Z" fill="#000000"/>
+  
+  <!-- NHL Text -->
+  <text x="50" y="42" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">NHL</text>
+  
+  <!-- Hockey Stick and Puck -->
+  <ellipse cx="50" cy="62" rx="12" ry="4" fill="#C4CED4"/>
+  <rect x="32" y="54" width="4" height="20" fill="#8B4513" transform="rotate(-30 34 64)"/>
+  <rect x="64" y="54" width="4" height="20" fill="#8B4513" transform="rotate(30 66 64)"/>
+</svg>

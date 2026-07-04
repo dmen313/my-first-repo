@@ -1339,10 +1339,10 @@ export const updateNcaaTourneyGame = async (id, updateData) => {
 };
 
 // Synchronous point calculation - used when games and team data are already available
-function calculatePointsForTeam(teamId, team, games) {
+function calculatePointsForTeam(teamId, team, games, allTeams) {
   if (!team) return { total: 0, breakdown: {} };
   
-  const teamSeed = team.seed || 16;
+  const teamSeed = team.seed;
   let totalPoints = 0;
   const breakdown = {};
   
@@ -1350,10 +1350,14 @@ function calculatePointsForTeam(teamId, team, games) {
     if (game.winnerId === teamId && game.status === 'completed') {
       const round = game.round;
       const basePoints = NCAA_TOURNEY_POINTS[round] || 0;
-      const opponentSeed = game.team1Id === teamId ? game.team2Seed : game.team1Seed;
       
+      const opponentId = game.team1Id === teamId ? game.team2Id : game.team1Id;
+      const opponentTeam = allTeams ? allTeams.find(t => t.id === opponentId) : null;
+      const opponentSeed = opponentTeam?.seed;
+      
+      // Upset bonus only when a lower seed (higher number) beats a higher seed (lower number)
       let upsetBonus = 0;
-      if (teamSeed > opponentSeed) {
+      if (teamSeed && opponentSeed && teamSeed > opponentSeed) {
         upsetBonus = teamSeed - opponentSeed;
       }
       
@@ -1376,9 +1380,12 @@ function calculatePointsForTeam(teamId, team, games) {
 // Calculate points for a team based on their tournament wins
 // Can optionally accept pre-fetched games and team data to avoid redundant queries
 export const calculateNcaaTourneyPoints = async (teamId, league, season, prefetchedGames = null, prefetchedTeam = null) => {
-  const games = prefetchedGames || await getNcaaTourneyGames(league, season);
-  const team = prefetchedTeam || await getTeam(teamId);
-  return calculatePointsForTeam(teamId, team, games);
+  const [games, team, allTeams] = await Promise.all([
+    prefetchedGames || getNcaaTourneyGames(league, season),
+    prefetchedTeam || getTeam(teamId),
+    getTeams(league, season)
+  ]);
+  return calculatePointsForTeam(teamId, team, games, allTeams);
 };
 
 // Helper function to get round name
@@ -1416,7 +1423,7 @@ export const updateAllTeamPoints = async (league, season) => {
   const updatedTeams = [];
   
   for (const team of teams) {
-    const { total, breakdown } = calculatePointsForTeam(team.id, team, games);
+    const { total, breakdown } = calculatePointsForTeam(team.id, team, games, teams);
     
     if (team.totalPoints !== total) {
       updatedTeams.push({
@@ -1871,4 +1878,559 @@ export const updateSurvivorScheduleDay = async (id, updateData) => {
   });
   const result = await client.send(command);
   return result.Attributes;
+};
+
+// ============================================
+// WC 2026 Corner Model Operations
+// ============================================
+
+const WC_CORNERS_TABLE = 'sports-hub-wc-corners';
+const WC_LEAGUE = 'wc-corners';
+
+function wcSeasonId(season = '2026') {
+  return `${WC_LEAGUE}-${season}`;
+}
+
+export const getWcCornersItems = async (season = '2026') => {
+  const client = await getDynamoDBClient();
+  const command = new QueryCommand({
+    TableName: WC_CORNERS_TABLE,
+    IndexName: 'league-season-index',
+    KeyConditionExpression: '#league = :league AND #season = :season',
+    ExpressionAttributeNames: { '#league': 'league', '#season': 'season' },
+    ExpressionAttributeValues: { ':league': WC_LEAGUE, ':season': season },
+  });
+  const result = await client.send(command);
+  return result.Items || [];
+};
+
+export const getWcCornersModel = async (season = '2026') => {
+  const items = await getWcCornersItems(season);
+  const parameters = {};
+  let trackerSummary = null;
+  let accuracySummary = null;
+  let meta = null;
+  const dashboard = [];
+  const teams = {};
+  const bets = [];
+  const accuracyLog = [];
+  const fixtures = [];
+  let eloRatings = [];
+
+  items.forEach((item) => {
+    switch (item.entityType) {
+      case 'parameters':
+        Object.assign(parameters, item.data || {});
+        break;
+      case 'elo-ratings':
+        eloRatings = item.ratings || [];
+        break;
+      case 'team':
+        dashboard.push(item.dashboard);
+        teams[item.team] = {
+          games: item.games || [],
+          summary: item.summary || {},
+        };
+        break;
+      case 'bet':
+        bets.push({ ...item.bet, _betId: item.id });
+        break;
+      case 'accuracy':
+        accuracyLog.push({ ...item.entry, _entryId: item.id });
+        break;
+      case 'fixture':
+        fixtures.push(item.fixture);
+        break;
+      case 'tracker-summary':
+        trackerSummary = item.summary;
+        break;
+      case 'accuracy-summary':
+        accuracySummary = item.summary;
+        break;
+      case 'meta':
+        meta = item;
+        break;
+      default:
+        break;
+    }
+  });
+
+  dashboard.sort((a, b) => a.team.localeCompare(b.team));
+  bets.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  accuracyLog.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  fixtures.sort((a, b) => String(a.commenceTime).localeCompare(String(b.commenceTime)));
+
+  return {
+    meta: meta || { title: 'WC 2026 — Corner Kick Model' },
+    readme: meta?.readme || [],
+    parameters,
+    dashboard,
+    teams,
+    tracker: { summary: trackerSummary || {}, bets },
+    accuracy: { summary: accuracySummary || {}, log: accuracyLog },
+    fixtures,
+    eloRatings,
+    lastOddsSync: meta?.lastOddsSync || null,
+  };
+};
+
+export const saveWcCornersParameters = async (season, valueUpdates, { recalc = true } = {}) => {
+  const items = await getWcCornersItems(season);
+  const paramsItem = items.find((i) => i.entityType === 'parameters');
+  const data = { ...(paramsItem?.data || {}) };
+
+  Object.entries(valueUpdates || {}).forEach(([name, rawVal]) => {
+    if (!data[name]) return;
+    const n = Number(rawVal);
+    const value = Number.isFinite(n) ? n : rawVal;
+    data[name] = { ...data[name], value };
+  });
+
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-parameters`,
+    season,
+    entityType: 'parameters',
+    data,
+    createdAt: paramsItem?.createdAt,
+  });
+
+  if (recalc) {
+    await recalcAndSaveWcCornersModel(season);
+  }
+
+  return data;
+};
+
+export const putWcCornersItem = async (item) => {
+  const client = await getDynamoDBClient();
+  const now = new Date().toISOString();
+  const record = {
+    ...item,
+    league: WC_LEAGUE,
+    updatedAt: now,
+    createdAt: item.createdAt || now,
+  };
+  await client.send(new PutCommand({ TableName: WC_CORNERS_TABLE, Item: record }));
+  return record;
+};
+
+export const saveWcCornersFixtures = async (season, fixtures, syncMeta = {}) => {
+  const writes = fixtures.map((fixture) => ({
+    PutRequest: {
+      Item: {
+        id: `${wcSeasonId(season)}-fixture-${fixture.eventId}`,
+        league: WC_LEAGUE,
+        season,
+        entityType: 'fixture',
+        fixture,
+        updatedAt: new Date().toISOString(),
+      },
+    },
+  }));
+
+  const client = await getDynamoDBClient();
+  for (let i = 0; i < writes.length; i += 25) {
+    const chunk = writes.slice(i, i + 25);
+    await client.send(new BatchWriteCommand({
+      RequestItems: { [WC_CORNERS_TABLE]: chunk },
+    }));
+  }
+
+  const existing = await getWcCornersItems(season);
+  const metaItem = existing.find((i) => i.entityType === 'meta');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-meta`,
+    season,
+    entityType: 'meta',
+    title: metaItem?.title || 'WC 2026 — Corner Kick Model',
+    readme: metaItem?.readme || [],
+    lastOddsSync: syncMeta.fetchedAt || new Date().toISOString(),
+    oddsEventCount: syncMeta.eventCount || fixtures.length,
+    createdAt: metaItem?.createdAt,
+  });
+};
+
+export const refreshWcCornersOddsFromApi = async (season = '2026') => {
+  const { fetchAllWcCornerOdds } = await import('./wcCornersOddsApi.js');
+  const payload = await fetchAllWcCornerOdds();
+  await saveWcCornersFixtures(season, payload.fixtures, {
+    fetchedAt: payload.fetchedAt,
+    eventCount: payload.eventCount,
+  });
+  return payload;
+};
+
+async function loadWcModelForRecalc(season = '2026') {
+  const items = await getWcCornersItems(season);
+  const parameters = {};
+  let trackerSummary = null;
+  let accuracySummary = null;
+  const dashboard = [];
+  const teams = {};
+  const eloRatings = [];
+
+  items.forEach((item) => {
+    switch (item.entityType) {
+      case 'parameters':
+        Object.assign(parameters, item.data || {});
+        break;
+      case 'team':
+        dashboard.push(item.dashboard);
+        teams[item.team] = { games: item.games || [], summary: item.summary || {} };
+        break;
+      case 'elo-ratings':
+        eloRatings.push(...(item.ratings || []));
+        break;
+      case 'tracker-summary':
+        trackerSummary = item.summary;
+        break;
+      case 'accuracy-summary':
+        accuracySummary = item.summary;
+        break;
+      default:
+        break;
+    }
+  });
+
+  dashboard.sort((a, b) => a.team.localeCompare(b.team));
+  return { items, parameters, dashboard, teams, eloRatings, trackerSummary, accuracySummary };
+}
+
+export const recalcAndSaveWcCornersModel = async (season = '2026') => {
+  const { recalcWcModel } = await import('../utils/wc2026RecalcEngine.js');
+  const loaded = await loadWcModelForRecalc(season);
+  const recalced = recalcWcModel({
+    teams: loaded.teams,
+    dashboard: loaded.dashboard,
+    parameters: loaded.parameters,
+    eloRatings: loaded.eloRatings,
+  });
+
+  const now = new Date().toISOString();
+  const teamItems = loaded.items.filter((i) => i.entityType === 'team');
+
+  for (const item of teamItems) {
+    const teamName = item.team;
+    if (!teamName || teamName.includes('PRIOR')) continue;
+    const teamData = recalced.teams[teamName];
+    const dashRow = recalced.dashboard.find((r) => r.team === teamName);
+    if (!teamData || !dashRow) continue;
+
+    await putWcCornersItem({
+      ...item,
+      season,
+      games: teamData.games,
+      summary: teamData.summary,
+      dashboard: { ...item.dashboard, ...dashRow },
+      updatedAt: now,
+    });
+  }
+
+  const paramsItem = loaded.items.find((i) => i.entityType === 'parameters');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-parameters`,
+    season,
+    entityType: 'parameters',
+    data: recalced.parameters,
+    createdAt: paramsItem?.createdAt,
+  });
+
+  const metaItem = loaded.items.find((i) => i.entityType === 'meta');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-meta`,
+    season,
+    entityType: 'meta',
+    title: metaItem?.title,
+    readme: metaItem?.readme || [],
+    lastOddsSync: metaItem?.lastOddsSync,
+    oddsEventCount: metaItem?.oddsEventCount,
+    lastEloSync: metaItem?.lastEloSync,
+    lastCornerStatsSync: metaItem?.lastCornerStatsSync,
+    lastModelRecalc: now,
+    winsorCap: recalced.winsorCap,
+    createdAt: metaItem?.createdAt,
+  });
+
+  return recalced;
+};
+
+export const saveWcCornersBet = async (season, betInput) => {
+  const { enrichBet, computeTrackerSummary } = await import('../utils/wc2026Tracker.js');
+  const items = await getWcCornersItems(season);
+  const existingBets = items.filter((i) => i.entityType === 'bet');
+  const nextIndex = existingBets.length + 1;
+  const bet = enrichBet(betInput);
+  const id = `${wcSeasonId(season)}-bet-${String(nextIndex).padStart(3, '0')}`;
+
+  await putWcCornersItem({
+    id,
+    season,
+    entityType: 'bet',
+    bet,
+  });
+
+  const allBets = [...existingBets.map((i) => i.bet), bet];
+  const summary = computeTrackerSummary(allBets.map(enrichBet));
+  const summaryItem = items.find((i) => i.entityType === 'tracker-summary');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-tracker-summary`,
+    season,
+    entityType: 'tracker-summary',
+    summary,
+    createdAt: summaryItem?.createdAt,
+  });
+
+  return { id, bet, summary };
+};
+
+export const updateWcCornersBet = async (season, betId, updates) => {
+  const { enrichBet, computeTrackerSummary } = await import('../utils/wc2026Tracker.js');
+  const items = await getWcCornersItems(season);
+  const item = items.find((i) => i.id === betId && i.entityType === 'bet');
+  if (!item) throw new Error(`Bet not found: ${betId}`);
+
+  const bet = enrichBet({ ...item.bet, ...updates });
+  await putWcCornersItem({ ...item, bet });
+
+  const allBets = items
+    .filter((i) => i.entityType === 'bet')
+    .map((i) => (i.id === betId ? bet : enrichBet(i.bet)));
+  const summary = computeTrackerSummary(allBets);
+  const summaryItem = items.find((i) => i.entityType === 'tracker-summary');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-tracker-summary`,
+    season,
+    entityType: 'tracker-summary',
+    summary,
+    createdAt: summaryItem?.createdAt,
+  });
+
+  return { bet, summary };
+};
+
+async function refreshWcAccuracySummary(season, logEntries) {
+  const { computeAccuracySummary } = await import('../utils/wc2026Accuracy.js');
+  const summary = computeAccuracySummary(logEntries);
+  const items = await getWcCornersItems(season);
+  const summaryItem = items.find((i) => i.entityType === 'accuracy-summary');
+  await putWcCornersItem({
+    id: `${wcSeasonId(season)}-accuracy-summary`,
+    season,
+    entityType: 'accuracy-summary',
+    summary,
+    createdAt: summaryItem?.createdAt,
+  });
+  return summary;
+}
+
+export const addWcCornersMatchGames = async (season, input) => {
+  const {
+    buildProjectionSnapshot,
+    buildAccuracyEntryFromProjection,
+    buildGameRecord,
+    hasGame,
+    mirrorVenue,
+    nextGameNum,
+    normalizeGameDate,
+  } = await import('../utils/wc2026GameEntry.js');
+
+  const {
+    teamA,
+    teamB,
+    date,
+    cornersA,
+    cornersB,
+    comp = 'WC',
+    venue = 'N',
+    included = true,
+    lockAccuracy = true,
+  } = input;
+
+  if (!teamA || !teamB || teamA === teamB) {
+    throw new Error('Select two different teams');
+  }
+  if (!Number.isFinite(Number(cornersA)) || !Number.isFinite(Number(cornersB))) {
+    throw new Error('Corner counts must be numbers');
+  }
+
+  const items = await getWcCornersItems(season);
+  const teamItemA = items.find((i) => i.entityType === 'team' && i.team === teamA);
+  const teamItemB = items.find((i) => i.entityType === 'team' && i.team === teamB);
+  if (!teamItemA || !teamItemB) {
+    throw new Error(`Team not in model: ${!teamItemA ? teamA : teamB}`);
+  }
+
+  const parameters = {};
+  items.filter((i) => i.entityType === 'parameters').forEach((i) => Object.assign(parameters, i.data || {}));
+  const dashboard = items.filter((i) => i.entityType === 'team').map((i) => i.dashboard).sort((a, b) => a.team.localeCompare(b.team));
+
+  const normDate = normalizeGameDate(date);
+  if (hasGame(teamItemA.games, normDate, teamB)) {
+    throw new Error(`Game already logged: ${teamA} vs ${teamB} on ${normDate}`);
+  }
+
+  let accuracyEntry = null;
+  if (lockAccuracy) {
+    const projection = buildProjectionSnapshot(dashboard, parameters, teamA, teamB);
+    if (projection) {
+      accuracyEntry = buildAccuracyEntryFromProjection(normDate, projection, {
+        actA: Number(cornersA),
+        actB: Number(cornersB),
+      });
+    }
+  }
+
+  const oppEloA = teamItemB.dashboard?.elo ?? null;
+  const oppEloB = teamItemA.dashboard?.elo ?? null;
+  const gamesA = [...(teamItemA.games || [])];
+  const gamesB = [...(teamItemB.games || [])];
+
+  gamesA.push(buildGameRecord({
+    num: nextGameNum(gamesA),
+    date: normDate,
+    opponent: teamB,
+    cf: cornersA,
+    ca: cornersB,
+    comp,
+    venue,
+    oppElo: oppEloA,
+    included,
+  }));
+
+  gamesB.push(buildGameRecord({
+    num: nextGameNum(gamesB),
+    date: normDate,
+    opponent: teamA,
+    cf: cornersB,
+    ca: cornersA,
+    comp,
+    venue: mirrorVenue(venue),
+    oppElo: oppEloB,
+    included,
+  }));
+
+  const now = new Date().toISOString();
+  await putWcCornersItem({ ...teamItemA, games: gamesA, updatedAt: now });
+  await putWcCornersItem({ ...teamItemB, games: gamesB, updatedAt: now });
+
+  await recalcAndSaveWcCornersModel(season);
+
+  if (accuracyEntry) {
+    await saveWcCornersAccuracyEntry(season, accuracyEntry);
+  }
+
+  return { teamA, teamB, date: normDate, accuracyEntry };
+};
+
+export const saveWcCornersAccuracyEntry = async (season, entryInput) => {
+  const { buildProjectionSnapshot, buildAccuracyEntryFromProjection, normalizeGameDate } = await import('../utils/wc2026GameEntry.js');
+
+  const items = await getWcCornersItems(season);
+  const existing = items.filter((i) => i.entityType === 'accuracy');
+
+  let entry = { ...entryInput };
+  const normDate = normalizeGameDate(entry.date);
+
+  if (entry.lockProjection && !entry.projectionLocked) {
+    const parameters = {};
+    items.filter((i) => i.entityType === 'parameters').forEach((i) => Object.assign(parameters, i.data || {}));
+    const dashboard = items.filter((i) => i.entityType === 'team').map((i) => i.dashboard);
+    const projection = buildProjectionSnapshot(dashboard, parameters, entry.teamA, entry.teamB);
+    if (!projection) throw new Error('Could not lock projection — team missing from dashboard');
+    entry = buildAccuracyEntryFromProjection(normDate, projection, entry.actA != null ? {
+      actA: entry.actA,
+      actB: entry.actB,
+    } : null);
+    entry.date = normDate;
+  }
+
+  if (entry.actA != null && entry.actB != null && entry.projTotal != null) {
+    const actA = Number(entry.actA);
+    const actB = Number(entry.actB);
+    entry.actA = actA;
+    entry.actB = actB;
+    entry.actTotal = actA + actB;
+    entry.error = Number((entry.projTotal - entry.actTotal).toFixed(2));
+    entry.absError = Math.abs(entry.error);
+    entry.gradedAt = entry.gradedAt || new Date().toISOString();
+  }
+
+  const dup = existing.find(
+    (i) => i.entry?.teamA === entry.teamA
+      && i.entry?.teamB === entry.teamB
+      && normalizeGameDate(i.entry?.date) === normDate
+  );
+  if (dup) {
+    await putWcCornersItem({ ...dup, entry: { ...dup.entry, ...entry } });
+    const allEntries = existing.map((i) => (i.id === dup.id ? { ...dup.entry, ...entry } : i.entry));
+    const summary = await refreshWcAccuracySummary(season, allEntries);
+    return { id: dup.id, entry: { ...dup.entry, ...entry }, summary };
+  }
+
+  const nextIndex = existing.length + 1;
+  const id = `${wcSeasonId(season)}-accuracy-${String(nextIndex).padStart(3, '0')}`;
+  await putWcCornersItem({ id, season, entityType: 'accuracy', entry });
+
+  const allEntries = [...existing.map((i) => i.entry), entry];
+  const summary = await refreshWcAccuracySummary(season, allEntries);
+  return { id, entry, summary };
+};
+
+export const gradeWcCornersAccuracyEntry = async (season, entryId, { actA, actB }) => {
+  const items = await getWcCornersItems(season);
+  const item = items.find((i) => i.id === entryId && i.entityType === 'accuracy');
+  if (!item) throw new Error(`Accuracy entry not found: ${entryId}`);
+
+  const entry = { ...item.entry };
+  if (entry.projTotal == null) {
+    throw new Error('Grade requires locked projection — lock projection before the game is added to team logs');
+  }
+
+  const a = Number(actA);
+  const b = Number(actB);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    throw new Error('Actual corner counts must be numbers');
+  }
+
+  entry.actA = a;
+  entry.actB = b;
+  entry.actTotal = a + b;
+  entry.error = Number((entry.projTotal - entry.actTotal).toFixed(2));
+  entry.absError = Math.abs(entry.error);
+  entry.gradedAt = new Date().toISOString();
+  entry.projectionLocked = true;
+
+  await putWcCornersItem({ ...item, entry });
+
+  const allEntries = items
+    .filter((i) => i.entityType === 'accuracy')
+    .map((i) => (i.id === entryId ? entry : i.entry));
+  const summary = await refreshWcAccuracySummary(season, allEntries);
+  return { entry, summary };
+};
+
+export const updateWcCornersGameIncluded = async (season, teamName, gameKey, included) => {
+  const items = await getWcCornersItems(season);
+  const teamItem = items.find((i) => i.entityType === 'team' && i.team === teamName);
+  if (!teamItem) throw new Error(`Team not found: ${teamName}`);
+
+  const [date, opponent] = gameKey.split('|');
+  const inc = included !== false;
+
+  const patchGames = (games) => (games || []).map((g) => {
+    if (g.date === date && g.opponent === opponent) return { ...g, included: inc };
+    return g;
+  });
+
+  const gamesA = patchGames(teamItem.games);
+  await putWcCornersItem({ ...teamItem, games: gamesA });
+
+  const oppItem = items.find((i) => i.entityType === 'team' && i.team === opponent);
+  if (oppItem) {
+    const gamesB = patchGames(oppItem.games);
+    await putWcCornersItem({ ...oppItem, games: gamesB });
+  }
+
+  await recalcAndSaveWcCornersModel(season);
+  return gamesA;
 };

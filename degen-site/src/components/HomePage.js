@@ -202,12 +202,23 @@ const HomePage = ({ onLeagueSelect, user, onSettingsClick }) => {
       description: 'NCAA Tournament Survivor Pool - $10 entry, last man standing',
       color: '#dc2626',
       logo: '/logos/NCAA_logo.svg.png'
+    },
+    {
+      id: 'fifa-worldcup-2026',
+      name: 'FIFA World Cup',
+      abbreviation: 'WC',
+      year: '2026',
+      description: 'Corner kick gambling model — dashboard, matchup engine, bet tracker',
+      color: '#1a472a',
+      logo: '/logos/world-cup.svg',
+      openAccess: true
     }
   ];
 
   // Filter and sort leagues by draft status priority
   const sportsLeagues = [...sportsLeaguesBase]
     .filter(league => {
+      if (league.openAccess) return true;
       // If accessibleDrafts is null, show all (no access restrictions configured in system)
       if (accessibleDrafts === null) return true;
       // If accessibleDrafts is an array (even empty), filter by it
@@ -310,6 +321,11 @@ const HomePage = ({ onLeagueSelect, user, onSettingsClick }) => {
               const status = getDraftStatus(leagueId, seasonId);
               const nextPick = getNextPickInfo(leagueId, seasonId);
               const hasNextPick = (status === 'Draft In Progress' || !status) && nextPick;
+
+              // Open-access cards (e.g. FIFA model) skip draft status UI
+              if (league.openAccess) {
+                return null;
+              }
 
               // Only show if there's a status set or there's a next pick to show
               if (!status && !hasNextPick) {

@@ -242,6 +242,35 @@ const TABLES = [
       }
     ],
     BillingMode: 'PAY_PER_REQUEST'
+  },
+  {
+    TableName: 'sports-hub-wc-corners',
+    KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+    AttributeDefinitions: [
+      { AttributeName: 'id', AttributeType: 'S' },
+      { AttributeName: 'league', AttributeType: 'S' },
+      { AttributeName: 'season', AttributeType: 'S' },
+      { AttributeName: 'entityType', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'league-season-index',
+        KeySchema: [
+          { AttributeName: 'league', KeyType: 'HASH' },
+          { AttributeName: 'season', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' }
+      },
+      {
+        IndexName: 'entity-type-index',
+        KeySchema: [
+          { AttributeName: 'entityType', KeyType: 'HASH' },
+          { AttributeName: 'season', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
   }
 ];
 

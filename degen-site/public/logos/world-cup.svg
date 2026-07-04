@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FIFA World Cup">
+  <circle cx="32" cy="32" r="30" fill="#1a472a" stroke="#fbbf24" stroke-width="2"/>
+  <path fill="#fafafa" d="M32 8c-2 8-8 14-16 16 2 10 8 18 16 22 8-4 14-12 16-22-8-2-14-8-16-16zm0 44c-6-4-10-10-12-18 4 2 8 3 12 3s8-1 12-3c-2 8-6 14-12 18z"/>
+  <circle cx="32" cy="32" r="6" fill="#fbbf24"/>
+</svg>

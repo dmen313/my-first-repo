@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+  <defs>
+    <linearGradient id="nflGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#013369;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D50A0A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield background -->
+  <path d="M50 10 L80 25 L80 85 L50 110 L20 85 L20 25 Z" fill="url(#nflGradient)" stroke="#000" stroke-width="2"/>
+  
+  <!-- NFL text -->
+  <text x="50" y="65" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">NFL</text>
+  
+  <!-- Football shape -->
+  <ellipse cx="50" cy="85" rx="15" ry="8" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+  <path d="M35 85 Q50 80 65 85 Q50 90 35 85" fill="#654321"/>
+</svg>

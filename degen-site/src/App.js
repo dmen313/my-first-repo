@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import TeamTable from './components/TeamTable';
 import NCAADraftSection from './components/NCAADraftSection';
 import NCAASurvivorSection from './components/NCAASurvivorSection';
+import FifaWorldCupSection from './components/FifaWorldCupSection';
 import HeaderBar from './components/HeaderBar';
 import SettingsPage from './components/SettingsPage';
 import TeamOwners from './components/TeamOwners';
@@ -144,6 +145,12 @@ function App() {
   const handleLeagueSelect = async (leagueId) => {
     console.log(`🎯 League selected: ${leagueId}`);
     
+    // Open-access sections (no draft ACL)
+    if (leagueId === 'fifa-worldcup-2026') {
+      await navigateWithAuth('league', leagueId);
+      return;
+    }
+
     // Site admins bypass draft access checks
     if (!user?.isSiteAdmin) {
       const userEmail = user?.email || user?.attributes?.email || '';
@@ -190,7 +197,8 @@ function App() {
       'ncaa-2025': 'NCAA Football 2025',
       'ncaa-tourney-2025': 'NCAA Tournament 2025',
       'ncaa-tourney-2026': 'NCAA Tournament 2026',
-      'ncaa-tourney-4-2026': 'NCAA Tournament 2026 (4-Player)'
+      'ncaa-tourney-4-2026': 'NCAA Tournament 2026 (4-Player)',
+      'fifa-worldcup-2026': 'FIFA World Cup 2026 Corner Model'
     };
     return leagueNames[leagueId] || 'League';
   };
@@ -237,6 +245,10 @@ function App() {
 
         {currentView === 'league' && (
           <div className="league-view">
+            {/* FIFA World Cup Corner Model */}
+            {selectedLeague === 'fifa-worldcup-2026' && (
+              <FifaWorldCupSection />
+            )}
             {/* NCAA Survivor Pool */}
             {selectedLeague?.startsWith('ncaa-survivor-') && (
               <NCAASurvivorSection leagueId={selectedLeague} onBack={handleBackToHome} user={user} />
@@ -256,7 +268,7 @@ function App() {
               </>
             )}
             {/* Coming Soon for unrecognized leagues */}
-            {selectedLeague && !selectedLeague.startsWith('ncaa-tourney-') && !selectedLeague.startsWith('ncaa-survivor-') && selectedLeague !== 'mlb-2024' && selectedLeague !== 'mlb-2025' && selectedLeague !== 'nba-2024' && selectedLeague !== 'nba-2025' && selectedLeague !== 'nfl-2025' && selectedLeague !== 'ncaa-2025' && selectedLeague !== 'nhl-2025' && selectedLeague !== 'nfl-mvp-2025' && (
+            {selectedLeague && selectedLeague !== 'fifa-worldcup-2026' && !selectedLeague.startsWith('ncaa-tourney-') && !selectedLeague.startsWith('ncaa-survivor-') && selectedLeague !== 'mlb-2024' && selectedLeague !== 'mlb-2025' && selectedLeague !== 'nba-2024' && selectedLeague !== 'nba-2025' && selectedLeague !== 'nfl-2025' && selectedLeague !== 'ncaa-2025' && selectedLeague !== 'nhl-2025' && selectedLeague !== 'nfl-mvp-2025' && (
               <div className="coming-soon">
                 <h2>Coming Soon!</h2>
                 <p>Team data for {getLeagueName(selectedLeague)} will be available soon.</p>
