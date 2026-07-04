@@ -210,7 +210,20 @@ function MostCornersBlock({ mostCorners, teamA, teamB }) {
   );
 }
 
-function MarketLinesTable({ title, lines }) {
+function formatFixtureKickoff(commenceTime) {
+  return new Date(commenceTime).toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function MarketLinesTable({ title, lines, marketKind = 'default' }) {
+  const sideLabel = marketKind === 'total' ? 'O/U' : 'Side';
+  const showTeamCol = marketKind === 'team' || marketKind === 'spread';
+
   if (!lines?.length) {
     return (
       <div className="wc-section-block">
@@ -220,19 +233,29 @@ function MarketLinesTable({ title, lines }) {
     );
   }
 
+  const columns = [
+    { key: 'bookmaker', label: 'Book', sticky: true },
+    { key: 'name', label: sideLabel },
+  ];
+  if (showTeamCol) {
+    columns.push({
+      key: 'description',
+      label: 'Team',
+      render: (r) => r.description || r.name || '—',
+    });
+  }
+  columns.push(
+    { key: 'point', label: 'Line', render: (r) => (r.point > 0 && marketKind === 'spread' ? `+${r.point}` : r.point) },
+    { key: 'price', label: 'Odds', render: (r) => fmtOdds(r.price) },
+    { key: 'impliedProb', label: 'Impl %', render: (r) => fmtPct(r.impliedProb) },
+  );
+
   return (
     <div className="wc-section-block">
       <h3>{title}</h3>
       <SpreadsheetTable
-        columns={[
-          { key: 'bookmaker', label: 'Book', sticky: true },
-          { key: 'name', label: 'Side' },
-          { key: 'description', label: 'Team', hideMobile: true, render: (r) => r.description || '—' },
-          { key: 'point', label: 'Line', render: (r) => r.point },
-          { key: 'price', label: 'Odds', render: (r) => fmtOdds(r.price) },
-          { key: 'impliedProb', label: 'Impl %', render: (r) => fmtPct(r.impliedProb) },
-        ]}
-        rows={lines.map((line, i) => ({ ...line, _key: `${line.bookmaker}-${line.point}-${i}` }))}
+        columns={columns}
+        rows={lines.map((line, i) => ({ ...line, _key: `${line.bookmaker}-${line.point}-${line.name}-${i}` }))}
       />
     </div>
   );
@@ -402,6 +425,11 @@ const FifaWorldCupSection = () => {
     }
     return null;
   }, [fixtures, teamA, teamB, selectedFixtureId]);
+
+  const marketsFixture = useMemo(() => {
+    if (!selectedFixtureId) return null;
+    return fixtures.find((f) => f.eventId === selectedFixtureId) || null;
+  }, [fixtures, selectedFixtureId]);
 
   const handleRefreshOdds = async () => {
     try {
@@ -1041,7 +1069,7 @@ const FifaWorldCupSection = () => {
               {
                 key: 'time',
                 label: 'Kickoff',
-                render: (r) => new Date(r.commenceTime).toLocaleString(),
+                render: (r) => formatFixtureKickoff(r.commenceTime),
               },
               {
                 key: 'totalLines',
@@ -1056,29 +1084,58 @@ const FifaWorldCupSection = () => {
               },
             ]}
             rows={fixtures.map((f) => ({ ...f, _key: f.eventId }))}
+            selectedKey={selectedFixtureId}
             onRowClick={(row) => {
               setSelectedFixtureId(row.eventId);
               setTeamA(row.homeTeam);
               setTeamB(row.awayTeam);
-              setTab('matchup');
             }}
           />
 
-          {selectedFixtureId && activeFixture && tab === 'markets' && (
-            <>
+          {!selectedFixtureId && (
+            <p className="wc-readme wc-market-hint">Select a match above to view corner lines for that game.</p>
+          )}
+
+          {selectedFixtureId && marketsFixture && tab === 'markets' && (
+            <div className="wc-market-detail">
+              <div className="wc-market-detail-header">
+                <div>
+                  <h2 className="wc-market-detail-title">
+                    {marketsFixture.homeTeam} vs {marketsFixture.awayTeam}
+                  </h2>
+                  <p className="wc-market-fixture-meta">
+                    {formatFixtureKickoff(marketsFixture.commenceTime)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="wc-refresh-btn"
+                  onClick={() => setTab('matchup')}
+                >
+                  Open Matchup
+                </button>
+              </div>
               <MarketLinesTable
-                title="Total corners"
-                lines={getMarketLines(activeFixture, 'alternate_totals_corners')}
+                title={`Match total corners — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
+                marketKind="total"
+                lines={getMarketLines(marketsFixture, 'alternate_totals_corners')}
               />
               <MarketLinesTable
-                title="Team corners"
-                lines={getMarketLines(activeFixture, 'alternate_team_totals_corners')}
+                title={`${marketsFixture.homeTeam} team total corners`}
+                marketKind="team"
+                lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.homeTeam)}
               />
               <MarketLinesTable
-                title="Corner spreads"
-                lines={getMarketLines(activeFixture, 'alternate_spreads_corners')}
+                title={`${marketsFixture.awayTeam} team total corners`}
+                marketKind="team"
+                lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.awayTeam)}
               />
-            </>
+              <MarketLinesTable
+                title={`Corner spreads — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
+                marketKind="spread"
+                lines={getMarketLines(marketsFixture, 'alternate_spreads_corners')}
+              />
+            </div>
           )}
         </div>
       )}

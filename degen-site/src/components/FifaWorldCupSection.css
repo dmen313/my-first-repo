@@ -305,6 +305,37 @@
   letter-spacing: 0.04em;
 }
 
+.wc-market-hint {
+  margin-top: 12px;
+}
+
+.wc-market-detail {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wc-border-medium);
+}
+
+.wc-market-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wc-market-detail-title {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f4f4f5;
+}
+
+.wc-market-fixture-meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
 .wc-team-detail {
   margin-top: 16px;
   padding: 14px;
