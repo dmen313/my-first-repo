@@ -40,17 +40,33 @@ const TABS = [
 ];
 
 function SpreadsheetTable({ columns, rows, onRowClick, selectedKey }) {
+  const colClass = (col) => {
+    const align = col.align || (col.sticky ? 'left' : 'right');
+    return [
+      col.sticky ? 'wc-sticky-left' : '',
+      col.hideMobile ? 'wc-hide-mobile' : '',
+      col.className || '',
+      `wc-align-${align}`,
+    ].filter(Boolean).join(' ');
+  };
+
   return (
     <div className="wc-table-wrap">
       <div className="wc-table-scroll">
         <table className="wc-table">
+          <colgroup>
+            {columns.map((col) => (
+              <col
+                key={col.key}
+                className={col.hideMobile ? 'wc-hide-mobile' : undefined}
+                style={col.width ? { width: col.width, minWidth: col.width } : undefined}
+              />
+            ))}
+          </colgroup>
           <thead>
             <tr>
               {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className={`${col.sticky ? 'wc-sticky-left' : ''} ${col.hideMobile ? 'wc-hide-mobile' : ''}`}
-                >
+                <th key={col.key} className={colClass(col)}>
                   {col.label}
                 </th>
               ))}
@@ -68,10 +84,7 @@ function SpreadsheetTable({ columns, rows, onRowClick, selectedKey }) {
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={`${col.sticky ? 'wc-sticky-left' : ''} ${col.hideMobile ? 'wc-hide-mobile' : ''} ${col.className || ''}`}
-                  >
+                  <td key={col.key} className={colClass(col)}>
                     {col.render ? col.render(row) : row[col.key]}
                   </td>
                 ))}
@@ -336,33 +349,43 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
       )}
       <SpreadsheetTable
         columns={[
-          { key: 'bookmaker', label: 'Book', sticky: true },
-          { key: 'point', label: 'Line', render: (r) => r.point },
+          { key: 'bookmaker', label: 'Book', sticky: true, align: 'left', width: '96px' },
+          { key: 'point', label: 'Line', align: 'center', width: '52px', render: (r) => r.point },
           {
             key: 'modelOver',
             label: 'Model O',
+            align: 'right',
+            width: '64px',
             hideMobile: true,
             render: (r) => (r.model ? fmtPct(r.model.pOver) : '—'),
           },
           {
             key: 'modelUnder',
             label: 'Model U',
+            align: 'right',
+            width: '64px',
             hideMobile: true,
             render: (r) => (r.model ? fmtPct(r.model.pUnder) : '—'),
           },
           {
             key: 'over',
             label: 'Over',
+            align: 'left',
+            width: '72px',
             render: (r) => <MarketOddsCell analysis={r.overAnalysis} />,
           },
           {
             key: 'under',
             label: 'Under',
+            align: 'left',
+            width: '72px',
             render: (r) => <MarketOddsCell analysis={r.underAnalysis} />,
           },
           {
             key: 'play',
             label: 'Play',
+            align: 'left',
+            width: '120px',
             render: (r) => <MarketPlayCell play={r.play} />,
           },
         ]}
@@ -414,23 +437,29 @@ function SpreadMarketTable({ title, lines, handicapTable, teamAName, teamBName }
       )}
       <SpreadsheetTable
         columns={[
-          { key: 'bookmaker', label: 'Book', sticky: true },
-          { key: 'teamName', label: 'Team' },
-          { key: 'lineLabel', label: 'Line' },
+          { key: 'bookmaker', label: 'Book', sticky: true, align: 'left', width: '96px' },
+          { key: 'teamName', label: 'Team', align: 'left', width: '108px' },
+          { key: 'lineLabel', label: 'Line', align: 'center', width: '52px' },
           {
             key: 'odds',
             label: 'Odds',
+            align: 'left',
+            width: '72px',
             render: (r) => <MarketOddsCell analysis={r.analysis} />,
           },
           {
             key: 'model',
             label: 'Model',
+            align: 'right',
+            width: '64px',
             hideMobile: true,
             render: (r) => (r.modelPct != null ? fmtPct(r.modelPct) : '—'),
           },
           {
             key: 'play',
             label: 'Play',
+            align: 'left',
+            width: '120px',
             render: (r) => (
               r.play
                 ? (
@@ -1257,6 +1286,8 @@ const FifaWorldCupSection = () => {
                 key: 'match',
                 label: 'Match',
                 sticky: true,
+                align: 'left',
+                width: '160px',
                 render: (r) => (
                   <span className="wc-team-name">{r.homeTeam} vs {r.awayTeam}</span>
                 ),
@@ -1264,16 +1295,22 @@ const FifaWorldCupSection = () => {
               {
                 key: 'time',
                 label: 'Kickoff',
+                align: 'left',
+                width: '140px',
                 render: (r) => formatFixtureKickoff(r.commenceTime),
               },
               {
                 key: 'totalLines',
                 label: 'Total lines',
+                align: 'center',
+                width: '72px',
                 render: (r) => getMarketLines(r, 'alternate_totals_corners').length,
               },
               {
                 key: 'teamLines',
                 label: 'Team lines',
+                align: 'center',
+                width: '72px',
                 hideMobile: true,
                 render: (r) => getMarketLines(r, 'alternate_team_totals_corners').length,
               },
