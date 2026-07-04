@@ -466,14 +466,6 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
         columns={[
           { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },
           {
-            key: 'modelOver',
-            label: 'Model O',
-            align: 'right',
-            width: '64px',
-            hideMobile: true,
-            render: (r) => (r.model ? fmtPct(r.model.pOver) : '—'),
-          },
-          {
             key: 'modelUnder',
             label: 'Model U',
             align: 'right',
@@ -482,13 +474,12 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
             render: (r) => (r.model ? fmtPct(r.model.pUnder) : '—'),
           },
           {
-            key: 'over',
-            label: 'Over',
-            align: 'left',
-            width: '168px',
-            render: (r) => (
-              <MarketOddsStack quotes={r.overs} side="Over" bestPlay={r.play} />
-            ),
+            key: 'modelOver',
+            label: 'Model O',
+            align: 'right',
+            width: '64px',
+            hideMobile: true,
+            render: (r) => (r.model ? fmtPct(r.model.pOver) : '—'),
           },
           {
             key: 'under',
@@ -497,6 +488,15 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
             width: '168px',
             render: (r) => (
               <MarketOddsStack quotes={r.unders} side="Under" bestPlay={r.play} />
+            ),
+          },
+          {
+            key: 'over',
+            label: 'Over',
+            align: 'left',
+            width: '168px',
+            render: (r) => (
+              <MarketOddsStack quotes={r.overs} side="Over" bestPlay={r.play} />
             ),
           },
           {
