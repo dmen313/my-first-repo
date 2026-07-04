@@ -336,6 +336,23 @@
   color: #71717a;
 }
 
+.wc-market-odds-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.wc-market-ev {
+  font-size: 0.65rem;
+  color: #71717a;
+}
+
+.wc-market-pass {
+  font-size: 0.7rem;
+  color: #52525b;
+}
+
 .wc-team-detail {
   margin-top: 16px;
   padding: 14px;

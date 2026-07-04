@@ -11,7 +11,7 @@ import {
   updateWcCornersGameIncluded,
   saveWcCornersParameters,
 } from '../services/dynamoDBService';
-import { findFixtureForTeams, getMarketLines } from '../services/wcCornersOddsApi';
+import { findFixtureForTeams, getMarketLines, teamsMatchOddsName } from '../services/wcCornersOddsApi';
 import { computeMatchup, findTeam } from '../utils/wc2026MatchupEngine';
 import { evFromProbAndAmerican, shadowTierUnits } from '../utils/wc2026Pricing';
 import { computeAccuracySummary, getOverProjectionBanner } from '../utils/wc2026Accuracy';
@@ -220,9 +220,104 @@ function formatFixtureKickoff(commenceTime) {
   });
 }
 
-function MarketLinesTable({ title, lines, marketKind = 'default' }) {
-  const sideLabel = marketKind === 'total' ? 'O/U' : 'Side';
-  const showTeamCol = marketKind === 'team' || marketKind === 'spread';
+const MIN_PLAY_EV = 0.05;
+
+function analyzeMarketSide(prob, marketLine) {
+  if (!marketLine?.price || prob == null) return null;
+  const ev = evFromProbAndAmerican(prob, marketLine.price);
+  if (ev == null) return null;
+  return { price: marketLine.price, ev, tier: shadowTierUnits(ev) };
+}
+
+function pickBestPlay(overAnalysis, underAnalysis) {
+  const candidates = [];
+  if (overAnalysis && overAnalysis.ev >= MIN_PLAY_EV) {
+    candidates.push({ side: 'Over', ...overAnalysis });
+  }
+  if (underAnalysis && underAnalysis.ev >= MIN_PLAY_EV) {
+    candidates.push({ side: 'Under', ...underAnalysis });
+  }
+  if (!candidates.length) return null;
+  return candidates.sort((a, b) => b.ev - a.ev)[0];
+}
+
+function pivotOverUnderLines(lines) {
+  const byKey = {};
+  (lines || []).forEach((line) => {
+    const side = String(line.name).toLowerCase();
+    if (side !== 'over' && side !== 'under') return;
+    const key = `${line.bookmaker}|${line.point}`;
+    if (!byKey[key]) {
+      byKey[key] = { bookmaker: line.bookmaker, point: line.point, over: null, under: null };
+    }
+    if (side === 'over') byKey[key].over = line;
+    else byKey[key].under = line;
+  });
+  return Object.values(byKey).sort(
+    (a, b) => a.bookmaker.localeCompare(b.bookmaker) || a.point - b.point
+  );
+}
+
+function modelRowForPoint(modelLines, point) {
+  return (modelLines || []).find((row) => row.line === point) || null;
+}
+
+function spreadModelProb(handicapTable, teamAName, teamBName, teamName, point) {
+  if (teamsMatchOddsName(teamAName, teamName)) {
+    const row = handicapTable?.find((r) => r.line === point);
+    return row?.aCoversProb ?? null;
+  }
+  if (teamsMatchOddsName(teamBName, teamName)) {
+    const row = handicapTable?.find((r) => -r.line === point);
+    return row?.bCoversProb ?? null;
+  }
+  return null;
+}
+
+function MarketOddsCell({ analysis }) {
+  if (!analysis) return '—';
+  const evClass = analysis.ev >= MIN_PLAY_EV
+    ? 'wc-positive'
+    : analysis.ev < 0
+      ? 'wc-negative'
+      : '';
+  return (
+    <div className="wc-market-odds-cell">
+      <span className="wc-pill">{fmtOdds(analysis.price)}</span>
+      {analysis.ev != null && (
+        <span className={`wc-market-ev ${evClass}`}>{fmtPct(analysis.ev)}</span>
+      )}
+    </div>
+  );
+}
+
+function MarketPlayCell({ play }) {
+  if (!play) {
+    return <span className="wc-market-pass">Pass</span>;
+  }
+  return (
+    <span className="wc-pill wc-pill-positive">
+      {play.side} · {fmtPct(play.ev)} · {play.tier}u
+    </span>
+  );
+}
+
+function OverUnderMarketTable({ title, lines, modelLines }) {
+  const rows = useMemo(() => {
+    return pivotOverUnderLines(lines).map((row) => {
+      const model = modelRowForPoint(modelLines, row.point);
+      const overAnalysis = analyzeMarketSide(model?.pOver, row.over);
+      const underAnalysis = analyzeMarketSide(model?.pUnder, row.under);
+      return {
+        ...row,
+        model,
+        overAnalysis,
+        underAnalysis,
+        play: pickBestPlay(overAnalysis, underAnalysis),
+        _key: `${row.bookmaker}-${row.point}`,
+      };
+    });
+  }, [lines, modelLines]);
 
   if (!lines?.length) {
     return (
@@ -233,29 +328,121 @@ function MarketLinesTable({ title, lines, marketKind = 'default' }) {
     );
   }
 
-  const columns = [
-    { key: 'bookmaker', label: 'Book', sticky: true },
-    { key: 'name', label: sideLabel },
-  ];
-  if (showTeamCol) {
-    columns.push({
-      key: 'description',
-      label: 'Team',
-      render: (r) => r.description || r.name || '—',
-    });
-  }
-  columns.push(
-    { key: 'point', label: 'Line', render: (r) => (r.point > 0 && marketKind === 'spread' ? `+${r.point}` : r.point) },
-    { key: 'price', label: 'Odds', render: (r) => fmtOdds(r.price) },
-    { key: 'impliedProb', label: 'Impl %', render: (r) => fmtPct(r.impliedProb) },
+  return (
+    <div className="wc-section-block">
+      <h3>{title}</h3>
+      {!modelLines?.length && (
+        <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
+      )}
+      <SpreadsheetTable
+        columns={[
+          { key: 'bookmaker', label: 'Book', sticky: true },
+          { key: 'point', label: 'Line', render: (r) => r.point },
+          {
+            key: 'modelOver',
+            label: 'Model O',
+            hideMobile: true,
+            render: (r) => (r.model ? fmtPct(r.model.pOver) : '—'),
+          },
+          {
+            key: 'modelUnder',
+            label: 'Model U',
+            hideMobile: true,
+            render: (r) => (r.model ? fmtPct(r.model.pUnder) : '—'),
+          },
+          {
+            key: 'over',
+            label: 'Over',
+            render: (r) => <MarketOddsCell analysis={r.overAnalysis} />,
+          },
+          {
+            key: 'under',
+            label: 'Under',
+            render: (r) => <MarketOddsCell analysis={r.underAnalysis} />,
+          },
+          {
+            key: 'play',
+            label: 'Play',
+            render: (r) => <MarketPlayCell play={r.play} />,
+          },
+        ]}
+        rows={rows}
+      />
+    </div>
   );
+}
+
+function SpreadMarketTable({ title, lines, handicapTable, teamAName, teamBName }) {
+  const rows = useMemo(() => {
+    return (lines || [])
+      .map((line, i) => {
+        const teamName = line.description || line.name || '';
+        const point = line.point;
+        const prob = spreadModelProb(handicapTable, teamAName, teamBName, teamName, point);
+        const analysis = analyzeMarketSide(prob, line);
+        const lineLabel = point > 0 ? `+${point}` : point;
+        return {
+          bookmaker: line.bookmaker,
+          teamName,
+          point,
+          lineLabel,
+          modelPct: prob,
+          analysis,
+          play: analysis && analysis.ev >= MIN_PLAY_EV
+            ? { side: teamName, ...analysis }
+            : null,
+          _key: `${line.bookmaker}-${teamName}-${point}-${i}`,
+        };
+      })
+      .sort((a, b) => a.bookmaker.localeCompare(b.bookmaker) || a.teamName.localeCompare(b.teamName) || a.point - b.point);
+  }, [lines, handicapTable, teamAName, teamBName]);
+
+  if (!lines?.length) {
+    return (
+      <div className="wc-section-block">
+        <h3>{title}</h3>
+        <p className="wc-readme">No lines available. Tap “Fetch Odds” to refresh from The Odds API.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="wc-section-block">
       <h3>{title}</h3>
+      {!handicapTable?.length && (
+        <p className="wc-readme">Model handicap unavailable — odds only.</p>
+      )}
       <SpreadsheetTable
-        columns={columns}
-        rows={lines.map((line, i) => ({ ...line, _key: `${line.bookmaker}-${line.point}-${line.name}-${i}` }))}
+        columns={[
+          { key: 'bookmaker', label: 'Book', sticky: true },
+          { key: 'teamName', label: 'Team' },
+          { key: 'lineLabel', label: 'Line' },
+          {
+            key: 'odds',
+            label: 'Odds',
+            render: (r) => <MarketOddsCell analysis={r.analysis} />,
+          },
+          {
+            key: 'model',
+            label: 'Model',
+            hideMobile: true,
+            render: (r) => (r.modelPct != null ? fmtPct(r.modelPct) : '—'),
+          },
+          {
+            key: 'play',
+            label: 'Play',
+            render: (r) => (
+              r.play
+                ? (
+                  <span className="wc-pill wc-pill-positive">
+                    {r.lineLabel} · {fmtPct(r.play.ev)} · {r.play.tier}u
+                  </span>
+                )
+                : <span className="wc-market-pass">Pass</span>
+            ),
+          },
+        ]}
+        rows={rows}
       />
     </div>
   );
@@ -430,6 +617,14 @@ const FifaWorldCupSection = () => {
     if (!selectedFixtureId) return null;
     return fixtures.find((f) => f.eventId === selectedFixtureId) || null;
   }, [fixtures, selectedFixtureId]);
+
+  const marketsMatchup = useMemo(() => {
+    if (!marketsFixture) return null;
+    const home = findTeam(dashboard, marketsFixture.homeTeam);
+    const away = findTeam(dashboard, marketsFixture.awayTeam);
+    if (!home || !away) return null;
+    return computeMatchup(home, away, parameters);
+  }, [marketsFixture, dashboard, parameters]);
 
   const handleRefreshOdds = async () => {
     try {
@@ -1115,25 +1310,27 @@ const FifaWorldCupSection = () => {
                   Open Matchup
                 </button>
               </div>
-              <MarketLinesTable
+              <OverUnderMarketTable
                 title={`Match total corners — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
-                marketKind="total"
                 lines={getMarketLines(marketsFixture, 'alternate_totals_corners')}
+                modelLines={marketsMatchup?.totalOverUnder}
               />
-              <MarketLinesTable
+              <OverUnderMarketTable
                 title={`${marketsFixture.homeTeam} team total corners`}
-                marketKind="team"
                 lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.homeTeam)}
+                modelLines={marketsMatchup?.teamAOverUnder}
               />
-              <MarketLinesTable
+              <OverUnderMarketTable
                 title={`${marketsFixture.awayTeam} team total corners`}
-                marketKind="team"
                 lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.awayTeam)}
+                modelLines={marketsMatchup?.teamBOverUnder}
               />
-              <MarketLinesTable
+              <SpreadMarketTable
                 title={`Corner spreads — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
-                marketKind="spread"
                 lines={getMarketLines(marketsFixture, 'alternate_spreads_corners')}
+                handicapTable={marketsMatchup?.handicapTable}
+                teamAName={marketsFixture.homeTeam}
+                teamBName={marketsFixture.awayTeam}
               />
             </div>
           )}
