@@ -1,4 +1,6 @@
 import {
+  kalshiDisplayedNoProb,
+  kalshiDisplayedYesProb,
   kalshiThresholdToPoint,
   parseKalshiEventTeams,
   parseKalshiTeamMarketTitle,
@@ -17,12 +19,37 @@ describe('wcKalshiOddsApi', () => {
   });
 
   test('kalshiThresholdToPoint maps N+ to half-point line', () => {
+    expect(kalshiThresholdToPoint(8)).toBe(7.5);
     expect(kalshiThresholdToPoint(9)).toBe(8.5);
     expect(kalshiThresholdToPoint(7)).toBe(6.5);
   });
 
-  test('fairAmerican round-trip for Kalshi ask prices', () => {
-    expect(fairAmerican(0.68)).toBe(-213);
-    expect(fairAmerican(0.32)).toBe(213);
+  test('kalshiDisplayedYesProb prefers last trade then mid', () => {
+    expect(kalshiDisplayedYesProb({
+      last_price_dollars: '0.7000',
+      yes_bid_dollars: '0.6500',
+      yes_ask_dollars: '0.7200',
+    })).toBe(0.7);
+
+    expect(kalshiDisplayedYesProb({
+      yes_bid_dollars: '0.7000',
+      yes_ask_dollars: '0.7200',
+    })).toBe(0.71);
+  });
+
+  test('Canada vs Morocco 8+ NO matches Kalshi 30% at line 7.5', () => {
+    const market = {
+      floor_strike: 8,
+      last_price_dollars: '0.7000',
+      yes_bid_dollars: '0.7000',
+      yes_ask_dollars: '0.7200',
+      no_bid_dollars: '0.2800',
+      no_ask_dollars: '0.3000',
+    };
+    expect(kalshiDisplayedYesProb(market)).toBe(0.7);
+    expect(kalshiDisplayedNoProb(market)).toBe(0.3);
+    expect(kalshiThresholdToPoint(8)).toBe(7.5);
+    expect(fairAmerican(0.7)).toBe(-233);
+    expect(fairAmerican(0.3)).toBe(233);
   });
 });

@@ -23,6 +23,31 @@ function kalshiProbToLine(prob) {
   };
 }
 
+/**
+ * Kalshi UI YES probability: last trade, else mid of yes bid/ask.
+ */
+export function kalshiDisplayedYesProb(market) {
+  const last = parseKalshiProb(market.last_price_dollars);
+  if (last !== null) return last;
+
+  const bid = parseKalshiProb(market.yes_bid_dollars);
+  const ask = parseKalshiProb(market.yes_ask_dollars);
+  if (bid !== null && ask !== null) return (bid + ask) / 2;
+  return ask ?? bid ?? null;
+}
+
+/** Kalshi NO buy price — matches the NO % shown on kalshi.com (no_ask). */
+export function kalshiDisplayedNoProb(market) {
+  const noAsk = parseKalshiProb(market.no_ask_dollars);
+  if (noAsk !== null) return noAsk;
+
+  const noBid = parseKalshiProb(market.no_bid_dollars);
+  if (noBid !== null) return noBid;
+
+  const yes = kalshiDisplayedYesProb(market);
+  return yes !== null ? 1 - yes : null;
+}
+
 /** Parse "Mexico vs England: Total Corners" → [home, away]. */
 export function parseKalshiEventTeams(title) {
   if (!title) return [null, null];
@@ -52,40 +77,40 @@ function thresholdFromMarket(market) {
   return m ? Number(m[1]) : null;
 }
 
-function buildOverUnderLines(threshold, yesAsk, noAsk, teamName = null) {
+function buildOverUnderLines(threshold, market, teamName = null) {
   const point = kalshiThresholdToPoint(threshold);
   if (point === null) return [];
 
-  const lines = [];
-  const overProb = parseKalshiProb(yesAsk);
-  const underProb = parseKalshiProb(noAsk);
+  const yesProb = kalshiDisplayedYesProb(market);
+  const noProb = kalshiDisplayedNoProb(market);
+  if (yesProb === null && noProb === null) return [];
 
-  if (overProb !== null) {
-    const over = kalshiProbToLine(overProb);
-    if (over.price !== null) {
-      lines.push({
-        bookmaker: KALSHI_BOOK,
-        name: 'Over',
-        description: teamName,
-        point,
-        price: over.price,
-        impliedProb: over.impliedProb,
-      });
-    }
+  const lines = [];
+  const over = yesProb !== null ? kalshiProbToLine(yesProb) : null;
+  const under = noProb !== null ? kalshiProbToLine(noProb) : null;
+
+  if (over?.price !== null) {
+    lines.push({
+      bookmaker: KALSHI_BOOK,
+      name: 'Over',
+      description: teamName,
+      point,
+      price: over.price,
+      impliedProb: over.impliedProb,
+      kalshiThreshold: threshold,
+    });
   }
 
-  if (underProb !== null) {
-    const under = kalshiProbToLine(underProb);
-    if (under.price !== null) {
-      lines.push({
-        bookmaker: KALSHI_BOOK,
-        name: 'Under',
-        description: teamName,
-        point,
-        price: under.price,
-        impliedProb: under.impliedProb,
-      });
-    }
+  if (under?.price !== null) {
+    lines.push({
+      bookmaker: KALSHI_BOOK,
+      name: 'Under',
+      description: teamName,
+      point,
+      price: under.price,
+      impliedProb: under.impliedProb,
+      kalshiThreshold: threshold,
+    });
   }
 
   return lines;
@@ -212,12 +237,7 @@ export async function fetchKalshiWcCornerOdds() {
         ? parseKalshiTeamMarketTitle(market.title)
         : null;
 
-      const lines = buildOverUnderLines(
-        threshold,
-        market.yes_ask_dollars,
-        market.no_ask_dollars,
-        teamName
-      );
+      const lines = buildOverUnderLines(threshold, market, teamName);
       appendLines(fixtureMap[fixtureKey].markets, marketKey, lines);
     }
   }

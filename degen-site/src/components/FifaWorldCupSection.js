@@ -280,7 +280,16 @@ function pivotOverUnderLines(lines) {
     if (side !== 'over' && side !== 'under') return;
     const key = `${line.bookmaker}|${line.point}`;
     if (!byKey[key]) {
-      byKey[key] = { bookmaker: line.bookmaker, point: line.point, over: null, under: null };
+      byKey[key] = {
+        bookmaker: line.bookmaker,
+        point: line.point,
+        kalshiThreshold: line.kalshiThreshold ?? null,
+        over: null,
+        under: null,
+      };
+    }
+    if (line.kalshiThreshold != null) {
+      byKey[key].kalshiThreshold = line.kalshiThreshold;
     }
     if (side === 'over') byKey[key].over = line;
     else byKey[key].under = line;
@@ -292,7 +301,7 @@ function buildOverUnderLineRows(lines, modelLines) {
   const byPoint = {};
 
   pivotOverUnderLines(lines).forEach((pair) => {
-    const { point, bookmaker, over, under } = pair;
+    const { point, bookmaker, kalshiThreshold, over, under } = pair;
     if (!byPoint[point]) {
       byPoint[point] = {
         point,
@@ -306,6 +315,7 @@ function buildOverUnderLineRows(lines, modelLines) {
       const analysis = analyzeMarketSide(byPoint[point].model?.pOver, over);
       byPoint[point].overs.push({
         bookmaker,
+        kalshiThreshold,
         price: over.price,
         analysis,
         ev: analysis?.ev ?? null,
@@ -316,6 +326,7 @@ function buildOverUnderLineRows(lines, modelLines) {
       const analysis = analyzeMarketSide(byPoint[point].model?.pUnder, under);
       byPoint[point].unders.push({
         bookmaker,
+        kalshiThreshold,
         price: under.price,
         analysis,
         ev: analysis?.ev ?? null,
@@ -379,7 +390,9 @@ function MarketOddsStack({ quotes, side, bestPlay }) {
             key={`${q.bookmaker}-${q.price}`}
             className={`wc-market-quote${isBestPlay ? ' wc-market-quote-best' : ''}`}
           >
-            <span className="wc-market-book">{q.bookmaker}</span>
+            <span className="wc-market-book">
+              {q.kalshiThreshold != null ? `Kalshi ${q.kalshiThreshold}+` : q.bookmaker}
+            </span>
             <span className="wc-pill">{fmtOdds(q.price)}</span>
             {q.ev != null && (
               <span className={`wc-market-ev ${evClass}`}>{fmtPct(q.ev)}</span>
@@ -461,7 +474,7 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
       {!modelLines?.length && (
         <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
       )}
-      <p className="wc-readme wc-market-hint">Each price shows the book, odds, and model EV. Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
+      <p className="wc-readme wc-market-hint">Each price shows the book, odds, and model EV. Kalshi contracts are labeled with their native threshold (e.g. 8+); that maps to the sportsbook half-point line one step below (8+ → line 7.5). Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
       <SpreadsheetTable
         columns={[
           { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },
