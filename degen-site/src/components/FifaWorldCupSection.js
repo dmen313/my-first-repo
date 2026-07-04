@@ -373,16 +373,13 @@ function MarketOddsStack({ quotes, side, bestPlay }) {
           : q.ev != null && q.ev < 0
             ? 'wc-negative'
             : '';
-        const tip = q.ev != null
-          ? `${q.bookmaker} · EV ${fmtPct(q.ev)}`
-          : q.bookmaker;
 
         return (
           <span
             key={`${q.bookmaker}-${q.price}`}
             className={`wc-market-quote${isBestPlay ? ' wc-market-quote-best' : ''}`}
-            title={tip}
           >
+            <span className="wc-market-book">{q.bookmaker}</span>
             <span className="wc-pill">{fmtOdds(q.price)}</span>
             {q.ev != null && (
               <span className={`wc-market-ev ${evClass}`}>{fmtPct(q.ev)}</span>
@@ -464,7 +461,7 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
       {!modelLines?.length && (
         <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
       )}
-      <p className="wc-readme wc-market-hint">Hover a price for the book and EV. Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
+      <p className="wc-readme wc-market-hint">Each price shows the book, odds, and model EV. Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
       <SpreadsheetTable
         columns={[
           { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },
@@ -488,7 +485,7 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
             key: 'over',
             label: 'Over',
             align: 'left',
-            width: '140px',
+            width: '168px',
             render: (r) => (
               <MarketOddsStack quotes={r.overs} side="Over" bestPlay={r.play} />
             ),
@@ -497,7 +494,7 @@ function OverUnderMarketTable({ title, lines, modelLines }) {
             key: 'under',
             label: 'Under',
             align: 'left',
-            width: '140px',
+            width: '168px',
             render: (r) => (
               <MarketOddsStack quotes={r.unders} side="Under" bestPlay={r.play} />
             ),
