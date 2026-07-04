@@ -25,6 +25,7 @@ import {
 } from '../utils/wc2026SlateBuilder';
 import { AUTO_PARAMETER_KEYS, runWcModelAudit } from '../utils/wc2026Audit';
 import { fmtNum, fmtPct, fmtOdds, fmtSigned, resultClass } from '../utils/wc2026Formatters';
+import { formatTeamLabel, formatMatchLabel, getTeamFlag } from '../utils/wc2026Flags';
 import './FifaWorldCupSection.css';
 
 const SEASON = '2026';
@@ -38,6 +39,35 @@ const TABS = [
   { id: 'accuracy', label: 'Accuracy' },
   { id: 'parameters', label: 'Parameters' },
 ];
+
+function TeamWithFlag({ name, className = 'wc-team-name' }) {
+  if (!name) return null;
+  const flag = getTeamFlag(name);
+  return (
+    <span className={className}>
+      {flag ? <span className="wc-flag" aria-hidden="true">{flag}</span> : null}
+      {name}
+    </span>
+  );
+}
+
+function MatchWithFlags({ home, away, separator = ' vs ', className = 'wc-team-name' }) {
+  return (
+    <span className={className}>
+      <TeamWithFlag name={home} className="wc-team-inline" />
+      <span className="wc-match-sep">{separator}</span>
+      <TeamWithFlag name={away} className="wc-team-inline" />
+    </span>
+  );
+}
+
+function SlateMatchWithFlags({ match }) {
+  const parts = String(match || '').split('/').map((s) => s.trim()).filter(Boolean);
+  if (parts.length === 2) {
+    return <MatchWithFlags home={parts[0]} away={parts[1]} separator=" / " />;
+  }
+  return <span className="wc-team-name">{formatMatchLabel(match)}</span>;
+}
 
 function SpreadsheetTable({ columns, rows, onRowClick, selectedKey }) {
   const colClass = (col) => {
@@ -191,7 +221,7 @@ function HandicapBlock({ title, handicapTable, marketLines, teamAName }) {
       />
       {spreadLines.length > 0 && (
         <p className="wc-readme">
-          Book spreads ({teamAName}): {spreadLines.slice(0, 2).map((l) => `${l.name} ${l.point > 0 ? '+' : ''}${l.point} (${fmtOdds(l.price)})`).join(' · ')}
+          Book spreads ({formatTeamLabel(teamAName)}): {spreadLines.slice(0, 2).map((l) => `${l.name} ${l.point > 0 ? '+' : ''}${l.point} (${fmtOdds(l.price)})`).join(' · ')}
         </p>
       )}
     </div>
@@ -215,6 +245,7 @@ function MostCornersBlock({ mostCorners, teamA, teamB }) {
           { outcome: teamB, prob: mostCorners.teamB, fair: mostCorners.fairAmB, _key: 'b' },
         ].map((r) => ({
           ...r,
+          outcome: r._key === 'tie' ? 'Tie' : <TeamWithFlag name={r.outcome} />,
           prob: fmtPct(r.prob),
           fair: fmtOdds(r.fair),
         }))}
@@ -438,7 +469,7 @@ function SpreadMarketTable({ title, lines, handicapTable, teamAName, teamBName }
       <SpreadsheetTable
         columns={[
           { key: 'bookmaker', label: 'Book', sticky: true, align: 'left', width: '96px' },
-          { key: 'teamName', label: 'Team', align: 'left', width: '108px' },
+          { key: 'teamName', label: 'Team', align: 'left', width: '108px', render: (r) => <TeamWithFlag name={r.teamName} /> },
           { key: 'lineLabel', label: 'Line', align: 'center', width: '52px' },
           {
             key: 'odds',
@@ -516,7 +547,7 @@ function PendingAccuracyGrade({ row, saving, onGrade }) {
   return (
     <div className="wc-pending-grade">
       <span className="wc-pending-label">
-        {row.date} · {row.teamA} vs {row.teamB} · locked proj {row.projTotal}
+        {row.date} · <MatchWithFlags home={row.teamA} away={row.teamB} className="wc-team-inline" /> · locked proj {row.projTotal}
       </span>
       <input
         type="number"
@@ -986,7 +1017,7 @@ const FifaWorldCupSection = () => {
                 Team A
                 <select value={gameForm.teamA} onChange={(e) => setGameForm({ ...gameForm, teamA: e.target.value })} required>
                   {teamNames.map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{formatTeamLabel(name)}</option>
                   ))}
                 </select>
               </label>
@@ -994,7 +1025,7 @@ const FifaWorldCupSection = () => {
                 Team B
                 <select value={gameForm.teamB} onChange={(e) => setGameForm({ ...gameForm, teamB: e.target.value })} required>
                   {teamNames.map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{formatTeamLabel(name)}</option>
                   ))}
                 </select>
               </label>
@@ -1086,7 +1117,7 @@ const FifaWorldCupSection = () => {
                 key: 'team',
                 label: 'Team',
                 sticky: true,
-                render: (r) => <span className="wc-team-name">{r.team}</span>,
+                render: (r) => <TeamWithFlag name={r.team} />,
               },
               { key: 'elo', label: 'Elo', render: (r) => fmtNum(r.elo, 0) },
               { key: 'games', label: 'Games', render: (r) => r.games },
@@ -1123,7 +1154,7 @@ const FifaWorldCupSection = () => {
           {selectedTeam && teams[selectedTeam] && (
             <div className="wc-team-detail">
               <div className="wc-team-detail-header">
-                <h3>{selectedTeam} — Corner Log</h3>
+                <h3><TeamWithFlag name={selectedTeam} /> — Corner Log</h3>
                 <button type="button" className="wc-close-btn" onClick={() => setSelectedTeam(null)}>
                   Close
                 </button>
@@ -1132,7 +1163,7 @@ const FifaWorldCupSection = () => {
                 columns={[
                   { key: 'num', label: '#', sticky: true },
                   { key: 'date', label: 'Date', render: (r) => r.date || '—' },
-                  { key: 'opponent', label: 'Opponent' },
+                  { key: 'opponent', label: 'Opponent', render: (r) => <TeamWithFlag name={r.opponent} /> },
                   { key: 'comp', label: 'Comp', hideMobile: true },
                   { key: 'cf', label: 'CF', render: (r) => (r.included ? r.cf : '—') },
                   { key: 'ca', label: 'CA', render: (r) => (r.included ? r.ca : '—') },
@@ -1166,7 +1197,7 @@ const FifaWorldCupSection = () => {
               <label htmlFor="wc-team-a">Team A</label>
               <select id="wc-team-a" value={teamA} onChange={(e) => setTeamA(e.target.value)}>
                 {teamNames.map((name) => (
-                  <option key={name} value={name}>{name}</option>
+                  <option key={name} value={name}>{formatTeamLabel(name)}</option>
                 ))}
               </select>
             </div>
@@ -1174,7 +1205,7 @@ const FifaWorldCupSection = () => {
               <label htmlFor="wc-team-b">Team B</label>
               <select id="wc-team-b" value={teamB} onChange={(e) => setTeamB(e.target.value)}>
                 {teamNames.map((name) => (
-                  <option key={name} value={name}>{name}</option>
+                  <option key={name} value={name}>{formatTeamLabel(name)}</option>
                 ))}
               </select>
             </div>
@@ -1206,7 +1237,7 @@ const FifaWorldCupSection = () => {
 
           {activeFixture && (
             <p className="wc-readme">
-              Market data: {activeFixture.homeTeam} vs {activeFixture.awayTeam}
+              Market data: <MatchWithFlags home={activeFixture.homeTeam} away={activeFixture.awayTeam} />
               {' · '}
               {new Date(activeFixture.commenceTime).toLocaleString()}
             </p>
@@ -1216,11 +1247,11 @@ const FifaWorldCupSection = () => {
             <>
               <div className="wc-projection-grid">
                 <div className="wc-projection-card">
-                  <h4>λ {matchup.teamA}</h4>
+                  <h4>λ <TeamWithFlag name={matchup.teamA} className="wc-team-inline" /></h4>
                   <div className="wc-lambda">{fmtNum(matchup.lambdaA)}</div>
                 </div>
                 <div className="wc-projection-card">
-                  <h4>λ {matchup.teamB}</h4>
+                  <h4>λ <TeamWithFlag name={matchup.teamB} className="wc-team-inline" /></h4>
                   <div className="wc-lambda">{fmtNum(matchup.lambdaB)}</div>
                 </div>
                 <div className="wc-projection-card">
@@ -1249,12 +1280,12 @@ const FifaWorldCupSection = () => {
               </div>
 
               <OverUnderBlock
-                title={`${matchup.teamA} corners (NB, φ=${fmtNum(matchup.phiA, 2)})`}
+                title={`${formatTeamLabel(matchup.teamA)} corners (NB, φ=${fmtNum(matchup.phiA, 2)})`}
                 lines={matchup.teamAOverUnder}
                 marketLines={activeFixture ? getMarketLines(activeFixture, 'alternate_team_totals_corners', matchup.teamA) : []}
               />
               <OverUnderBlock
-                title={`${matchup.teamB} corners (NB, φ=${fmtNum(matchup.phiB, 2)})`}
+                title={`${formatTeamLabel(matchup.teamB)} corners (NB, φ=${fmtNum(matchup.phiB, 2)})`}
                 lines={matchup.teamBOverUnder}
                 marketLines={activeFixture ? getMarketLines(activeFixture, 'alternate_team_totals_corners', matchup.teamB) : []}
               />
@@ -1264,7 +1295,7 @@ const FifaWorldCupSection = () => {
                 marketLines={activeFixture ? getMarketLines(activeFixture, 'alternate_totals_corners') : []}
               />
               <HandicapBlock
-                title={`Corner handicap — ${matchup.teamA} (Skellam)`}
+                title={`Corner handicap — ${formatTeamLabel(matchup.teamA)} (Skellam)`}
                 handicapTable={matchup.handicapTable}
                 marketLines={activeFixture ? getMarketLines(activeFixture, 'alternate_spreads_corners') : []}
                 teamAName={matchup.teamA}
@@ -1288,9 +1319,7 @@ const FifaWorldCupSection = () => {
                 sticky: true,
                 align: 'left',
                 width: '160px',
-                render: (r) => (
-                  <span className="wc-team-name">{r.homeTeam} vs {r.awayTeam}</span>
-                ),
+                render: (r) => <MatchWithFlags home={r.homeTeam} away={r.awayTeam} />,
               },
               {
                 key: 'time',
@@ -1333,7 +1362,7 @@ const FifaWorldCupSection = () => {
               <div className="wc-market-detail-header">
                 <div>
                   <h2 className="wc-market-detail-title">
-                    {marketsFixture.homeTeam} vs {marketsFixture.awayTeam}
+                    <MatchWithFlags home={marketsFixture.homeTeam} away={marketsFixture.awayTeam} />
                   </h2>
                   <p className="wc-market-fixture-meta">
                     {formatFixtureKickoff(marketsFixture.commenceTime)}
@@ -1348,22 +1377,22 @@ const FifaWorldCupSection = () => {
                 </button>
               </div>
               <OverUnderMarketTable
-                title={`Match total corners — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
+                title={`Match total corners — ${formatMatchLabel(`${marketsFixture.homeTeam}/${marketsFixture.awayTeam}`, ' vs ')}`}
                 lines={getMarketLines(marketsFixture, 'alternate_totals_corners')}
                 modelLines={marketsMatchup?.totalOverUnder}
               />
               <OverUnderMarketTable
-                title={`${marketsFixture.homeTeam} team total corners`}
+                title={`${formatTeamLabel(marketsFixture.homeTeam)} team total corners`}
                 lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.homeTeam)}
                 modelLines={marketsMatchup?.teamAOverUnder}
               />
               <OverUnderMarketTable
-                title={`${marketsFixture.awayTeam} team total corners`}
+                title={`${formatTeamLabel(marketsFixture.awayTeam)} team total corners`}
                 lines={getMarketLines(marketsFixture, 'alternate_team_totals_corners', marketsFixture.awayTeam)}
                 modelLines={marketsMatchup?.teamBOverUnder}
               />
               <SpreadMarketTable
-                title={`Corner spreads — ${marketsFixture.homeTeam} vs ${marketsFixture.awayTeam}`}
+                title={`Corner spreads — ${formatMatchLabel(`${marketsFixture.homeTeam}/${marketsFixture.awayTeam}`, ' vs ')}`}
                 lines={getMarketLines(marketsFixture, 'alternate_spreads_corners')}
                 handicapTable={marketsMatchup?.handicapTable}
                 teamAName={marketsFixture.homeTeam}
@@ -1406,7 +1435,7 @@ const FifaWorldCupSection = () => {
             <h3>Full menu (&gt;5% EV, ranked)</h3>
             <SpreadsheetTable
               columns={[
-                { key: 'match', label: 'Match', sticky: true, render: (r) => <span className="wc-team-name">{r.match}</span> },
+                { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
                 { key: 'selection', label: 'Selection' },
                 { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
                 { key: 'odds', label: 'Odds', render: (r) => fmtOdds(r.odds) },
@@ -1423,7 +1452,7 @@ const FifaWorldCupSection = () => {
               <h3>Correlation clusters</h3>
               {slateClusters.map((cluster) => (
                 <div key={cluster.fixtureId} className="wc-cluster-card">
-                  <h4>{cluster.match}</h4>
+                  <h4><SlateMatchWithFlags match={cluster.match} /></h4>
                   <p className="wc-readme">
                     {cluster.plays.map((p) => `${p.selection} (${fmtPct(p.evPct)} EV)`).join(' · ')}
                   </p>
@@ -1437,7 +1466,7 @@ const FifaWorldCupSection = () => {
               <h3>De-correlated angle (one per fixture)</h3>
               <SpreadsheetTable
                 columns={[
-                  { key: 'match', label: 'Match', sticky: true },
+                  { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
                   { key: 'selection', label: 'Play' },
                   { key: 'thesis', label: 'Thesis', hideMobile: true },
                   { key: 'evPct', label: 'EV %', render: (r) => fmtPct(r.evPct) },
@@ -1521,7 +1550,7 @@ const FifaWorldCupSection = () => {
           <SpreadsheetTable
             columns={[
               { key: 'date', label: 'Date', sticky: true },
-              { key: 'match', label: 'Match', render: (r) => <span className="wc-team-name">{r.match}</span> },
+              { key: 'match', label: 'Match', render: (r) => <SlateMatchWithFlags match={r.match} /> },
               { key: 'selection', label: 'Selection', hideMobile: true },
               { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
               { key: 'oddsTaken', label: 'Odds', render: (r) => fmtOdds(r.oddsTaken) },
@@ -1569,7 +1598,7 @@ const FifaWorldCupSection = () => {
                 Team A
                 <select value={accuracyForm.teamA} onChange={(e) => setAccuracyForm({ ...accuracyForm, teamA: e.target.value })} required>
                   {teamNames.map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{formatTeamLabel(name)}</option>
                   ))}
                 </select>
               </label>
@@ -1577,7 +1606,7 @@ const FifaWorldCupSection = () => {
                 Team B
                 <select value={accuracyForm.teamB} onChange={(e) => setAccuracyForm({ ...accuracyForm, teamB: e.target.value })} required>
                   {teamNames.map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{formatTeamLabel(name)}</option>
                   ))}
                 </select>
               </label>
@@ -1638,7 +1667,7 @@ const FifaWorldCupSection = () => {
           <SpreadsheetTable
             columns={[
               { key: 'date', label: 'Date', sticky: true },
-              { key: 'matchup', label: 'Matchup', render: (r) => <span className="wc-team-name">{r.teamA} vs {r.teamB}</span> },
+              { key: 'matchup', label: 'Matchup', render: (r) => <MatchWithFlags home={r.teamA} away={r.teamB} /> },
               { key: 'projTotal', label: 'Proj', render: (r) => fmtNum(r.projTotal) },
               { key: 'actTotal', label: 'Actual', render: (r) => (r.actTotal != null ? fmtNum(r.actTotal) : '—') },
               { key: 'error', label: 'Err', render: (r) => (r.error != null ? fmtSigned(r.error) : '—') },
