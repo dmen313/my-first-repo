@@ -88,7 +88,7 @@ function flattenMarketOutcomes(bookmakers) {
 }
 
 /**
- * Fetch corner odds for all upcoming WC fixtures.
+ * Fetch corner odds for all upcoming WC fixtures (Odds API + Kalshi).
  */
 export async function fetchAllWcCornerOdds() {
   const events = await fetchWcEvents();
@@ -112,10 +112,20 @@ export async function fetchAllWcCornerOdds() {
     }
   }
 
+  let kalshiMerged = 0;
+  try {
+    const { fetchKalshiWcCornerOdds, mergeKalshiIntoFixtures } = await import('./wcKalshiOddsApi.js');
+    const kalshiFixtures = await fetchKalshiWcCornerOdds();
+    kalshiMerged = mergeKalshiIntoFixtures(fixtures, kalshiFixtures);
+  } catch (err) {
+    console.warn('Kalshi corner odds unavailable:', err.message);
+  }
+
   return {
     fixtures,
     fetchedAt: new Date().toISOString(),
     eventCount: events.length,
+    kalshiMerged,
   };
 }
 

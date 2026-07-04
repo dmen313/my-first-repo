@@ -86,7 +86,22 @@ async function fetchAllFixtures() {
     });
   }
 
-  return { fixtures, eventCount: events.length, fetchedAt: new Date().toISOString() };
+  let kalshiMerged = 0;
+  try {
+    const { fetchKalshiWcCornerOdds, mergeKalshiIntoFixtures } = await import('../src/services/wcKalshiOddsApi.js');
+    const kalshiFixtures = await fetchKalshiWcCornerOdds();
+    kalshiMerged = mergeKalshiIntoFixtures(fixtures, kalshiFixtures);
+    console.log(`Kalshi: merged ${kalshiMerged} fixture(s)`);
+  } catch (err) {
+    console.warn('Kalshi corner odds skipped:', err.message);
+  }
+
+  return {
+    fixtures,
+    eventCount: events.length,
+    fetchedAt: new Date().toISOString(),
+    kalshiMerged,
+  };
 }
 
 async function saveFixtures(fixtures, syncMeta) {
