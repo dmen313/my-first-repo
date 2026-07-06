@@ -69,6 +69,10 @@
       "value": 0.6,
       "meaning": null
     },
+    "KNOCKOUT_LAMBDA_MULT": {
+      "value": 1.15,
+      "meaning": "Multiplier on both teams' corner lambda for knockout-stage / July fixtures. Set 7/5 to 1.15 (was code default 1.1) after graded knockouts landed ~1.3 corners over model."
+    },
     "WINSOR mean (auto)": {
       "value": 4.64285714285714,
       "meaning": null
