@@ -1,6 +1,6 @@
 {
   "name": "degen-site",
-  "version": "0.4.18",
+  "version": "0.4.19",
   "description": "Degen4 - Internal tool to support sports league tracking",
   "private": true,
   "dependencies": {
