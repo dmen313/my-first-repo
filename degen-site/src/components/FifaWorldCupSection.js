@@ -12,6 +12,7 @@ import {
   saveWcCornersParameters,
 } from '../services/dynamoDBService';
 import { findFixtureForTeams, getMarketLines, teamsMatchOddsName } from '../services/wcCornersOddsApi';
+import { KALSHI_BOOK } from '../services/wcKalshiOddsApi';
 import { computeMatchup, findTeam } from '../utils/wc2026MatchupEngine';
 import { cappedEvFromProbAndAmerican, GAME_TOTAL_UNDER_MIN_EV, MIN_PLAY_EV, shadowTierUnits } from '../utils/wc2026Pricing';
 import { computeAccuracySummary, getProjectionBiasBanner } from '../utils/wc2026Accuracy';
@@ -373,6 +374,7 @@ function buildOverUnderLineRows(lines, modelLines, { underMinEv = MIN_PLAY_EV_TH
         ...row.unders.map((q) => q.bookmaker),
       ]);
       bookSet.forEach((book) => {
+        if (book === KALSHI_BOOK) return;
         const overQ = row.overs.find((q) => q.bookmaker === book);
         const underQ = row.unders.find((q) => q.bookmaker === book);
         const candidates = [];
@@ -509,7 +511,7 @@ function OverUnderMarketTable({ title, lines, modelLines, gameTotal = false }) {
       {!modelLines?.length && (
         <p className="wc-readme">Model lines unavailable for this market — odds only.</p>
       )}
-      <p className="wc-readme wc-market-hint">Each quote shows odds, market implied %, and model EV (labeled “EV”). Kalshi contracts are labeled with their native threshold (e.g. 8+ → line 7.5). Play uses the best edge at each book (Over vs Under), then the top line overall.</p>
+      <p className="wc-readme wc-market-hint">Each quote shows odds, market implied %, and model EV (labeled “EV”). Kalshi contracts are labeled with their native threshold (e.g. 8+ → line 7.5) and are shown for reference but excluded from Play — sportsbooks only.</p>
       <SpreadsheetTable
         columns={[
           { key: 'point', label: 'Line', sticky: true, align: 'center', width: '52px', render: (r) => r.point },
@@ -577,7 +579,7 @@ function SpreadMarketTable({ title, lines, handicapTable, teamAName, teamBName }
           lineLabel,
           modelPct: prob,
           analysis,
-          play: analysis && analysis.ev >= MIN_PLAY_EV_THRESHOLD
+          play: analysis && analysis.ev >= MIN_PLAY_EV_THRESHOLD && line.bookmaker !== KALSHI_BOOK
             ? { side: teamName, ...analysis }
             : null,
           _key: `${line.bookmaker}-${teamName}-${point}-${i}`,

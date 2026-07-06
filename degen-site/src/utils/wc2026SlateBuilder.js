@@ -8,6 +8,7 @@ import {
   shadowTierUnits,
 } from './wc2026Pricing.js';
 import { getMarketLines } from '../services/wcCornersOddsApi.js';
+import { KALSHI_BOOK } from '../services/wcKalshiOddsApi.js';
 
 const MIN_EV = MIN_PLAY_EV;
 
@@ -24,7 +25,9 @@ function modelMarketGap(prob, marketLine) {
 function bestMarketForSide(marketLines, point, side, prob, minEv = MIN_EV) {
   const sideLower = String(side).toLowerCase();
   const matches = (marketLines || []).filter(
-    (m) => m.point === point && String(m.name).toLowerCase() === sideLower
+    (m) => m.point === point
+      && String(m.name).toLowerCase() === sideLower
+      && m.bookmaker !== KALSHI_BOOK
   );
   let best = null;
   let bestEv = -Infinity;

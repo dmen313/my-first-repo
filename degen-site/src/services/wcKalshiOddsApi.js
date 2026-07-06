@@ -2,7 +2,7 @@ import { fairAmerican } from '../utils/wc2026Pricing.js';
 import { normalizeOddsTeamName, teamsMatchOddsName } from './wcCornersOddsApi.js';
 
 const KALSHI_API_BASE = 'https://api.elections.kalshi.com/trade-api/v2';
-const KALSHI_BOOK = 'Kalshi';
+export const KALSHI_BOOK = 'Kalshi';
 
 const CORNER_SERIES = [
   { series: 'KXWCCORNERS', marketKey: 'alternate_totals_corners' },
