@@ -33,10 +33,19 @@ const DASHBOARD_TO_ELO_NAMES = {
 
 const dryRun = process.argv.includes('--dry-run');
 
-async function fetchText(path) {
+async function fetchText(path, { optional = false } = {}) {
   const url = `${BASE_URL}/${path}`;
-  const response = await fetch(url, { headers: { 'User-Agent': 'degen-site-wc-elo-updater/1.0' } });
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'degen-site-wc-elo-updater/1.0',
+      Accept: 'text/plain,*/*',
+    },
+  });
   if (!response.ok) {
+    if (optional) {
+      console.warn(`⚠️  Skipping optional ${path}: HTTP ${response.status}`);
+      return '';
+    }
     throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
   }
   return response.text();
@@ -171,7 +180,7 @@ async function main() {
   const [worldTsv, teamsTsv, successorTsv] = await Promise.all([
     fetchText('World.tsv'),
     fetchText('en.teams.tsv'),
-    fetchText('teams.tsv'),
+    fetchText('teams.tsv', { optional: true }),
   ]);
 
   const successor = parseSuccessorMap(successorTsv);

@@ -65,7 +65,30 @@ function flattenMarkets(bookmakers) {
   return Object.values(byMarket);
 }
 
-async function fetchAllFixtures() {
+function stripKalshiLines(fixture) {
+  return {
+    ...fixture,
+    markets: (fixture.markets || []).map((market) => ({
+      ...market,
+      lines: (market.lines || []).filter((line) => line.bookmaker !== 'Kalshi'),
+    })),
+  };
+}
+
+async function loadExistingFixtures() {
+  const result = await docClient.send(new QueryCommand({
+    TableName: TABLE,
+    IndexName: 'league-season-index',
+    KeyConditionExpression: '#league = :league AND #season = :season',
+    ExpressionAttributeNames: { '#league': 'league', '#season': 'season' },
+    ExpressionAttributeValues: { ':league': LEAGUE, ':season': SEASON },
+  }));
+  return (result.Items || [])
+    .filter((item) => item.entityType === 'fixture' && item.fixture)
+    .map((item) => item.fixture);
+}
+
+async function fetchOddsApiFixtures() {
   const events = await oddsFetch(`/sports/${SPORT_KEY}/events`);
   const fixtures = [];
   const markets = 'alternate_totals_corners,alternate_team_totals_corners,alternate_spreads_corners';
@@ -86,6 +109,30 @@ async function fetchAllFixtures() {
     });
   }
 
+  return { fixtures, eventCount: events.length };
+}
+
+async function fetchAllFixtures() {
+  let fixtures = [];
+  let eventCount = 0;
+  let oddsApiSkipped = false;
+
+  try {
+    const oddsPayload = await fetchOddsApiFixtures();
+    fixtures = oddsPayload.fixtures;
+    eventCount = oddsPayload.eventCount;
+  } catch (err) {
+    const msg = err.message || '';
+    if (/quota|rate limit|429/i.test(msg)) {
+      console.warn(`⚠️  Odds API unavailable (${msg}) — using stored fixtures + Kalshi`);
+      fixtures = (await loadExistingFixtures()).map(stripKalshiLines);
+      eventCount = fixtures.length;
+      oddsApiSkipped = true;
+    } else {
+      throw err;
+    }
+  }
+
   let kalshiMerged = 0;
   try {
     const { fetchKalshiWcCornerOdds, mergeKalshiIntoFixtures } = await import('../src/services/wcKalshiOddsApi.js');
@@ -98,9 +145,10 @@ async function fetchAllFixtures() {
 
   return {
     fixtures,
-    eventCount: events.length,
+    eventCount,
     fetchedAt: new Date().toISOString(),
     kalshiMerged,
+    oddsApiSkipped,
   };
 }
 
@@ -158,8 +206,13 @@ async function main() {
   }
   console.log('Fetching WC corner odds...');
   const payload = await fetchAllFixtures();
+  if (!payload.fixtures.length) {
+    console.warn('⚠️  No fixtures to store (Odds API quota and no existing data)');
+    process.exit(0);
+  }
   await saveFixtures(payload.fixtures, payload);
-  console.log(`✅ Stored ${payload.fixtures.length} fixtures (${payload.eventCount} events)`);
+  const suffix = payload.oddsApiSkipped ? ' (Kalshi refresh on cached sportsbook lines)' : '';
+  console.log(`✅ Stored ${payload.fixtures.length} fixtures (${payload.eventCount} events)${suffix}`);
 }
 
 main().catch((err) => {
