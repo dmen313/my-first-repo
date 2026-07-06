@@ -732,6 +732,22 @@
   flex-shrink: 0;
 }
 
+.wc-slate-stats-block {
+  margin-bottom: 20px;
+}
+
+.wc-slate-stats-label {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wc-cluster-card-past {
+  opacity: 0.55;
+}
+
 .wc-cluster-card {
   margin-bottom: 12px;
   padding: 10px 12px;

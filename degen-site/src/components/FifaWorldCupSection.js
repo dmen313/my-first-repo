@@ -27,6 +27,7 @@ import {
 import { AUTO_PARAMETER_KEYS, runWcModelAudit } from '../utils/wc2026Audit';
 import { fmtNum, fmtPct, fmtOdds, fmtSigned, resultClass } from '../utils/wc2026Formatters';
 import { formatTeamLabel, formatMatchLabel, getTeamFlag } from '../utils/wc2026Flags';
+import { computeSlatePlayStats, enrichSlatePlay } from '../utils/wc2026BetGrading';
 import './FifaWorldCupSection.css';
 
 const SEASON = '2026';
@@ -286,6 +287,109 @@ function isFixturePriorDay(commenceTime) {
   const kickoffKey = pacificDateKey(new Date(commenceTime));
   const todayKey = pacificDateKey(new Date());
   return kickoffKey && todayKey && kickoffKey < todayKey;
+}
+
+function slateRowClass(play) {
+  return [
+    (play.evPct ?? 0) >= MIN_PLAY_EV ? 'wc-edge-strong' : '',
+    isFixturePriorDay(play.kickoff) ? 'wc-market-fixture-past' : '',
+  ].filter(Boolean).join(' ');
+}
+
+function sortSlatePlays(plays) {
+  return [...plays].sort((a, b) => {
+    const aPast = isFixturePriorDay(a.kickoff);
+    const bPast = isFixturePriorDay(b.kickoff);
+    if (aPast !== bPast) return aPast ? 1 : -1;
+    if (!aPast && !bPast) {
+      return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime();
+    }
+    return (b.evPct || 0) - (a.evPct || 0);
+  });
+}
+
+function SlateGradeCell({ row }) {
+  const tip = row.actualCorners
+    ? `Final corners: ${row.actualCorners} (total ${row.actualTotal})`
+    : undefined;
+  if (row.grade === 'W') {
+    return <span className="wc-positive" title={tip}>W</span>;
+  }
+  if (row.grade === 'L') {
+    return <span className="wc-negative" title={tip}>L</span>;
+  }
+  if (isFixturePriorDay(row.kickoff)) {
+    return <span className="wc-readme" title="Prior-day fixture — no corner data logged">—</span>;
+  }
+  return <span className="wc-readme">Pending</span>;
+}
+
+const SLATE_TABLE_COLUMNS = [
+  { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
+  { key: 'selection', label: 'Selection' },
+  { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
+  { key: 'odds', label: 'Odds', render: (r) => fmtOdds(r.odds) },
+  { key: 'evPct', label: 'EV %', render: (r) => <span className="wc-positive">{fmtPct(r.evPct)}</span> },
+  { key: 'tier', label: 'Tier', render: (r) => (r.tier ? `${r.tier}u` : '—') },
+  {
+    key: 'grade',
+    label: 'W/L',
+    align: 'center',
+    width: '48px',
+    render: (r) => <SlateGradeCell row={r} />,
+  },
+  {
+    key: 'actual',
+    label: 'Actual',
+    hideMobile: true,
+    align: 'center',
+    width: '72px',
+    render: (r) => (r.actualCorners ? `${r.actualCorners} (${r.actualTotal})` : '—'),
+  },
+  { key: 'book', label: 'Book', hideMobile: true, render: (r) => r.book || '—' },
+];
+
+function SlateStatsRow({ stats, label }) {
+  if (!stats.plays) return null;
+  return (
+    <div className="wc-slate-stats-block">
+      <div className="wc-slate-stats-label">{label}</div>
+      <div className="wc-stats-row">
+        <div className="wc-stat-card">
+          <div className="wc-stat-label">Record</div>
+          <div className="wc-stat-value">{stats.record}</div>
+        </div>
+        <div className="wc-stat-card">
+          <div className="wc-stat-label">Win %</div>
+          <div className="wc-stat-value">
+            {stats.winRate != null ? `${Math.round(stats.winRate * 100)}%` : '—'}
+          </div>
+        </div>
+        <div className="wc-stat-card">
+          <div className="wc-stat-label">Tier P/L</div>
+          <div className={`wc-stat-value ${stats.unitsPL >= 0 ? 'wc-positive' : 'wc-negative'}`}>
+            {stats.graded ? fmtSigned(stats.unitsPL) : '—'}
+          </div>
+        </div>
+        <div className="wc-stat-card">
+          <div className="wc-stat-label">ROI</div>
+          <div className={`wc-stat-value ${(stats.roi ?? 0) >= 0 ? 'wc-positive' : 'wc-negative'}`}>
+            {stats.roi != null ? fmtPct(stats.roi) : '—'}
+          </div>
+        </div>
+        <div className="wc-stat-card">
+          <div className="wc-stat-label">Pending</div>
+          <div className="wc-stat-value">{stats.pending}</div>
+        </div>
+        <div className="wc-stat-card wc-hide-mobile">
+          <div className="wc-stat-label">Avg EV (graded)</div>
+          <div className="wc-stat-value">
+            {stats.avgEv != null ? fmtPct(stats.avgEv) : '—'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const MIN_PLAY_EV_THRESHOLD = MIN_PLAY_EV;
@@ -1025,6 +1129,26 @@ const FifaWorldCupSection = () => {
     [slatePlays]
   );
 
+  const enrichedDecorrelatedPlays = useMemo(
+    () => sortSlatePlays(decorrelatedPlays.map((p) => enrichSlatePlay(p, teams))),
+    [decorrelatedPlays, teams]
+  );
+
+  const enrichedSlatePlays = useMemo(
+    () => sortSlatePlays(slatePlays.map((p) => enrichSlatePlay(p, teams))),
+    [slatePlays, teams]
+  );
+
+  const decoSlateStats = useMemo(
+    () => computeSlatePlayStats(enrichedDecorrelatedPlays),
+    [enrichedDecorrelatedPlays]
+  );
+
+  const fullSlateStats = useMemo(
+    () => computeSlatePlayStats(enrichedSlatePlays),
+    [enrichedSlatePlays]
+  );
+
   const pendingAccuracy = useMemo(
     () => (accuracy.log || []).filter((r) => r.actTotal == null && r.projTotal != null),
     [accuracy.log]
@@ -1551,6 +1675,7 @@ const FifaWorldCupSection = () => {
             <p className="wc-readme">
               {decorrelatedPlays.length} recommended plays (de-correlated, ≥{Math.round(MIN_PLAY_EV * 100)}% EV)
               · {slatePlays.length} in full menu across {fixtures.length} fixtures.
+              Prior-day fixtures are greyed out.
             </p>
             <div className="wc-slate-copy-btns">
               <button
@@ -1573,35 +1698,32 @@ const FifaWorldCupSection = () => {
             </div>
           </div>
 
+          <SlateStatsRow stats={decoSlateStats} label="Recommended slate (if all plays were bet at tier size)" />
+          {fullSlateStats.graded > 0 && fullSlateStats.graded !== decoSlateStats.graded && (
+            <SlateStatsRow stats={fullSlateStats} label="Full menu (all qualifying lines)" />
+          )}
+
           <div className="wc-section-block">
             <h3>Recommended slate (one per fixture, ≥{Math.round(MIN_PLAY_EV * 100)}% EV)</h3>
             <SpreadsheetTable
-              columns={[
-                { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
-                { key: 'selection', label: 'Selection' },
-                { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
-                { key: 'odds', label: 'Odds', render: (r) => fmtOdds(r.odds) },
-                { key: 'evPct', label: 'EV %', render: (r) => <span className="wc-positive">{fmtPct(r.evPct)}</span> },
-                { key: 'tier', label: 'Tier', render: (r) => (r.tier ? `${r.tier}u` : '—') },
-                { key: 'book', label: 'Book', hideMobile: true, render: (r) => r.book || '—' },
-              ]}
-              rows={decorrelatedPlays.map((p, i) => ({ ...p, _key: `dec-${p.fixtureId}-${i}`, _rowClass: 'wc-edge-strong' }))}
+              columns={SLATE_TABLE_COLUMNS}
+              rows={enrichedDecorrelatedPlays.map((p, i) => ({
+                ...p,
+                _key: `dec-${p.fixtureId}-${i}`,
+                _rowClass: slateRowClass(p),
+              }))}
             />
           </div>
 
           <div className="wc-section-block">
             <h3>Full menu (all qualifying lines)</h3>
             <SpreadsheetTable
-              columns={[
-                { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
-                { key: 'selection', label: 'Selection' },
-                { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
-                { key: 'odds', label: 'Odds', render: (r) => fmtOdds(r.odds) },
-                { key: 'evPct', label: 'EV %', render: (r) => <span className="wc-positive">{fmtPct(r.evPct)}</span> },
-                { key: 'tier', label: 'Tier', render: (r) => (r.tier ? `${r.tier}u` : '—') },
-                { key: 'book', label: 'Book', hideMobile: true, render: (r) => r.book || '—' },
-              ]}
-              rows={slatePlays.map((p, i) => ({ ...p, _key: `${p.fixtureId}-${p.selection}-${i}`, _rowClass: 'wc-edge-strong' }))}
+              columns={SLATE_TABLE_COLUMNS}
+              rows={enrichedSlatePlays.map((p, i) => ({
+                ...p,
+                _key: `${p.fixtureId}-${p.selection}-${i}`,
+                _rowClass: slateRowClass(p),
+              }))}
             />
           </div>
 
@@ -1613,7 +1735,10 @@ const FifaWorldCupSection = () => {
             <div className="wc-section-block">
               <h3>Correlation clusters</h3>
               {slateClusters.map((cluster) => (
-                <div key={cluster.fixtureId} className="wc-cluster-card">
+                <div
+                  key={cluster.fixtureId}
+                  className={`wc-cluster-card${isFixturePriorDay(cluster.kickoff) ? ' wc-cluster-card-past' : ''}`}
+                >
                   <h4><SlateMatchWithFlags match={cluster.match} /></h4>
                   <p className="wc-readme">
                     {cluster.plays.map((p) => `${p.selection} (${fmtPct(p.evPct)} EV)`).join(' · ')}

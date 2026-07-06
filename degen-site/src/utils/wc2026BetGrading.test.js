@@ -1,4 +1,5 @@
 import {
+  computeSlatePlayStats,
   gradePlay,
   handicapCovers,
   overHalfLineWins,
@@ -48,5 +49,17 @@ describe('wc2026BetGrading', () => {
   test('over half line threshold', () => {
     expect(overHalfLineWins(10, 8.5)).toBe(true);
     expect(overHalfLineWins(8, 8.5)).toBe(false);
+  });
+
+  test('computeSlatePlayStats aggregates graded plays', () => {
+    const plays = [
+      { grade: 'W', tier: 1, tierProfit: 0.9, evPct: 0.12 },
+      { grade: 'L', tier: 2, tierProfit: -2, evPct: 0.15 },
+      { grade: null, tier: 1 },
+    ];
+    const stats = computeSlatePlayStats(plays);
+    expect(stats.record).toBe('1-1');
+    expect(stats.unitsPL).toBeCloseTo(-1.1);
+    expect(stats.pending).toBe(1);
   });
 });

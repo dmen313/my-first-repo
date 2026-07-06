@@ -1,5 +1,7 @@
 /** Grade WC corner plays against actual match corner counts. */
 
+import { americanProfit } from './wc2026Pricing.js';
+
 export function overHalfLineWins(total, line) {
   const threshold = Math.floor(line + 0.5);
   return total >= threshold;
@@ -166,5 +168,56 @@ export function playToBetInput(play, result) {
     fixtureId: play.fixtureId,
     kickoff: play.kickoff,
     autoLogged: true,
+  };
+}
+
+/** Attach W/L grade and tier P/L from team game logs. */
+export function enrichSlatePlay(play, teams = {}) {
+  const [homeTeam, awayTeam] = String(play.match || '').split('/');
+  const result = findMatchResult(teams, homeTeam, awayTeam, play.kickoff);
+  const grade = gradePlay(play, result);
+  const tier = play.tier || 1;
+  let tierProfit = null;
+  if (grade === 'W') {
+    const profit = americanProfit(play.odds);
+    tierProfit = profit != null ? profit * tier : tier;
+  } else if (grade === 'L') {
+    tierProfit = -tier;
+  }
+  return {
+    ...play,
+    grade,
+    actualCorners: result ? `${result.cornersHome}-${result.cornersAway}` : null,
+    actualTotal: result ? result.cornersHome + result.cornersAway : null,
+    tierProfit,
+  };
+}
+
+/** Summary stats for a list of enriched slate plays. */
+export function computeSlatePlayStats(plays = []) {
+  const graded = plays.filter((p) => p.grade === 'W' || p.grade === 'L');
+  const wins = graded.filter((p) => p.grade === 'W').length;
+  const losses = graded.filter((p) => p.grade === 'L').length;
+  const pending = plays.length - graded.length;
+  const unitsRisked = graded.reduce((s, p) => s + (p.tier || 1), 0);
+  const unitsPL = graded.reduce((s, p) => s + (p.tierProfit || 0), 0);
+  const roi = unitsRisked > 0 ? unitsPL / unitsRisked : null;
+  const winRate = graded.length ? wins / graded.length : null;
+  const avgEv = graded.length
+    ? graded.reduce((sum, p) => sum + (p.evPct || 0), 0) / graded.length
+    : null;
+
+  return {
+    plays: plays.length,
+    graded: graded.length,
+    wins,
+    losses,
+    record: graded.length ? `${wins}-${losses}` : '—',
+    pending,
+    unitsPL,
+    unitsRisked,
+    roi,
+    winRate,
+    avgEv,
   };
 }
