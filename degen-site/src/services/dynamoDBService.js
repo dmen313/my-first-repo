@@ -1971,6 +1971,8 @@ export const getWcCornersModel = async (season = '2026') => {
     fixtures,
     eloRatings,
     lastOddsSync: meta?.lastOddsSync || null,
+    lastEloSync: meta?.lastEloSync || null,
+    lastModelRecalc: meta?.lastModelRecalc || null,
   };
 };
 
@@ -2046,6 +2048,10 @@ export const saveWcCornersFixtures = async (season, fixtures, syncMeta = {}) => 
     readme: metaItem?.readme || [],
     lastOddsSync: syncMeta.fetchedAt || new Date().toISOString(),
     oddsEventCount: syncMeta.eventCount || fixtures.length,
+    lastEloSync: metaItem?.lastEloSync,
+    lastModelRecalc: metaItem?.lastModelRecalc,
+    lastCornerStatsSync: metaItem?.lastCornerStatsSync,
+    winsorCap: metaItem?.winsorCap,
     createdAt: metaItem?.createdAt,
   });
 };

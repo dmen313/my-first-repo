@@ -32,6 +32,23 @@ import './FifaWorldCupSection.css';
 
 const SEASON = '2026';
 
+function formatSyncTimestamp(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleString();
+}
+
+function WcDataSyncSubtitle({ lastOddsSync, lastEloSync, lastModelRecalc }) {
+  const parts = ['DynamoDB + Odds API'];
+  const odds = formatSyncTimestamp(lastOddsSync);
+  const elo = formatSyncTimestamp(lastEloSync);
+  const recalc = formatSyncTimestamp(lastModelRecalc);
+  if (odds) parts.push(`Odds synced ${odds}`);
+  if (elo) parts.push(`Elo updated ${elo}`);
+  if (recalc) parts.push(`Model recalc ${recalc}`);
+  return <p className="wc-subtitle">{parts.join(' · ')}</p>;
+}
+
 const TABS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'matchup', label: 'Matchup' },
@@ -885,6 +902,8 @@ const FifaWorldCupSection = () => {
   const readme = modelData?.readme || [];
   const meta = modelData?.meta || { title: 'WC 2026 — Corner Kick Model' };
   const lastOddsSync = modelData?.lastOddsSync;
+  const lastEloSync = modelData?.lastEloSync;
+  const lastModelRecalc = modelData?.lastModelRecalc;
 
   const accuracyStats = useMemo(
     () => computeAccuracySummary(accuracy.log || []),
@@ -1181,12 +1200,11 @@ const FifaWorldCupSection = () => {
       <div className="wc-header">
         <div>
           <h1 className="wc-title">{meta.title || 'WC 2026 — Corner Kick Model'}</h1>
-          <p className="wc-subtitle">
-            DynamoDB + Odds API
-            {lastOddsSync && (
-              <> · Odds synced {new Date(lastOddsSync).toLocaleString()}</>
-            )}
-          </p>
+          <WcDataSyncSubtitle
+            lastOddsSync={lastOddsSync}
+            lastEloSync={lastEloSync}
+            lastModelRecalc={lastModelRecalc}
+          />
         </div>
         <div className="wc-header-actions">
           <button
