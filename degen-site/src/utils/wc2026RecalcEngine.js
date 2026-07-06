@@ -105,6 +105,9 @@ export function recalcTeam(teamName, games, parameters, eloLookup, winsorCap) {
   const caValues = included.map((g) => Number(g.ca) || 0);
   const rawFor = n ? mean(cfValues) : null;
   const rawAg = n ? mean(caValues) : null;
+  const recentCornersFor = n
+    ? mean(included.slice(-2).map((g) => Number(g.cf) || 0))
+    : null;
   const varFor = n ? variance(cfValues, rawFor) : null;
   const varMeanRatio = rawFor > 0 ? varFor / rawFor : null;
   const phi = varMeanRatio;
@@ -137,6 +140,7 @@ export function recalcTeam(teamName, games, parameters, eloLookup, winsorCap) {
     games: n,
     rawFor,
     rawAg,
+    recentCornersFor,
     adjAttack: shrinkAttack,
     adjDefense: shrinkDefense,
     dispersion,

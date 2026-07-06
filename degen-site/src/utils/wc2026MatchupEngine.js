@@ -42,6 +42,42 @@ export function matchCorrelation(eloA, eloB, parameters) {
   return -magnitude;
 }
 
+/** Knockout read: July fixtures or both teams past group stage (3+ WC games). */
+export function isKnockoutStage(fixture, teamA, teamB) {
+  if (fixture?.knockout) return true;
+  const kickoff = fixture?.commenceTime;
+  if (kickoff && String(kickoff).slice(0, 10) >= '2026-07-01') return true;
+  const gamesA = teamA?.games ?? 0;
+  const gamesB = teamB?.games ?? 0;
+  return gamesA >= 3 && gamesB >= 3;
+}
+
+function applyLambdaCalibration(lambdaA, lambdaB, teamA, teamB, parameters, options = {}) {
+  let la = lambdaA;
+  let lb = lambdaB;
+
+  const knockoutMult = numParam(parameters, 'KNOCKOUT_LAMBDA_MULT', 1.1);
+  if (isKnockoutStage(options.fixture, teamA, teamB)) {
+    la *= knockoutMult;
+    lb *= knockoutMult;
+  }
+
+  const recentBump = numParam(parameters, 'RECENT_FORM_LAMBDA_BUMP', 0.5);
+  const recentA = teamA?.recentCornersFor;
+  const recentB = teamB?.recentCornersFor;
+  if (
+    recentA != null
+    && recentB != null
+    && recentA > teamA.adjAttack
+    && recentB > teamB.adjAttack
+  ) {
+    la += recentBump;
+    lb += recentBump;
+  }
+
+  return { lambdaA: la, lambdaB: lb };
+}
+
 function teamVariance(lambda, phi) {
   return phi * lambda;
 }
@@ -172,7 +208,7 @@ function momentMatchedTotalDist(lambdaA, lambdaB, phiA, phiB, rho) {
   };
 }
 
-export function computeMatchup(teamA, teamB, parameters, manualA = 1, manualB = 1) {
+export function computeMatchup(teamA, teamB, parameters, manualA = 1, manualB = 1, options = {}) {
   const dom = numParam(parameters, 'DOM', 0.25);
   const phiFloor = numParam(parameters, 'PHI_FLOOR (NB)', 1);
   const phiCap = numParam(parameters, 'PHI_CAP (NB)', 2);
@@ -181,8 +217,9 @@ export function computeMatchup(teamA, teamB, parameters, manualA = 1, manualB = 
   const phiB = effectivePhi(teamB.phi, teamB.games, phiFloor, phiCap);
 
   const { multA, multB } = dominanceMult(teamA.elo, teamB.elo, dom);
-  const lambdaA = lambdaTeam(teamA.adjAttack, teamB.adjDefense, multA, manualA);
-  const lambdaB = lambdaTeam(teamB.adjAttack, teamA.adjDefense, multB, manualB);
+  let lambdaA = lambdaTeam(teamA.adjAttack, teamB.adjDefense, multA, manualA);
+  let lambdaB = lambdaTeam(teamB.adjAttack, teamA.adjDefense, multB, manualB);
+  ({ lambdaA, lambdaB } = applyLambdaCalibration(lambdaA, lambdaB, teamA, teamB, parameters, options));
   const lambdaTotal = lambdaA + lambdaB;
 
   const rho = matchCorrelation(teamA.elo, teamB.elo, parameters);
@@ -242,6 +279,7 @@ export function computeMatchup(teamA, teamB, parameters, manualA = 1, manualB = 
     lambdaA,
     lambdaB,
     lambdaTotal,
+    knockoutStage: isKnockoutStage(options.fixture, teamA, teamB),
     rho,
     varA,
     varB,

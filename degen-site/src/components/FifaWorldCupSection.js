@@ -13,8 +13,8 @@ import {
 } from '../services/dynamoDBService';
 import { findFixtureForTeams, getMarketLines, teamsMatchOddsName } from '../services/wcCornersOddsApi';
 import { computeMatchup, findTeam } from '../utils/wc2026MatchupEngine';
-import { evFromProbAndAmerican, shadowTierUnits } from '../utils/wc2026Pricing';
-import { computeAccuracySummary, getOverProjectionBanner } from '../utils/wc2026Accuracy';
+import { cappedEvFromProbAndAmerican, GAME_TOTAL_UNDER_MIN_EV, MIN_PLAY_EV, shadowTierUnits } from '../utils/wc2026Pricing';
+import { computeAccuracySummary, getProjectionBiasBanner } from '../utils/wc2026Accuracy';
 import { computeTrackerSummary, enrichBet } from '../utils/wc2026Tracker';
 import {
   buildSlate,
@@ -169,10 +169,10 @@ function OverUnderBlock({ title, lines, marketLines = null, side = 'over', probK
             render: (r) => {
               const m = marketByPoint[r.line];
               if (!m?.price) return '—';
-              const ev = evFromProbAndAmerican(modelProb(r), m.price);
+              const ev = cappedEvFromProbAndAmerican(modelProb(r), m);
               if (ev === null) return '—';
               return (
-                <span className={ev >= 0.05 ? 'wc-positive' : ev < 0 ? 'wc-negative' : ''}>
+                <span className={ev >= MIN_PLAY_EV_THRESHOLD ? 'wc-positive' : ev < 0 ? 'wc-negative' : ''}>
                   {fmtPct(ev)}
                 </span>
               );
@@ -184,7 +184,7 @@ function OverUnderBlock({ title, lines, marketLines = null, side = 'over', probK
             render: (r) => {
               const m = marketByPoint[r.line];
               if (!m?.price) return '—';
-              const ev = evFromProbAndAmerican(modelProb(r), m.price);
+              const ev = cappedEvFromProbAndAmerican(modelProb(r), m);
               const tier = shadowTierUnits(ev);
               return tier > 0 ? `${tier}u` : '—';
             },
@@ -287,13 +287,14 @@ function isFixturePriorDay(commenceTime) {
   return kickoffKey && todayKey && kickoffKey < todayKey;
 }
 
-const MIN_PLAY_EV = 0.05;
+const MIN_PLAY_EV_THRESHOLD = MIN_PLAY_EV;
 
 function analyzeMarketSide(prob, marketLine) {
-  if (!marketLine?.price || prob == null) return null;
-  const ev = evFromProbAndAmerican(prob, marketLine.price);
+  const ev = cappedEvFromProbAndAmerican(prob, marketLine);
   if (ev == null) return null;
-  return { price: marketLine.price, ev, tier: shadowTierUnits(ev) };
+  const impl = marketLine?.impliedProb ?? null;
+  const gap = impl != null && prob != null ? prob - impl : null;
+  return { price: marketLine.price, ev, tier: shadowTierUnits(ev, gap) };
 }
 
 function pivotOverUnderLines(lines) {
@@ -320,7 +321,7 @@ function pivotOverUnderLines(lines) {
   return Object.values(byKey);
 }
 
-function buildOverUnderLineRows(lines, modelLines) {
+function buildOverUnderLineRows(lines, modelLines, { underMinEv = MIN_PLAY_EV_THRESHOLD } = {}) {
   const byPoint = {};
 
   pivotOverUnderLines(lines).forEach((pair) => {
@@ -375,10 +376,10 @@ function buildOverUnderLineRows(lines, modelLines) {
         const overQ = row.overs.find((q) => q.bookmaker === book);
         const underQ = row.unders.find((q) => q.bookmaker === book);
         const candidates = [];
-        if (overQ?.analysis && overQ.ev >= MIN_PLAY_EV) {
+        if (overQ?.analysis && overQ.ev >= MIN_PLAY_EV_THRESHOLD) {
           candidates.push({ side: 'Over', bookmaker: book, ...overQ.analysis });
         }
-        if (underQ?.analysis && underQ.ev >= MIN_PLAY_EV) {
+        if (underQ?.analysis && underQ.ev >= underMinEv) {
           candidates.push({ side: 'Under', bookmaker: book, ...underQ.analysis });
         }
         if (candidates.length) {
@@ -404,7 +405,7 @@ function MarketOddsStack({ quotes, side, bestPlay }) {
         const isBestPlay = bestPlay
           && bestPlay.side === side
           && bestPlay.bookmaker === q.bookmaker;
-        const evClass = q.ev != null && q.ev >= MIN_PLAY_EV
+        const evClass = q.ev != null && q.ev >= MIN_PLAY_EV_THRESHOLD
           ? 'wc-positive'
           : q.ev != null && q.ev < 0
             ? 'wc-negative'
@@ -454,7 +455,7 @@ function spreadModelProb(handicapTable, teamAName, teamBName, teamName, point) {
 
 function MarketOddsCell({ analysis }) {
   if (!analysis) return '—';
-  const evClass = analysis.ev >= MIN_PLAY_EV
+  const evClass = analysis.ev >= MIN_PLAY_EV_THRESHOLD
     ? 'wc-positive'
     : analysis.ev < 0
       ? 'wc-negative'
@@ -485,10 +486,12 @@ function MarketPlayCell({ play, showBook = false }) {
   );
 }
 
-function OverUnderMarketTable({ title, lines, modelLines }) {
+function OverUnderMarketTable({ title, lines, modelLines, gameTotal = false }) {
   const rows = useMemo(
-    () => buildOverUnderLineRows(lines, modelLines),
-    [lines, modelLines]
+    () => buildOverUnderLineRows(lines, modelLines, {
+      underMinEv: gameTotal ? GAME_TOTAL_UNDER_MIN_EV : MIN_PLAY_EV_THRESHOLD,
+    }),
+    [lines, modelLines, gameTotal]
   );
 
   if (!lines?.length) {
@@ -574,7 +577,7 @@ function SpreadMarketTable({ title, lines, handicapTable, teamAName, teamBName }
           lineLabel,
           modelPct: prob,
           analysis,
-          play: analysis && analysis.ev >= MIN_PLAY_EV
+          play: analysis && analysis.ev >= MIN_PLAY_EV_THRESHOLD
             ? { side: teamName, ...analysis }
             : null,
           _key: `${line.bookmaker}-${teamName}-${point}-${i}`,
@@ -783,18 +786,11 @@ const FifaWorldCupSection = () => {
   );
 
   const biasBanner = useMemo(
-    () => getOverProjectionBanner(accuracyStats),
+    () => getProjectionBiasBanner(accuracyStats),
     [accuracyStats]
   );
 
   const teamNames = useMemo(() => dashboard.map((t) => t.team).sort(), [dashboard]);
-
-  const matchup = useMemo(() => {
-    const a = findTeam(dashboard, teamA);
-    const b = findTeam(dashboard, teamB);
-    if (!a || !b) return null;
-    return computeMatchup(a, b, parameters, manualA, manualB);
-  }, [dashboard, parameters, teamA, teamB, manualA, manualB]);
 
   const activeFixture = useMemo(() => {
     const fromTeams = findFixtureForTeams(fixtures, teamA, teamB);
@@ -804,6 +800,13 @@ const FifaWorldCupSection = () => {
     }
     return null;
   }, [fixtures, teamA, teamB, selectedFixtureId]);
+
+  const matchup = useMemo(() => {
+    const a = findTeam(dashboard, teamA);
+    const b = findTeam(dashboard, teamB);
+    if (!a || !b) return null;
+    return computeMatchup(a, b, parameters, manualA, manualB, { fixture: activeFixture });
+  }, [dashboard, parameters, teamA, teamB, manualA, manualB, activeFixture]);
 
   const marketsFixture = useMemo(() => {
     if (!selectedFixtureId) return null;
@@ -815,7 +818,7 @@ const FifaWorldCupSection = () => {
     const home = findTeam(dashboard, marketsFixture.homeTeam);
     const away = findTeam(dashboard, marketsFixture.awayTeam);
     if (!home || !away) return null;
-    return computeMatchup(home, away, parameters);
+    return computeMatchup(home, away, parameters, 1, 1, { fixture: marketsFixture });
   }, [marketsFixture, dashboard, parameters]);
 
   const handleRefreshOdds = async () => {
@@ -1099,7 +1102,7 @@ const FifaWorldCupSection = () => {
       )}
 
       {biasBanner && (tab === 'dashboard' || tab === 'accuracy') && (
-        <div className={`wc-banner wc-banner-bias wc-banner-bias-${biasBanner.level}`}>
+        <div className={`wc-banner wc-banner-bias wc-banner-bias-${biasBanner.level}${biasBanner.kind === 'under' ? ' wc-banner-bias-under' : ''}`}>
           <strong>Over-projection read</strong>
           <span>{biasBanner.message}</span>
         </div>
@@ -1516,6 +1519,7 @@ const FifaWorldCupSection = () => {
                 title={`Match total corners — ${formatMatchLabel(`${marketsFixture.homeTeam}/${marketsFixture.awayTeam}`, ' vs ')}`}
                 lines={getMarketLines(marketsFixture, 'alternate_totals_corners')}
                 modelLines={marketsMatchup?.totalOverUnder}
+                gameTotal
               />
               <OverUnderMarketTable
                 title={`${formatTeamLabel(marketsFixture.homeTeam)} team total corners`}
@@ -1543,14 +1547,14 @@ const FifaWorldCupSection = () => {
         <div className="wc-panel">
           <div className="wc-slate-header">
             <p className="wc-readme">
-              {slatePlays.length} plays with &gt;5% EV across {fixtures.length} fixtures.
-              Ranked by EV; clusters show correlated same-match edges.
+              {decorrelatedPlays.length} recommended plays (de-correlated, ≥{Math.round(MIN_PLAY_EV * 100)}% EV)
+              · {slatePlays.length} in full menu across {fixtures.length} fixtures.
             </p>
             <div className="wc-slate-copy-btns">
               <button
                 type="button"
                 className="wc-refresh-btn"
-                onClick={() => copySlateText(formatPlaysMessage(slatePlays), 'Plays')}
+                onClick={() => copySlateText(formatPlaysMessage(decorrelatedPlays), 'Plays')}
               >
                 Copy plays
               </button>
@@ -1568,7 +1572,23 @@ const FifaWorldCupSection = () => {
           </div>
 
           <div className="wc-section-block">
-            <h3>Full menu (&gt;5% EV, ranked)</h3>
+            <h3>Recommended slate (one per fixture, ≥{Math.round(MIN_PLAY_EV * 100)}% EV)</h3>
+            <SpreadsheetTable
+              columns={[
+                { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
+                { key: 'selection', label: 'Selection' },
+                { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
+                { key: 'odds', label: 'Odds', render: (r) => fmtOdds(r.odds) },
+                { key: 'evPct', label: 'EV %', render: (r) => <span className="wc-positive">{fmtPct(r.evPct)}</span> },
+                { key: 'tier', label: 'Tier', render: (r) => (r.tier ? `${r.tier}u` : '—') },
+                { key: 'book', label: 'Book', hideMobile: true, render: (r) => r.book || '—' },
+              ]}
+              rows={decorrelatedPlays.map((p, i) => ({ ...p, _key: `dec-${p.fixtureId}-${i}`, _rowClass: 'wc-edge-strong' }))}
+            />
+          </div>
+
+          <div className="wc-section-block">
+            <h3>Full menu (all qualifying lines)</h3>
             <SpreadsheetTable
               columns={[
                 { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
@@ -1582,6 +1602,10 @@ const FifaWorldCupSection = () => {
               rows={slatePlays.map((p, i) => ({ ...p, _key: `${p.fixtureId}-${p.selection}-${i}`, _rowClass: 'wc-edge-strong' }))}
             />
           </div>
+
+          {decorrelatedPlays.length === 0 && slatePlays.length > 0 && (
+            <p className="wc-readme">No de-correlated plays above threshold — see full menu below.</p>
+          )}
 
           {slateClusters.length > 0 && (
             <div className="wc-section-block">
@@ -1597,21 +1621,6 @@ const FifaWorldCupSection = () => {
             </div>
           )}
 
-          {decorrelatedPlays.length > 0 && (
-            <div className="wc-section-block">
-              <h3>De-correlated angle (one per fixture)</h3>
-              <SpreadsheetTable
-                columns={[
-                  { key: 'match', label: 'Match', sticky: true, render: (r) => <SlateMatchWithFlags match={r.match} /> },
-                  { key: 'selection', label: 'Play' },
-                  { key: 'thesis', label: 'Thesis', hideMobile: true },
-                  { key: 'evPct', label: 'EV %', render: (r) => fmtPct(r.evPct) },
-                  { key: 'tier', label: 'Tier', render: (r) => (r.tier ? `${r.tier}u` : '—') },
-                ]}
-                rows={decorrelatedPlays.map((p, i) => ({ ...p, _key: `dec-${i}` }))}
-              />
-            </div>
-          )}
         </div>
       )}
 

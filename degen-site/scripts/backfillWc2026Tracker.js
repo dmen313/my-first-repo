@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Backfill WC tracker with slate plays (≥5% EV) and grade settled matches.
+ * Backfill WC tracker with de-correlated slate plays (≥10% EV) and grade settled matches.
  */
 
 require('dotenv').config();
@@ -44,7 +44,7 @@ async function loadModel() {
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run');
-  const { buildSlate } = await import('../src/utils/wc2026SlateBuilder.js');
+  const { buildSlate, pickDecorrelatedPlays } = await import('../src/utils/wc2026SlateBuilder.js');
   const { enrichBet, computeTrackerSummary } = await import('../src/utils/wc2026Tracker.js');
   const {
     findMatchResult,
@@ -55,10 +55,11 @@ async function main() {
 
   const model = await loadModel();
   const allPlays = buildSlate(model.fixtures, model.dashboard, model.parameters);
+  const decorrelated = pickDecorrelatedPlays(allPlays);
 
-  // One bet per unique selection — best EV book
+  // One bet per unique selection — best EV book (de-correlated menu only)
   const bestBySelection = {};
-  allPlays.forEach((play) => {
+  decorrelated.forEach((play) => {
     const key = playBetKey(play);
     const cur = bestBySelection[key];
     if (!cur || play.evPct > cur.evPct) bestBySelection[key] = play;
@@ -92,7 +93,7 @@ async function main() {
     toAdd.push({ play, betInput, result, key });
   }
 
-  console.log(`Slate plays (≥5% EV, deduped by selection): ${plays.length} (${allPlays.length} raw across books)`);
+  console.log(`Slate plays (de-correlated, ≥10% EV): ${plays.length} (${allPlays.length} in full menu, ${decorrelated.length} de-correlated raw)`);
   console.log(`Already in tracker: ${skipped.length}`);
   console.log(`Pending (no result yet): ${pending.length}`);
   console.log(`New graded bets to add: ${toAdd.length}`);

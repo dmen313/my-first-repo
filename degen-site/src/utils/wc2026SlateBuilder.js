@@ -1,19 +1,27 @@
 import { computeMatchup, findTeam } from './wc2026MatchupEngine.js';
 import {
   americanToDecimal,
-  evFromProbAndAmerican,
+  cappedEvFromProbAndAmerican,
   fairAmerican,
+  GAME_TOTAL_UNDER_MIN_EV,
+  MIN_PLAY_EV,
   shadowTierUnits,
 } from './wc2026Pricing.js';
 import { getMarketLines } from '../services/wcCornersOddsApi.js';
 
-const MIN_EV = 0.05;
+const MIN_EV = MIN_PLAY_EV;
 
 function sideProb(lineRow, side) {
   return String(side).toLowerCase() === 'under' ? lineRow.pUnder : lineRow.pOver;
 }
 
-function bestMarketForSide(marketLines, point, side, prob) {
+function modelMarketGap(prob, marketLine) {
+  const impl = marketLine?.impliedProb ?? null;
+  if (impl == null || prob == null) return null;
+  return prob - impl;
+}
+
+function bestMarketForSide(marketLines, point, side, prob, minEv = MIN_EV) {
   const sideLower = String(side).toLowerCase();
   const matches = (marketLines || []).filter(
     (m) => m.point === point && String(m.name).toLowerCase() === sideLower
@@ -21,20 +29,20 @@ function bestMarketForSide(marketLines, point, side, prob) {
   let best = null;
   let bestEv = -Infinity;
   matches.forEach((m) => {
-    const ev = evFromProbAndAmerican(prob, m.price);
+    const ev = cappedEvFromProbAndAmerican(prob, m);
     if (ev != null && ev > bestEv) {
       bestEv = ev;
       best = m;
     }
   });
-  if (!best || bestEv < MIN_EV) return null;
-  return { market: best, ev: bestEv };
+  if (!best || bestEv < minEv) return null;
+  return { market: best, ev: bestEv, modelMarketGap: modelMarketGap(prob, best) };
 }
 
 function pushPlay(plays, base) {
   plays.push({
     ...base,
-    tier: shadowTierUnits(base.evPct),
+    tier: shadowTierUnits(base.evPct, base.modelMarketGap),
     fairOdds: fairAmerican(base.modelPct),
   });
 }
@@ -60,6 +68,7 @@ function collectTeamTotals(matchup, fixture, teamName, modelLines, plays, matchL
         odds: hit.market.price,
         book: hit.market.bookmaker,
         evPct: hit.ev,
+        modelMarketGap: hit.modelMarketGap,
         fixtureCluster: fixture.eventId,
         thesisKey: `${teamName}-${side.toLowerCase()}`,
         thesis: side === 'Under' ? `${teamName} corners under` : `${teamName} corners over`,
@@ -73,7 +82,8 @@ function collectGameTotals(matchup, fixture, plays, matchLabel) {
   (matchup.totalOverUnder || []).forEach((row) => {
     ['Over', 'Under'].forEach((side) => {
       const prob = sideProb(row, side);
-      const hit = bestMarketForSide(marketLines, row.line, side, prob);
+      const minEv = side === 'Under' ? GAME_TOTAL_UNDER_MIN_EV : MIN_EV;
+      const hit = bestMarketForSide(marketLines, row.line, side, prob, minEv);
       if (!hit) return;
       const tag = side === 'Under' ? 'u' : 'o';
       pushPlay(plays, {
@@ -89,6 +99,7 @@ function collectGameTotals(matchup, fixture, plays, matchLabel) {
         odds: hit.market.price,
         book: hit.market.bookmaker,
         evPct: hit.ev,
+        modelMarketGap: hit.modelMarketGap,
         fixtureCluster: fixture.eventId,
         thesisKey: `total-${side.toLowerCase()}`,
         thesis: `Game total ${side.toLowerCase()}`,
@@ -122,6 +133,7 @@ function collectHandicaps(matchup, fixture, plays, matchLabel) {
         odds: hitA.market.price,
         book: hitA.market.bookmaker,
         evPct: hitA.ev,
+        modelMarketGap: hitA.modelMarketGap,
         fixtureCluster: fixture.eventId,
         thesisKey: `handicap-${matchup.teamA}`,
         thesis: `${matchup.teamA} handicap`,
@@ -151,6 +163,7 @@ function collectHandicaps(matchup, fixture, plays, matchLabel) {
         odds: hitB.market.price,
         book: hitB.market.bookmaker,
         evPct: hitB.ev,
+        modelMarketGap: hitB.modelMarketGap,
         fixtureCluster: fixture.eventId,
         thesisKey: `handicap-${matchup.teamB}`,
         thesis: `${matchup.teamB} handicap`,
@@ -171,7 +184,7 @@ export function buildSlate(fixtures = [], dashboard = [], parameters = {}, minEv
     const hasLines = (fixture.markets || []).some((m) => (m.lines || []).length > 0);
     if (!hasLines) return;
 
-    const matchup = computeMatchup(home, away, parameters);
+    const matchup = computeMatchup(home, away, parameters, 1, 1, { fixture });
     const matchLabel = `${fixture.homeTeam}/${fixture.awayTeam}`;
 
     collectTeamTotals(matchup, fixture, fixture.homeTeam, matchup.teamAOverUnder, plays, matchLabel);
@@ -221,7 +234,8 @@ function fmtOdds(n) {
 
 /** Message 1: clean plays for posting. */
 export function formatPlaysMessage(plays = []) {
-  if (!plays.length) return 'No plays above 5% EV in current slate.';
+  const pct = Math.round(MIN_EV * 100);
+  if (!plays.length) return `No plays above ${pct}% EV in current slate.`;
   return plays
     .map((p, i) => {
       const tier = p.tier ? `${p.tier}u` : '—';

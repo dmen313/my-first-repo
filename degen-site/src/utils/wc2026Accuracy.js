@@ -1,4 +1,4 @@
-/** Accuracy log stats and over-projection bias signal (handoff §6). */
+/** Accuracy log stats and projection bias signals (handoff §6). */
 
 export function computeAccuracySummary(log = []) {
   const rows = (log || []).filter((r) => r.actTotal != null && r.projTotal != null);
@@ -46,13 +46,53 @@ export function getOverProjectionBanner(summary) {
   const level = strongSignal ? 'strong' : 'moderate';
 
   return {
+    kind: 'over',
     level,
     count: n,
     meanBias,
     underRate,
     underCount: summary.underCount,
     message: strongSignal
-      ? `Over-projection signal (${n} graded WC games): mean bias ${meanBias > 0 ? '+' : ''}${meanBias.toFixed(2)} corners — ${summary.underCount}/${n} (${underPct}%) landed under the model. Trust unders more than the model’s over-flags; revisit calibration at n≈8–10.`
+      ? `Over-projection signal (${n} graded WC games): mean bias ${meanBias > 0 ? '+' : ''}${meanBias.toFixed(2)} corners — ${summary.underCount}/${n} (${underPct}%) landed under the model. Trust unders more than the model's over-flags; revisit calibration at n≈8–10.`
       : `Early over-projection read (${n} games): bias ${meanBias > 0 ? '+' : ''}${meanBias.toFixed(2)}, ${underPct}% under the model. Signal strengthens at n≥8.`,
   };
+}
+
+/**
+ * Under-projection read: model systematically low when meanBias < 0 and few games land under.
+ */
+export function getUnderProjectionBanner(summary) {
+  const n = summary?.count || 0;
+  if (n < 4) return null;
+
+  const meanBias = Number(summary.meanBias);
+  const underRate = Number(summary.underRate);
+  if (!Number.isFinite(meanBias) || !Number.isFinite(underRate)) return null;
+
+  const overCount = n - (summary.underCount || 0);
+  const overRate = overCount / n;
+  const strongSignal = n >= 6 && meanBias < -1 && underRate <= 1 / 6;
+  const moderateSignal = meanBias < -0.5 && underRate < 0.4;
+
+  if (!moderateSignal && !strongSignal) return null;
+
+  const overPct = Math.round(overRate * 100);
+  const level = strongSignal ? 'strong' : 'moderate';
+
+  return {
+    kind: 'under',
+    level,
+    count: n,
+    meanBias,
+    underRate,
+    underCount: summary.underCount,
+    message: strongSignal
+      ? `Under-projection signal (${n} graded WC games): mean bias ${meanBias.toFixed(2)} corners — ${overCount}/${n} (${overPct}%) landed over the model. Be cautious on game-total unders; knockout λ bump may apply.`
+      : `Early under-projection read (${n} games): bias ${meanBias.toFixed(2)}, ${overPct}% over the model. Totals may be running hot vs projections.`,
+  };
+}
+
+/** Returns over- or under-projection banner, whichever is active (over takes precedence). */
+export function getProjectionBiasBanner(summary) {
+  return getOverProjectionBanner(summary) || getUnderProjectionBanner(summary);
 }

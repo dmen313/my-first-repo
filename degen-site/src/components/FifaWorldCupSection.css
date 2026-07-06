@@ -592,6 +592,12 @@
   color: #fecaca;
 }
 
+.wc-banner-bias-under {
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(59, 130, 246, 0.1);
+  color: #bfdbfe;
+}
+
 .wc-bet-form {
   margin-bottom: 20px;
   padding: 14px;
