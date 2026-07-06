@@ -213,6 +213,32 @@
   box-shadow: inset 2px 0 0 var(--wc-positive);
 }
 
+.wc-table tbody tr.wc-market-fixture-past td {
+  color: #52525b;
+  opacity: 0.55;
+}
+
+.wc-table tbody tr.wc-market-fixture-past td.wc-sticky-left {
+  background: #141416;
+}
+
+.wc-table tbody tr.wc-market-fixture-past:hover td {
+  opacity: 0.7;
+}
+
+.wc-table tbody tr.wc-market-fixture-past.wc-row-selected td {
+  background: rgba(82, 82, 91, 0.12);
+  box-shadow: none;
+}
+
+.wc-table tbody tr.wc-market-fixture-past.wc-row-selected {
+  box-shadow: inset 2px 0 0 #52525b;
+}
+
+.wc-market-detail-past {
+  opacity: 0.65;
+}
+
 .wc-team-name {
   font-weight: 600;
   color: #f4f4f5;

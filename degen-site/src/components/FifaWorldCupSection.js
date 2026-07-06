@@ -264,6 +264,29 @@ function formatFixtureKickoff(commenceTime) {
   });
 }
 
+const PACIFIC_TZ = 'America/Los_Angeles';
+
+function pacificDateKey(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: PACIFIC_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const y = parts.find((p) => p.type === 'year')?.value;
+  const m = parts.find((p) => p.type === 'month')?.value;
+  const d = parts.find((p) => p.type === 'day')?.value;
+  return y && m && d ? `${y}${m}${d}` : '';
+}
+
+/** True when kickoff was on a calendar day before today (Pacific). */
+function isFixturePriorDay(commenceTime) {
+  if (!commenceTime) return false;
+  const kickoffKey = pacificDateKey(new Date(commenceTime));
+  const todayKey = pacificDateKey(new Date());
+  return kickoffKey && todayKey && kickoffKey < todayKey;
+}
+
 const MIN_PLAY_EV = 0.05;
 
 function analyzeMarketSide(prob, marketLine) {
@@ -704,7 +727,7 @@ const FifaWorldCupSection = () => {
   const [paramEdits, setParamEdits] = useState({});
   const [paramSaving, setParamSaving] = useState(false);
   const [paramMessage, setParamMessage] = useState(null);
-  const [auditOpen, setAuditOpen] = useState(true);
+  const [auditOpen, setAuditOpen] = useState(false);
 
   const [tab, setTab] = useState('dashboard');
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -1453,7 +1476,11 @@ const FifaWorldCupSection = () => {
                 render: (r) => getMarketLines(r, 'alternate_team_totals_corners').length,
               },
             ]}
-            rows={fixtures.map((f) => ({ ...f, _key: f.eventId }))}
+            rows={fixtures.map((f) => ({
+              ...f,
+              _key: f.eventId,
+              _rowClass: isFixturePriorDay(f.commenceTime) ? 'wc-market-fixture-past' : '',
+            }))}
             selectedKey={selectedFixtureId}
             onRowClick={(row) => {
               setSelectedFixtureId(row.eventId);
@@ -1467,7 +1494,7 @@ const FifaWorldCupSection = () => {
           )}
 
           {selectedFixtureId && marketsFixture && tab === 'markets' && (
-            <div className="wc-market-detail">
+            <div className={`wc-market-detail${isFixturePriorDay(marketsFixture.commenceTime) ? ' wc-market-detail-past' : ''}`}>
               <div className="wc-market-detail-header">
                 <div>
                   <h2 className="wc-market-detail-title">
