@@ -1,11 +1,11 @@
-import { computeMatchup, findTeam } from './wc2026MatchupEngine';
+import { computeMatchup, findTeam } from './wc2026MatchupEngine.js';
 import {
   americanToDecimal,
   evFromProbAndAmerican,
   fairAmerican,
   shadowTierUnits,
-} from './wc2026Pricing';
-import { getMarketLines } from '../services/wcCornersOddsApi';
+} from './wc2026Pricing.js';
+import { getMarketLines } from '../services/wcCornersOddsApi.js';
 
 const MIN_EV = 0.05;
 

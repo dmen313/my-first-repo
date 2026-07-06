@@ -104,7 +104,8 @@
     "update-wc-corners-elo": "node scripts/updateWc2026Elo.js",
     "update-wc-corners-stats": "node scripts/updateWc2026CornerStats.js",
     "recalc-wc-corners": "node scripts/recalcWc2026Model.js",
-    "update-wc-corners-cron": "bash scripts/updateWc2026.sh"
+    "update-wc-corners-cron": "bash scripts/updateWc2026.sh",
+    "backfill-wc-tracker": "node scripts/backfillWc2026Tracker.js"
   },
   "eslintConfig": {
     "extends": [

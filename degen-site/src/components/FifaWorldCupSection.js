@@ -1688,6 +1688,7 @@ const FifaWorldCupSection = () => {
               { key: 'date', label: 'Date', sticky: true },
               { key: 'match', label: 'Match', render: (r) => <SlateMatchWithFlags match={r.match} /> },
               { key: 'selection', label: 'Selection', hideMobile: true },
+              { key: 'book', label: 'Book', hideMobile: true, render: (r) => r.book || '—' },
               { key: 'modelPct', label: 'Model %', render: (r) => fmtPct(r.modelPct) },
               { key: 'oddsTaken', label: 'Odds', render: (r) => fmtOdds(r.oddsTaken) },
               { key: 'close', label: 'Close', hideMobile: true, render: (r) => (r.close != null ? fmtOdds(r.close) : '—') },
