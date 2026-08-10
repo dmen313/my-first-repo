@@ -121,10 +121,18 @@ async function apiGet(path, params = {}, attempt = 1) {
       requestCount -= 1;
       return apiGet(path, params, attempt + 1);
     }
-    throw new Error(`API-Football ${path}: ${apiError || data.message || `HTTP ${response.status}`}`);
+    const err = new Error(`API-Football ${path}: ${apiError || data.message || `HTTP ${response.status}`}`);
+    if (isApiPlanRestriction(apiError || data.message)) err.code = 'API_PLAN_RESTRICTION';
+    throw err;
   }
 
   return data;
+}
+
+/** Free / restricted API-Football keys cannot read WC 2026 (season beyond plan window). */
+function isApiPlanRestriction(message) {
+  return /free plans do not have access to this season|upgrade your plan|not available with your plan|plan restriction/i
+    .test(String(message || ''));
 }
 
 function formatApiErrors(errors) {
@@ -279,13 +287,16 @@ function buildEloLookup(teamItems, eloRatingsItem) {
   return byName;
 }
 
+// Finished statuses: regulation (FT), after extra time (AET), penalties (PEN).
+// Knockout games often end AET/PEN, so filtering to FT alone drops them.
+const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN']);
+
 async function fetchFinishedFixtures() {
   const data = await apiGet('/fixtures', {
     league: WC_LEAGUE_ID,
     season: WC_SEASON,
-    status: 'FT',
   });
-  return data.response || [];
+  return (data.response || []).filter((f) => FINISHED_STATUSES.has(f.fixture?.status?.short));
 }
 
 async function fetchFixtureCorners(fixtureId) {
@@ -528,5 +539,11 @@ async function main() {
 
 main().catch((err) => {
   console.error('❌', err.message);
+  // Soft-exit so scheduled data jobs can still refresh odds/tracker when the
+  // API key's plan cannot read season 2026 ("try from 2022 to 2024").
+  if (err?.code === 'API_PLAN_RESTRICTION' || isApiPlanRestriction(err?.message)) {
+    console.warn('⚠️  Skipping corner-stats import (API plan/season restriction). Existing DynamoDB corner data left unchanged.');
+    process.exit(0);
+  }
   process.exit(1);
 });
